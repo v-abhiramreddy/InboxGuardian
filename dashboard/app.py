@@ -348,6 +348,12 @@ html, body, [class*="css"] {
     color: #64748b;
     cursor: pointer;
     padding-bottom: 8px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+.detail-tab:hover {
+    color: #cbd5e1;
+    text-decoration: none;
 }
 .detail-tab.active {
     color: #38bdf8;
@@ -806,69 +812,79 @@ def _extract_display_name(sender: str) -> str:
     return sender.split('@')[0]
 
 
-def _generate_checklist_html(row: dict) -> str:
+def _generate_checklist_html(row: dict, filter_type: str = "all") -> str:
     explanation = str(row.get("explanation", "")).lower()
     
-    checks = [
+    all_checks = [
         {
             "id": "domain_mismatch",
             "label": "Sender domain matches display name",
             "trigger": "mismatch" in explanation,
-            "severity": "critical"
+            "severity": "critical",
+            "category": "phishing"
         },
         {
             "id": "dkim_spf",
             "label": "DKIM / SPF / DMARC authentication check",
             "trigger": "failed authentication" in explanation or "auth" in explanation,
-            "severity": "critical"
+            "severity": "critical",
+            "category": "phishing"
         },
         {
             "id": "lookalike",
             "label": "Lookalike domain analysis (typosquatting)",
             "trigger": "lookalike" in explanation,
-            "severity": "high"
+            "severity": "high",
+            "category": "phishing"
         },
         {
             "id": "urgency",
             "label": "Urgent language detection",
             "trigger": "urgency" in explanation or "deadline" in explanation,
-            "severity": "high"
+            "severity": "high",
+            "category": "scam"
         },
         {
             "id": "credential",
             "label": "Credential harvesting or payment requests",
             "trigger": "credentials or payment" in explanation or "training fee" in explanation or "deposit" in explanation or "registration fee" in explanation,
-            "severity": "critical"
+            "severity": "critical",
+            "category": "scam"
         },
         {
             "id": "scam_offer",
             "label": "Unsolicited or too-good-to-be-true offer check",
             "trigger": "too-good-to-be-true" in explanation or "offer" in explanation or "grant" in explanation or "payment" in explanation,
-            "severity": "high"
+            "severity": "high",
+            "category": "scam"
         },
         {
             "id": "unexpected_attachments",
             "label": "Unexpected attachment files check",
             "trigger": "attachments" in explanation or "attached" in explanation,
-            "severity": "high"
+            "severity": "high",
+            "category": "scam"
         },
         {
             "id": "macros",
             "label": "Obfuscated script or macro check",
             "trigger": "macros" in explanation or "extensions" in explanation or "exe" in explanation or "zip" in explanation,
-            "severity": "critical"
+            "severity": "critical",
+            "category": "scam"
         }
     ]
+    
+    checks = [c for c in all_checks if filter_type == "all" or c["category"] == filter_type]
     
     html = ""
     for c in checks:
         if c["trigger"]:
-            icon = f'<span class="signal-icon-fail">{chr(0x274c)}</span>' # Red X emoji ❌
+            icon = f'<span class="signal-icon-fail">{chr(0x274c)}</span>'
             badge_class = f"signal-badge {c['severity']}"
             badge_text = c["severity"]
             label_class = "signal-label"
         else:
-            icon = f'<span class="signal-icon-pass">{chr(0x2705)}</span>' # Green check ✅
+            icon = f'<span class="signal-icon-pass">{chr(0x2705)}</span>'
             badge_class = "signal-badge passed"
             badge_text = "passed"
             label_class = "signal-label pass"
@@ -880,6 +896,67 @@ def _generate_checklist_html(row: dict) -> str:
 <span class="{label_class}">{c['label']}</span>
 </div>
 <span class="{badge_class}">{badge_text}</span>
+</div>
+"""
+    return html
+
+
+def _generate_link_analysis_html(row: dict) -> str:
+    links = row.get("links", [])
+    if isinstance(links, str):
+        try:
+            import json
+            links = json.loads(links)
+        except Exception:
+            links = []
+            
+    if not links:
+        return """
+<div style="text-align:center; padding:20px; color:#64748b; font-size:13.5px;">
+    No links detected in this email body.
+</div>
+"""
+    
+    from agents.scoring_agent import LEGITIMATE_DOMAINS, is_subdomain_of
+    
+    html = ""
+    for link in links:
+        clean_url = str(link).strip().lower()
+        if "://" in clean_url:
+            parsed = urlparse(clean_url)
+            domain = parsed.netloc
+        else:
+            domain = clean_url.split('/')[0]
+            
+        detected_brand = None
+        lookalike_found = False
+        for brand, legit in LEGITIMATE_DOMAINS.items():
+            if brand in domain and not is_subdomain_of(domain, legit):
+                detected_brand = brand
+                lookalike_found = True
+                break
+                
+        if lookalike_found:
+            icon = f'<span class="signal-icon-fail">{chr(0x274c)}</span>'
+            status_text = "LOOKALIKE"
+            status_class = "signal-badge critical"
+            desc_text = f"Impacting Target: {detected_brand.upper()} ({LEGITIMATE_DOMAINS[detected_brand]})"
+        else:
+            icon = f'<span class="signal-icon-pass">{chr(0x2705)}</span>'
+            status_text = "PASSED"
+            status_class = "signal-badge passed"
+            desc_text = "No typo-squatting or lookalike markers."
+            
+        html += f"""
+<div class="signal-item" style="flex-direction:column; align-items:flex-start; gap:6px; padding:12px 16px;">
+<div style="display:flex; justify-content:space-between; width:100%; align-items:center;">
+<div style="display:flex; align-items:center; gap:8px;">
+{icon}
+<span style="font-family:monospace; font-size:12.5px; color:#cbd5e1;">{domain}</span>
+</div>
+<span class="{status_class}">{status_text}</span>
+</div>
+<div style="font-size:11px; color:#64748b; margin-left:22px;">{desc_text}</div>
 </div>
 """
     return html
@@ -1576,6 +1653,26 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 cat = row["category"]
                 cat_pill = f'<span class="badge badge-{cat}" style="font-size:10px; border-radius:4px;">{cat.upper()}</span>'
                 
+                # Tab navigation routing
+                inspect_tab = st.query_params.get("inspect_tab", "Phishing")
+                demo_str = "&demo=1" if is_demo else ""
+                phish_url = f"?tab=Analysis&inspect_tab=Phishing{demo_str}"
+                link_url = f"?tab=Analysis&inspect_tab=Link{demo_str}"
+                scam_url = f"?tab=Analysis&inspect_tab=Scam{demo_str}"
+                
+                phish_active = "active" if inspect_tab == "Phishing" else ""
+                link_active = "active" if inspect_tab == "Link" else ""
+                scam_active = "active" if inspect_tab == "Scam" else ""
+                
+                if inspect_tab == "Phishing":
+                    tab_content = _generate_checklist_html(row, filter_type="phishing")
+                elif inspect_tab == "Scam":
+                    tab_content = _generate_checklist_html(row, filter_type="scam")
+                elif inspect_tab == "Link":
+                    tab_content = _generate_link_analysis_html(row)
+                else:
+                    tab_content = _generate_checklist_html(row, filter_type="phishing")
+                
                 llm_analysis_html = ""
                 if "llm_explanation" in row and pd.notna(row["llm_explanation"]) and row["llm_explanation"]:
                     llm_analysis_html = (
@@ -1600,9 +1697,9 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 </div>
 
 <div class="detail-tabs">
-<span class="detail-tab active">Phishing Signals</span>
-<span class="detail-tab">Link Analysis</span>
-<span class="detail-tab">Scam Signals</span>
+<a href="{phish_url}" target="_self" class="detail-tab {phish_active}">Phishing Signals</a>
+<a href="{link_url}" target="_self" class="detail-tab {link_active}">Link Analysis</a>
+<a href="{scam_url}" target="_self" class="detail-tab {scam_active}">Scam Signals</a>
 </div>
 
 <div class="metadata-grid">
@@ -1629,7 +1726,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 </div>
 
 <div class="signals-list">
-{_generate_checklist_html(row)}
+{tab_content}
 </div>
 
 {llm_analysis_html}
