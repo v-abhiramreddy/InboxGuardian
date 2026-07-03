@@ -161,10 +161,10 @@ def score_email(email: dict) -> dict:
                 break
 
     # Signal B: Domain Mismatch (Claimed Org vs Actual Domain)
-    # If body or subject claims a brand, but the sender domain does not match
+    # If the subject claims a brand, but the sender domain does not match
     for brand, legit in LEGITIMATE_DOMAINS.items():
-        # Check if the brand is mentioned in subject or body
-        if re.search(r'\b' + re.escape(brand) + r'\b', (subject + " " + body_text).lower()):
+        # Check if the brand is mentioned in the subject line (stronger claim of sender identity)
+        if re.search(r'\b' + re.escape(brand) + r'\b', subject.lower()):
             if not is_subdomain_of(sender_domain, legit):
                 signals_sender.append("Domain Mismatch (Claimed Org vs. Actual Domain)")
                 break
@@ -184,17 +184,19 @@ def score_email(email: dict) -> dict:
     body_mentions_brand_domain = False
     for brand, legit in LEGITIMATE_DOMAINS.items():
         if legit in body_text.lower():
-            # If the legitimate domain is mentioned in the text body, check if links point elsewhere
-            for link in links:
-                try:
-                    parsed = urlparse(link)
-                    link_domain = clean_domain(parsed.netloc or parsed.path.split("/")[0])
-                    if not is_subdomain_of(link_domain, legit):
-                        signals_links.append("Display Text vs. URL Destination Mismatch")
-                        body_mentions_brand_domain = True
-                        break
-                except Exception:
-                    pass
+            # Only trigger if the email contains links, but does NOT link to the claimed brand domain at all
+            has_legit_link = any(is_subdomain_of(clean_domain(urlparse(link).netloc or urlparse(link).path.split("/")[0]), legit) for link in links)
+            if not has_legit_link:
+                for link in links:
+                    try:
+                        parsed = urlparse(link)
+                        link_domain = clean_domain(parsed.netloc or parsed.path.split("/")[0])
+                        if not is_subdomain_of(link_domain, legit):
+                            signals_links.append("Display Text vs. URL Destination Mismatch")
+                            body_mentions_brand_domain = True
+                            break
+                    except Exception:
+                        pass
             if body_mentions_brand_domain:
                 break
 
