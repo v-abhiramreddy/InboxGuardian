@@ -4,8 +4,8 @@ run_adk_pipeline.py
 Runs the email safety analysis pipeline using the official Google Agent
 Development Kit (ADK) framework.
 
-It defines a two-step sequential workflow using ADK BaseAgent subclasses:
-  FetchEmailsAgent  →  ScoreEmailsAgent
+It defines a four-step sequential workflow using ADK BaseAgent subclasses:
+  FetchEmailsAgent → ScoreEmailsAgent → LlmAnalysisAgent → SafetyReporterAgent
 
 State is shared across agents via the ADK InvocationContext session state.
 The workflow is orchestrated by a SequentialAgent and run via the ADK Runner.
@@ -43,6 +43,9 @@ import google.genai.types as genai_types
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent
 RESULTS_PATH = PROJECT_ROOT / "results.json"
+
+# Import the LLM analysis module
+from agents.llm_analysis_agent import analyze_batch
 
 
 # ---------------------------------------------------------------------------
@@ -213,12 +216,58 @@ class SafetyReporterAgent(BaseAgent):
                 for email in results:
                     sender = email.get("sender", "Unknown").replace("<", "&lt;").replace(">", "&gt;")
                     f.write(f"| `{email.get('email_id')}` | `{sender}` | \"{email.get('subject')}\" | **{email.get('score')}** | `{email.get('category').upper()}` |\n")
-                    
+
+                # LLM Threat Analysis section (if any explanations exist)
+                llm_entries = [e for e in results if e.get("llm_explanation")]
+                if llm_entries:
+                    f.write("\n## 🤖 AI Threat Analysis (Gemini)\n\n")
+                    for email in llm_entries:
+                        subject = email.get("subject", "Untitled")
+                        f.write(f"### ⚠️ {subject}\n")
+                        f.write(f"**Score**: {email.get('score')}/100 | **Category**: {email.get('category').upper()}\n\n")
+                        f.write(f"> {email.get('llm_explanation')}\n\n")
+
             print(f"      [OK] Safety report saved to safety_report.md.")
             ctx.session.state["report_saved"] = True
         except Exception as exc:
             print(f"      [ERROR] Could not save safety_report.md: {exc}")
             ctx.session.state["report_saved"] = False
+
+        yield Event(
+            author=self.name,
+            content=genai_types.Content(parts=[], role="model"),
+        )
+
+
+# ---------------------------------------------------------------------------
+# ADK Agent 4: LLM-Powered Threat Analysis (Gemini)
+# ---------------------------------------------------------------------------
+
+class LlmAnalysisAgent(BaseAgent):
+    """
+    ADK Agent node: Enrich suspicious emails with Gemini LLM explanations.
+
+    Only emails scoring >= 25 are sent to the LLM to conserve API quota.
+    If no GOOGLE_API_KEY / GEMINI_API_KEY is set, this stage is skipped
+    gracefully and the rule-based explanations are preserved.
+
+    Security: Email body content is passed as delimited DATA, not as
+    instructions, to mitigate prompt injection attacks.
+    """
+
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        emails = ctx.session.state.get("emails", [])
+        results = ctx.session.state.get("results", [])
+
+        print("\n[ADK] LlmAnalysisAgent: Running Gemini-powered threat analysis...")
+
+        if not results:
+            print("      [INFO] No results to analyze.")
+        else:
+            results = analyze_batch(emails, results, score_threshold=25)
+            ctx.session.state["results"] = results
 
         yield Event(
             author=self.name,
@@ -234,10 +283,11 @@ class SafetyReporterAgent(BaseAgent):
 
 email_safety_workflow = SequentialAgent(
     name="email_safety_workflow",
-    description="Fetches and scores emails for phishing risk using Google ADK",
+    description="Fetches, scores, and analyzes emails for phishing risk using Google ADK",
     sub_agents=[
         FetchEmailsAgent(name="fetch_emails_agent"),
         ScoreEmailsAgent(name="score_emails_agent"),
+        LlmAnalysisAgent(name="llm_analysis_agent"),
         SafetyReporterAgent(name="safety_reporter_agent"),
     ],
 )
