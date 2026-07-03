@@ -518,6 +518,30 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 
     st.markdown("---")
 
+    # ── Analytics Section ──────────────────────────────────────────────────
+    with st.expander("📊 View Inbox Analytics & Risk Trends", expanded=False):
+        chart_col1, chart_col2 = st.columns(2)
+        with chart_col1:
+            st.markdown("<p style='font-size:14px; font-weight:600; color:#94a3b8;'>Risk Category Distribution</p>", unsafe_allow_html=True)
+            if not filtered.empty:
+                # Count the occurrences of each category and present as a bar chart
+                cat_counts = filtered["category"].value_counts().reindex(["safe", "spam", "scam", "phishing"], fill_value=0)
+                st.bar_chart(cat_counts, color="#8b5cf6")
+            else:
+                st.info("No data available to plot.")
+            
+        with chart_col2:
+            st.markdown("<p style='font-size:14px; font-weight:600; color:#94a3b8;'>Risk Score Spectrum</p>", unsafe_allow_html=True)
+            if not filtered.empty:
+                # Group scores into standard risk bands as a bar chart
+                score_bins = pd.cut(filtered["score"], bins=[-1, 20, 50, 80, 100], labels=["0-20 (Safe)", "21-50 (Low/Spam)", "51-80 (Likely Phish)", "81-100 (High Phish)"])
+                score_counts = score_bins.value_counts().sort_index()
+                st.bar_chart(score_counts, color="#f87171")
+            else:
+                st.info("No data available to plot.")
+
+    st.markdown("---")
+
     # ── Results count ──────────────────────────────────────────────────────
     extra = "  ·  filtered" if len(filtered) < total else ""
     st.markdown(
