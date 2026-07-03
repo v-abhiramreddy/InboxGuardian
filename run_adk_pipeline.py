@@ -166,6 +166,67 @@ class ScoreEmailsAgent(BaseAgent):
 
 
 # ---------------------------------------------------------------------------
+# ADK Agent 3: Generate Safety Report
+# ---------------------------------------------------------------------------
+
+class SafetyReporterAgent(BaseAgent):
+    """
+    ADK Agent node: Generate a clean, readable safety report.
+    Reads "results" from session state and writes safety_report.md.
+    """
+
+    async def _run_async_impl(
+        self, ctx: InvocationContext
+    ) -> AsyncGenerator[Event, None]:
+        results = ctx.session.state.get("results", [])
+        counts = ctx.session.state.get("category_counts", {})
+        
+        report_path = PROJECT_ROOT / "safety_report.md"
+        print("\n[ADK] SafetyReporterAgent: Generating final safety report...")
+        
+        try:
+            with open(report_path, "w", encoding="utf-8") as f:
+                f.write("# 🛡️ Inbox Guardian Safety Report\n\n")
+                f.write(f"Generated automatically by Google ADK Pipeline.\n\n")
+                
+                # Summary table
+                f.write("## 📊 Summary Metrics\n")
+                f.write(f"- **Total Emails Scanned**: {len(results)}\n")
+                f.write(f"- **Safe**: {counts.get('safe', 0)}\n")
+                f.write(f"- **Spam**: {counts.get('spam', 0)}\n")
+                f.write(f"- **Scam**: {counts.get('scam', 0)}\n")
+                f.write(f"- **Phishing**: {counts.get('phishing', 0)}\n\n")
+                
+                # Status overview
+                n_threats = counts.get('phishing', 0) + counts.get('scam', 0)
+                if n_threats > 0:
+                    f.write(f"> [!WARNING]\n")
+                    f.write(f"> **Action Required**: {n_threats} active threat(s) detected in your inbox! Check details below.\n\n")
+                else:
+                    f.write(f"> [!NOTE]\n")
+                    f.write(f"> **Inbox Clean**: No active phishing or scam threats detected in this scan.\n\n")
+                
+                # Detailed list
+                f.write("## 🔍 Scanned Emails Details\n")
+                f.write("| ID | Sender | Subject | Score | Category |\n")
+                f.write("| :--- | :--- | :--- | :---: | :---: |\n")
+                for email in results:
+                    sender = email.get("sender", "Unknown").replace("<", "&lt;").replace(">", "&gt;")
+                    f.write(f"| `{email.get('email_id')}` | `{sender}` | \"{email.get('subject')}\" | **{email.get('score')}** | `{email.get('category').upper()}` |\n")
+                    
+            print(f"      [OK] Safety report saved to safety_report.md.")
+            ctx.session.state["report_saved"] = True
+        except Exception as exc:
+            print(f"      [ERROR] Could not save safety_report.md: {exc}")
+            ctx.session.state["report_saved"] = False
+
+        yield Event(
+            author=self.name,
+            content=genai_types.Content(parts=[], role="model"),
+        )
+
+
+# ---------------------------------------------------------------------------
 # ADK Sequential Workflow definition
 # FIX Bug 1: Use SequentialAgent (the correct ADK composition primitive)
 # instead of the non-existent Workflow class with graph edges.
@@ -177,6 +238,7 @@ email_safety_workflow = SequentialAgent(
     sub_agents=[
         FetchEmailsAgent(name="fetch_emails_agent"),
         ScoreEmailsAgent(name="score_emails_agent"),
+        SafetyReporterAgent(name="safety_reporter_agent"),
     ],
 )
 
@@ -208,7 +270,9 @@ async def main():
     async for _event in runner.run_async(
         user_id="user",
         session_id=session.id,
-        new_message=genai_types.Content(parts=[], role="user"),
+        new_message=genai_types.Content(
+            parts=[genai_types.Part(text="start")], role="user"
+        ),
     ):
         pass  # events are handled inside each agent node
 
