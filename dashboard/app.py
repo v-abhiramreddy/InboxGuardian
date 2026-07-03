@@ -68,118 +68,354 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Force dark theme layout for the entire app */
+[data-testid="stAppViewContainer"] {
+    background-color: #080f1a !important;
+    background-image: radial-gradient(at 0% 0%, rgba(14, 165, 233, 0.05) 0, transparent 50%),
+                      radial-gradient(at 50% 0%, rgba(99, 102, 241, 0.03) 0, transparent 50%) !important;
+    color: #e2e8f0 !important;
+}
+[data-testid="stHeader"] {
+    background-color: transparent !important;
+}
+[data-testid="stSidebar"] {
+    background-color: #050a14 !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
 html, body, [class*="css"] { 
     font-family: 'Inter', sans-serif; 
 }
 
-/* -- Sign-in page -- */
-.signin-wrapper {
+/* -- Sidebar Custom elements -- */
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    margin-bottom: 24px;
+}
+.sidebar-logo-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: #38bdf8;
+    letter-spacing: 0.5px;
+}
+.sidebar-nav {
     display: flex;
     flex-direction: column;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 13.5px;
+    color: #94a3b8;
+}
+.nav-item.active {
+    background: rgba(14, 165, 233, 0.12);
+    color: #38bdf8;
+    font-weight: 600;
+    border-left: 3px solid #38bdf8;
+    border-radius: 0 8px 8px 0;
+}
+.sidebar-profile {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin-top: 40px;
+}
+.profile-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #0d9488;
+    color: #fff;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 80px 20px 40px;
-    text-align: center;
-}
-.signin-logo {
-    font-size: 64px;
-    margin-bottom: 16px;
-    animation: pulse 2.4s ease-in-out infinite;
-}
-@keyframes pulse {
-    0%, 100% { transform: scale(1);    opacity: 1;    }
-    50%       { transform: scale(1.06); opacity: 0.85; }
-}
-.signin-title {
-    font-size: 42px;
     font-weight: 700;
-    background: linear-gradient(135deg, #a78bfa 0%, #60a5fa 50%, #34d399 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 10px;
+    font-size: 13px;
 }
-.signin-desc {
-    font-size: 17px;
-    color: #94a3b8;
-    margin-bottom: 36px;
-    max-width: 440px;
+.profile-info {
+    flex-grow: 1;
 }
-.google-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    background: #fff;
-    color: #1a1a2e;
-    border: none;
-    border-radius: 10px;
-    padding: 13px 28px;
-    font-size: 16px;
+.profile-name {
+    font-size: 12.5px;
     font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    transition: box-shadow 0.2s ease, transform 0.15s ease;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+    color: #e2e8f0;
 }
-.google-btn:hover {
-    box-shadow: 0 6px 24px rgba(167,139,250,0.35);
-    transform: translateY(-2px);
+.profile-role {
+    font-size: 11px;
+    color: #64748b;
 }
-.demo-link {
-    margin-top: 24px;
-    font-size: 13px;
-    color: #94a3b8;
-}
-.demo-link a { color: #a78bfa; text-decoration: underline; }
 
-/* -- Demo banner -- */
-.demo-banner {
-    background: linear-gradient(90deg, rgba(245,158,11,0.15) 0%, rgba(245,158,11,0.05) 100%);
-    border: 1px solid rgba(245,158,11,0.35);
-    border-radius: 10px;
-    padding: 10px 18px;
-    margin-bottom: 18px;
-    font-size: 13px;
-    color: #fbbf24;
+/* -- Metric Card overrides -- */
+.metric-card {
+    background: #0a1424 !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-radius: 12px !important;
+    padding: 18px 20px !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 110px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+.metric-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+.metric-icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    font-size: 16px;
+}
+.metric-change {
+    font-size: 11px;
+    font-weight: 600;
+}
+.metric-body {
+    margin-top: 10px;
+    text-align: left;
+}
+.metric-value {
+    font-size: 26px !important;
+    font-weight: 700 !important;
+    line-height: 1 !important;
+}
+.metric-label {
+    font-size: 11px !important;
+    color: #64748b !important;
+    margin-top: 6px !important;
+    text-transform: none !important;
+    letter-spacing: 0px !important;
 }
 
-/* -- Glassmorphic card -- */
-.email-card {
-    background: rgba(128, 128, 128, 0.05);
-    border: 1px solid rgba(128, 128, 128, 0.15);
+/* -- Email card (Master list) -- */
+.master-card {
+    background: rgba(10, 20, 36, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 10px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.master-card:hover {
+    background: rgba(10, 20, 36, 0.9);
+    border-color: rgba(56, 189, 248, 0.3);
+}
+.master-card.active {
+    background: #0a1424;
+    border-color: #38bdf8;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.15);
+}
+.master-subject {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #e2e8f0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.master-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 11px;
+    color: #64748b;
+    margin-top: 6px;
+}
+
+/* -- Detailed Analysis Card -- */
+.detail-card {
+    background: #0a1424;
+    border: 1px solid rgba(255, 255, 255, 0.04);
     border-radius: 14px;
-    padding: 20px 24px;
-    margin-bottom: 14px;
-    backdrop-filter: blur(10px);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.25);
 }
-.email-card:hover {
-    border-color: rgba(128, 128, 128, 0.25);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding-bottom: 16px;
+    margin-bottom: 16px;
 }
-.card-subject {
+.detail-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.detail-title-text {
     font-size: 15px;
     font-weight: 600;
-    color: var(--text-color);
-    margin-bottom: 3px;
-    line-height: 1.4;
+    color: #e2e8f0;
 }
-.card-sender {
+.detail-actions {
+    display: flex;
+    gap: 12px;
+    color: #64748b;
+}
+.detail-tabs {
+    display: flex;
+    gap: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+}
+.detail-tab {
     font-size: 12.5px;
-    color: var(--secondary-text-color);
-    margin-bottom: 14px;
-    font-weight: 400;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    padding-bottom: 8px;
 }
-.meta-row {
+.detail-tab.active {
+    color: #38bdf8;
+    border-bottom: 2px solid #38bdf8;
+}
+.metadata-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+.meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.meta-item.full-width {
+    grid-column: span 2;
+}
+.meta-label {
+    font-size: 11px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+.meta-val {
+    font-size: 13px;
+    color: #e2e8f0;
+    font-family: monospace;
+}
+.subject-val {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #fb923c;
+}
+
+/* -- Signals checklist -- */
+.signals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+.signal-item {
     display: flex;
     align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-bottom: 10px;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.01);
 }
+.signal-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+}
+.signal-icon-fail { color: #f87171; }
+.signal-icon-pass { color: #4ade80; }
+.signal-label {
+    color: #e2e8f0;
+}
+.signal-label.pass {
+    color: #94a3b8;
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+.signal-badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.signal-badge.critical { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.2); }
+.signal-badge.high     { background: rgba(251, 146, 60, 0.15); color: #fb923c; border: 1px solid rgba(251, 146, 60, 0.2); }
+.signal-badge.passed   { background: rgba(34, 197, 94, 0.12); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.15); }
+
+/* -- Live Status Badge -- */
+.live-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.2);
+    border-radius: 6px;
+    color: #4ade80;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #4ade80;
+    animation: blink 1.5s infinite;
+}
+@keyframes blink {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+}
+
+/* -- Demo Status Badge -- */
+.demo-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 6px;
+    color: #fbbf24;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+.demo-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: #fbbf24;
+}
+
+/* -- Badges -- */
 .badge {
     display: inline-block;
     padding: 3px 11px;
@@ -193,77 +429,40 @@ html, body, [class*="css"] {
 .badge-scam     { background: rgba(245,101,101,0.18); color: #fc8181; border: 1px solid rgba(245,101,101,0.35); }
 .badge-spam     { background: rgba(251,146,60,0.18);  color: #fb923c; border: 1px solid rgba(251,146,60,0.35); }
 .badge-safe     { background: rgba(34,197,94,0.16);   color: #4ade80; border: 1px solid rgba(34,197,94,0.30); }
-.score-pill {
-    font-size: 12px;
-    font-weight: 700;
-    padding: 3px 11px;
-    border-radius: 20px;
-    background: rgba(139,92,246,0.18);
-    color: #a78bfa;
-    border: 1px solid rgba(139,92,246,0.35);
-}
-.conf-pill {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--secondary-text-color);
-}
-.explanation {
-    font-size: 13px;
-    color: var(--secondary-text-color);
-    line-height: 1.55;
-    border-left: 3px solid rgba(99, 102, 241, 0.35);
-    padding-left: 10px;
-    margin-top: 6px;
-}
+
+/* -- LLM explanation card -- */
 .llm-explanation {
-    margin-top: 10px;
-    padding: 10px;
+    margin-top: 16px;
+    padding: 14px;
     border-left: 3px solid #8b5cf6;
-    background: rgba(139, 92, 246, 0.07);
-    border-radius: 0 6px 6px 0;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--text-color);
+    background: rgba(139, 92, 246, 0.05);
+    border-radius: 0 8px 8px 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: #cbd5e1;
 }
 
-/* -- Metric cards -- */
-.metric-card {
-    background: rgba(128, 128, 128, 0.05);
-    border: 1px solid rgba(128, 128, 128, 0.12);
-    border-radius: 12px;
-    padding: 16px 20px;
-    text-align: center;
-}
-.metric-value {
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text-color);
-    line-height: 1.1;
-}
-.metric-label {
-    font-size: 11px;
-    color: var(--secondary-text-color);
-    margin-top: 4px;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-}
-.section-header {
+.demo-banner {
+    background: linear-gradient(90deg, rgba(245,158,11,0.15) 0%, rgba(245,158,11,0.05) 100%);
+    border: 1px solid rgba(245,158,11,0.35);
+    border-radius: 10px;
+    padding: 10px 18px;
+    margin-bottom: 18px;
     font-size: 13px;
-    font-weight: 600;
-    color: #818cf8;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
-    margin: 24px 0 12px 0;
+    color: #fbbf24;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 .privacy-note {
     font-size: 12px;
-    color: var(--secondary-text-color);
-    border-top: 1px solid rgba(128,128,128,0.15);
+    color: #64748b;
+    border-top: 1px solid rgba(255,255,255,0.06);
     padding-top: 16px;
     margin-top: 24px;
     text-align: center;
 }
-hr { border-color: rgba(128,128,128,0.15) !important; margin: 20px 0; }
+hr { border-color: rgba(255,255,255,0.07) !important; margin: 20px 0; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -438,11 +637,6 @@ def load_demo_data() -> pd.DataFrame:
     ]
     return pd.DataFrame(rows).sort_values("score", ascending=False).reset_index(drop=True)
 
-
-# ==============================================================================
-#  Dashboard renderer  (shared by live and demo paths)
-# ==============================================================================
-
 CATEGORY_ICONS = {"phishing": "🎣", "scam": "💀", "spam": "📧", "safe": "✅"}
 
 
@@ -458,6 +652,95 @@ def _score_color(score: int) -> str:
     return "#4ade80"
 
 
+def _extract_display_name(sender: str) -> str:
+    import re
+    m = re.match(r'(.*?)(?:<|$)', sender)
+    if m:
+        name = m.group(1).strip().strip('"\'')
+        if name:
+            return name
+    return sender.split('@')[0]
+
+
+def _generate_checklist_html(row: dict) -> str:
+    explanation = str(row.get("explanation", "")).lower()
+    
+    checks = [
+        {
+            "id": "domain_mismatch",
+            "label": "Sender domain matches display name",
+            "trigger": "mismatch" in explanation,
+            "severity": "critical"
+        },
+        {
+            "id": "dkim_spf",
+            "label": "DKIM / SPF / DMARC authentication check",
+            "trigger": "failed authentication" in explanation or "auth" in explanation,
+            "severity": "critical"
+        },
+        {
+            "id": "lookalike",
+            "label": "Lookalike domain analysis (typosquatting)",
+            "trigger": "lookalike" in explanation,
+            "severity": "high"
+        },
+        {
+            "id": "urgency",
+            "label": "Urgent language detection",
+            "trigger": "urgency" in explanation or "deadline" in explanation,
+            "severity": "high"
+        },
+        {
+            "id": "credential",
+            "label": "Credential harvesting or payment requests",
+            "trigger": "credentials or payment" in explanation or "training fee" in explanation or "deposit" in explanation or "registration fee" in explanation,
+            "severity": "critical"
+        },
+        {
+            "id": "scam_offer",
+            "label": "Unsolicited or too-good-to-be-true offer check",
+            "trigger": "too-good-to-be-true" in explanation or "offer" in explanation or "grant" in explanation or "payment" in explanation,
+            "severity": "high"
+        },
+        {
+            "id": "unexpected_attachments",
+            "label": "Unexpected attachment files check",
+            "trigger": "attachments" in explanation or "attached" in explanation,
+            "severity": "high"
+        },
+        {
+            "id": "macros",
+            "label": "Obfuscated script or macro check",
+            "trigger": "macros" in explanation or "extensions" in explanation or "exe" in explanation or "zip" in explanation,
+            "severity": "critical"
+        }
+    ]
+    
+    html = ""
+    for c in checks:
+        if c["trigger"]:
+            icon = f'<span class="signal-icon-fail">{chr(0x274c)}</span>' # Red X emoji ❌
+            badge_class = f"signal-badge {c['severity']}"
+            badge_text = c["severity"]
+            label_class = "signal-label"
+        else:
+            icon = f'<span class="signal-icon-pass">{chr(0x2705)}</span>' # Green check ✅
+            badge_class = "signal-badge passed"
+            badge_text = "passed"
+            label_class = "signal-label pass"
+            
+        html += f"""
+        <div class="signal-item">
+            <div class="signal-left">
+                {icon}
+                <span class="{label_class}">{c['label']}</span>
+            </div>
+            <span class="{badge_class}">{badge_text}</span>
+        </div>
+        """
+    return html
+
+
 def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     """Render the full metrics + card dashboard for a scored email DataFrame."""
 
@@ -468,9 +751,25 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
             unsafe_allow_html=True,
         )
 
-    # -- Sidebar filters ----                                                
+    # -- Sidebar custom navigation and filters ----                                                
     with st.sidebar:
-        st.markdown(f"## {chr(0x1f6e1)} Inbox Guardian")
+        st.markdown(f"""
+        <div class="sidebar-logo">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <span class="sidebar-logo-text">INBOX GUARDIAN</span>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item active">📊 Dashboard</div>
+            <div class="nav-item">✉️ Email Analysis</div>
+            <div class="nav-item">⚠️ Threat Intel</div>
+            <div class="nav-item">🔗 Link Scanner</div>
+            <div class="nav-item">💀 Scam Detector</div>
+            <div class="nav-item">👥 User Reports</div>
+            <div class="nav-item">📈 Analytics</div>
+            <div class="nav-item">⚙️ Settings</div>
+        </div>
+        """, unsafe_allow_html=True)
+        
         st.markdown("---")
         st.markdown("### Filters")
 
@@ -498,8 +797,22 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 st.session_state.pop("demo_mode", None)
                 st.rerun()
 
-        st.markdown("<br>", unsafe_allow_html=True)
-        st.caption("Capstone · Inbox Guardian")
+        # User profile card at the bottom of the sidebar
+        profile_name = "Sarah Chen"
+        profile_avatar = "SC"
+        if not is_demo and "access_token" in st.session_state:
+            profile_name = "Gmail User"
+            profile_avatar = "GU"
+            
+        st.markdown(f"""
+        <div class="sidebar-profile">
+            <div class="profile-avatar">{profile_avatar}</div>
+            <div class="profile-info">
+                <div class="profile-name">{profile_name}</div>
+                <div class="profile-role">Security Analyst</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     # -- Apply filters ----                                                  
     filtered = df[
@@ -507,36 +820,95 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     ].reset_index(drop=True)
 
     # -- Page header ----                                                    
-    st.markdown(f"# {chr(0x1f6e1)} Inbox Guardian")
-    st.markdown("Real-time phishing, scam, spam, and safety classification for your Gmail inbox.")
-    st.markdown("---")
+    status_class = "live-status" if not is_demo else "demo-status"
+    status_dot = "live-dot" if not is_demo else "demo-dot"
+    status_label = "LIVE" if not is_demo else "DEMO"
+    status_badge_html = f'<div class="{status_class}"><span class="{status_dot}"></span> {status_label}</div>'
+
+    header_col1, header_col2 = st.columns([3, 1])
+    with header_col1:
+        st.markdown(f"""
+        <h2 style="margin:0 0 4px 0; font-weight:700; color:#ffffff; font-size:24px;">Threat Dashboard</h2>
+        <p style="margin:0; font-size:12.5px; color:#64748b;">Real-time phishing intelligence & threat signal analysis</p>
+        """, unsafe_allow_html=True)
+    with header_col2:
+        st.markdown(f"""
+        <div style="display:flex; justify-content:flex-end; align-items:center; height:100%; gap:14px; margin-top:8px;">
+            {status_badge_html}
+            <span style="color:#64748b; font-size:16px; cursor:pointer;">{chr(0x1f514)}</span>
+            <span style="color:#64748b; font-size:16px; cursor:pointer;">{chr(0x1f504)}</span>
+        </div>
+        """, unsafe_allow_html=True)
+    st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
 
     # -- Summary metrics ----                                                
     total     = len(df)
     n_phish   = len(df[df["category"] == "phishing"])
     n_scam    = len(df[df["category"] == "scam"])
     n_spam    = len(df[df["category"] == "spam"])
-    n_safe    = len(df[df["category"] == "safe"])
-    avg_score = round(df["score"].mean(), 1)
+    
+    total_threats = n_phish + n_scam
+    total_flagged = n_phish + n_scam + n_spam
+    avg_score = round(df["score"].mean(), 1) if not df.empty else 0.0
 
-    cols    = st.columns(6)
-    metrics = [
-        ("Total Scanned", total,     "#a78bfa"),
-        (f"{chr(0x26a0)} Phishing",   n_phish,   "#f87171"),
-        ("🚨 Scam",       n_scam,    "#fc8181"),
-        ("📬 Spam",       n_spam,    "#fb923c"),
-        ("✅ Safe",       n_safe,    "#4ade80"),
-        ("Avg Score",    avg_score,  "#60a5fa"),
-    ]
-    for col, (label, value, color) in zip(cols, metrics):
-        with col:
-            st.markdown(
-                f'<div class="metric-card">'
-                f'<div class="metric-value" style="color:{color};">{value}</div>'
-                f'<div class="metric-label">{label}</div>'
-                f'</div>',
-                unsafe_allow_html=True,
-            )
+    m_cols    = st.columns(4)
+    
+    with m_cols[0]:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-header">
+                <div class="metric-icon-box" style="background:rgba(239,68,68,0.1); color:#f87171;">{chr(0x1f6e1)}</div>
+                <div class="metric-change" style="color:#f87171;">+18%</div>
+            </div>
+            <div class="metric-body">
+                <div class="metric-value" style="color:#f87171;">{total_threats}</div>
+                <div class="metric-label">Threats Detected</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with m_cols[1]:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-header">
+                <div class="metric-icon-box" style="background:rgba(14,165,233,0.1); color:#38bdf8;">{chr(0x2709)}</div>
+                <div class="metric-change" style="color:#38bdf8;">+5.2%</div>
+            </div>
+            <div class="metric-body">
+                <div class="metric-value" style="color:#38bdf8;">{total}</div>
+                <div class="metric-label">Emails Analyzed</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with m_cols[2]:
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-header">
+                <div class="metric-icon-box" style="background:rgba(245,158,11,0.1); color:#fb923c;">{chr(0x26a0)}</div>
+                <div class="metric-change" style="color:#fb923c;">+12%</div>
+            </div>
+            <div class="metric-body">
+                <div class="metric-value" style="color:#fb923c;">{total_flagged}</div>
+                <div class="metric-label">Quarantined / Flagged</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+    with m_cols[3]:
+        risk_color = "#4ade80" if avg_score < 40 else "#fb923c" if avg_score < 75 else "#f87171"
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="metric-header">
+                <div class="metric-icon-box" style="background:rgba(74,222,128,0.1); color:#4ade80;">📈</div>
+                <div class="metric-change" style="color:#4ade80;">-3.1pt</div>
+            </div>
+            <div class="metric-body">
+                <div class="metric-value" style="color:{risk_color};">{avg_score}</div>
+                <div class="metric-label">Avg Risk Score</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -620,44 +992,118 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 
     st.markdown("---")
 
-    # -- Results count ----                                                  
-    extra = "  ·  filtered" if len(filtered) < total else ""
-    st.markdown(
-        f"<div class='section-header'>Showing {len(filtered)} of {total} emails{extra}</div>",
-        unsafe_allow_html=True,
-    )
-
-    # -- Email cards ----                                                    
-    if filtered.empty:
-        st.info("No emails match the current filters.")
-    else:
-        for _, row in filtered.iterrows():
-            conf_pct = int(row["confidence"] * 100)
-            s_color  = _score_color(row["score"])
-            eid      = row.get("email_id", "-")
-
-            # Format the LLM explanation if available
-            llm_exp = ""
+    # -- Master-Detail Explorer Pane ----                                    
+    master_col, detail_col = st.columns([2, 3])
+    
+    with master_col:
+        st.markdown("<p style='font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;'>Inbox Explorer</p>", unsafe_allow_html=True)
+        
+        # Searchable selectbox
+        if not filtered.empty:
+            selected_idx = st.selectbox(
+                "Select email to inspect",
+                range(len(filtered)),
+                format_func=lambda i: f"{filtered.loc[i, 'category'].upper()} | {filtered.loc[i, 'subject'][:30]}...",
+                key="selected_email_idx"
+            )
+        else:
+            selected_idx = None
+            st.info("No emails match current filters.")
+            
+        st.markdown("<div style='margin-bottom:14px;'></div>", unsafe_allow_html=True)
+        
+        # Vertical list of emails showing overview
+        if not filtered.empty:
+            for idx, row in filtered.iterrows():
+                is_active = (idx == selected_idx)
+                active_class = "active" if is_active else ""
+                
+                cat = row["category"]
+                cat_badge = f'<span class="badge badge-{cat}" style="font-size:9px; padding:1px 6px;">{cat}</span>'
+                
+                st.markdown(f"""
+                <div class="master-card {active_class}">
+                    <div class="master-subject">{_html.escape(str(row['subject']))}</div>
+                    <div class="master-meta">
+                        <span>{_html.escape(str(row['sender'][:25]))}...</span>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="color:{_score_color(row['score'])}; font-weight:700;">{row['score']}</span>
+                            {cat_badge}
+                        </div>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+    with detail_col:
+        st.markdown("<p style='font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;'>Signal Analysis Inspector</p>", unsafe_allow_html=True)
+        
+        if selected_idx is not None and selected_idx < len(filtered):
+            row = filtered.iloc[selected_idx]
+            display_name = _extract_display_name(row["sender"])
+            cat = row["category"]
+            cat_pill = f'<span class="badge badge-{cat}" style="font-size:10px; border-radius:4px;">{cat.upper()}</span>'
+            
+            llm_analysis_html = ""
             if "llm_explanation" in row and pd.notna(row["llm_explanation"]) and row["llm_explanation"]:
-                llm_exp = (
+                llm_analysis_html = (
                     f'<div class="llm-explanation">'
-                    f'{chr(0x1f916)} <b>AI Analysis (Gemini):</b> {_html.escape(str(row["llm_explanation"]))}'
+                    f'<b>{chr(0x1f916)} AI Threat Analysis (Gemini):</b><br>'
+                    f'{_html.escape(str(row["llm_explanation"]))}'
                     f'</div>'
                 )
-
+                
             st.markdown(f"""
-            <div class="email-card">
-                <div class="card-subject">{_html.escape(str(row['subject']))}</div>
-                <div class="card-sender">{chr(0x2709)} {_html.escape(str(row['sender']))}</div>
-                <div class="meta-row">
-                    {_badge(row['category'])}
-                    <span class="score-pill">Score: <span style="color:{s_color}">{row['score']}</span> / 100</span>
-                    <span class="conf-pill">Confidence: {conf_pct}%</span>
-                    <span class="conf-pill" style="color:#475569; font-size:11px;">#{_html.escape(str(eid))}</span>
+            <div class="detail-card">
+                <div class="detail-header">
+                    <div class="detail-title">
+                        <span style="font-size:16px;">{chr(0x2709)}</span>
+                        <span class="detail-title-text">Email Analysis</span>
+                        {cat_pill}
+                    </div>
+                    <div class="detail-actions">
+                        <span>{chr(0x1f441)}</span>
+                        <span>{chr(0x1f517)}</span>
+                    </div>
                 </div>
-                <div class="explanation">{chr(0x1f50d)} {_html.escape(str(row['explanation']))}</div>{llm_exp}
+                
+                <div class="detail-tabs">
+                    <span class="detail-tab active">Phishing Signals</span>
+                    <span class="detail-tab">Link Analysis</span>
+                    <span class="detail-tab">Scam Signals</span>
+                </div>
+                
+                <div class="metadata-grid">
+                    <div class="meta-item">
+                        <span class="meta-label">From:</span>
+                        <span class="meta-val">{_html.escape(str(row['sender']))}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Display Name:</span>
+                        <span class="meta-val">{_html.escape(display_name)}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">To:</span>
+                        <span class="meta-val">sarah.chen@company.com</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Received:</span>
+                        <span class="meta-val">2026-07-03 09:42:07 UTC</span>
+                    </div>
+                    <div class="meta-item full-width">
+                        <span class="meta-label">Subject:</span>
+                        <span class="subject-val">{_html.escape(str(row['subject']))}</span>
+                    </div>
+                </div>
+                
+                <div class="signals-list">
+                    {_generate_checklist_html(row)}
+                </div>
+                
+                {llm_analysis_html}
             </div>
             """, unsafe_allow_html=True)
+        else:
+            st.info("Select an email from the list to inspect.")
 
     # -- Raw data expander ----                                              
     st.markdown("---")
@@ -677,11 +1123,6 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
             '</div>',
             unsafe_allow_html=True,
         )
-
-
-# ==============================================================================
-#  Sign-in page
-# ==============================================================================
 
 def build_oauth_url() -> str:
     params = {
