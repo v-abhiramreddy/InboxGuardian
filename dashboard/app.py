@@ -524,19 +524,75 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
         with chart_col1:
             st.markdown("<p style='font-size:14px; font-weight:600; color:#94a3b8;'>Risk Category Distribution</p>", unsafe_allow_html=True)
             if not filtered.empty:
-                # Count the occurrences of each category and present as a bar chart
+                import plotly.graph_objects as go
                 cat_counts = filtered["category"].value_counts().reindex(["safe", "spam", "scam", "phishing"], fill_value=0)
-                st.bar_chart(cat_counts, color="#8b5cf6")
+                
+                # Brand matching colors (green, orange, light-red, deep-red)
+                colors = ["#4ade80", "#fb923c", "#fc8181", "#f87171"]
+                
+                fig = go.Figure(data=[go.Bar(
+                    x=["Safe", "Spam", "Scam", "Phishing"],
+                    y=cat_counts.values,
+                    marker_color=colors,
+                    text=cat_counts.values,
+                    textposition='auto',
+                    hovertemplate='%{x}: %{y} emails<extra></extra>'
+                )])
+                
+                fig.update_layout(
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    margin=dict(l=10, r=10, t=10, b=10),
+                    height=260,
+                    font=dict(color='#94a3b8', family='Inter, sans-serif'),
+                    yaxis=dict(
+                        gridcolor='rgba(255,255,255,0.05)',
+                        zeroline=False,
+                        tickfont=dict(color='#64748b')
+                    ),
+                    xaxis=dict(
+                        tickfont=dict(color='#94a3b8')
+                    )
+                )
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
             else:
                 st.info("No data available to plot.")
             
         with chart_col2:
             st.markdown("<p style='font-size:14px; font-weight:600; color:#94a3b8;'>Risk Score Spectrum</p>", unsafe_allow_html=True)
             if not filtered.empty:
-                # Group scores into standard risk bands as a bar chart
+                import plotly.graph_objects as go
                 score_bins = pd.cut(filtered["score"], bins=[-1, 20, 50, 80, 100], labels=["0-20 (Safe)", "21-50 (Low/Spam)", "51-80 (Likely Phish)", "81-100 (High Phish)"])
                 score_counts = score_bins.value_counts().sort_index()
-                st.bar_chart(score_counts, color="#f87171")
+                
+                # Graduated risk spectrum colors
+                colors = ["#4ade80", "#fb923c", "#f87171", "#ef4444"]
+                
+                fig = go.Figure(data=[go.Bar(
+                    x=list(score_counts.index),
+                    y=score_counts.values,
+                    marker_color=colors,
+                    text=score_counts.values,
+                    textposition='auto',
+                    hovertemplate='%{x}: %{y} emails<extra></extra>'
+                )])
+                
+                fig.update_layout(
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)',
+                    margin=dict(l=10, r=10, t=10, b=10),
+                    height=260,
+                    font=dict(color='#94a3b8', family='Inter, sans-serif'),
+                    yaxis=dict(
+                        gridcolor='rgba(255,255,255,0.05)',
+                        zeroline=False,
+                        tickfont=dict(color='#64748b')
+                    ),
+                    xaxis=dict(
+                        tickfont=dict(color='#94a3b8')
+                    )
+                )
+                st.plotly_chart(fig, use_container_width=True, config={'displayModeBar': False})
             else:
                 st.info("No data available to plot.")
 
