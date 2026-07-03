@@ -1653,26 +1653,6 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 cat = row["category"]
                 cat_pill = f'<span class="badge badge-{cat}" style="font-size:10px; border-radius:4px;">{cat.upper()}</span>'
                 
-                # Tab navigation routing
-                inspect_tab = st.query_params.get("inspect_tab", "Phishing")
-                demo_str = "&demo=1" if is_demo else ""
-                phish_url = f"?tab=Analysis&inspect_tab=Phishing{demo_str}"
-                link_url = f"?tab=Analysis&inspect_tab=Link{demo_str}"
-                scam_url = f"?tab=Analysis&inspect_tab=Scam{demo_str}"
-                
-                phish_active = "active" if inspect_tab == "Phishing" else ""
-                link_active = "active" if inspect_tab == "Link" else ""
-                scam_active = "active" if inspect_tab == "Scam" else ""
-                
-                if inspect_tab == "Phishing":
-                    tab_content = _generate_checklist_html(row, filter_type="phishing")
-                elif inspect_tab == "Scam":
-                    tab_content = _generate_checklist_html(row, filter_type="scam")
-                elif inspect_tab == "Link":
-                    tab_content = _generate_link_analysis_html(row)
-                else:
-                    tab_content = _generate_checklist_html(row, filter_type="phishing")
-                
                 llm_analysis_html = ""
                 if "llm_explanation" in row and pd.notna(row["llm_explanation"]) and row["llm_explanation"]:
                     llm_analysis_html = (
@@ -1681,7 +1661,8 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                         f'{_html.escape(str(row["llm_explanation"]))}'
                         f'</div>'
                     )
-                    
+                
+                # Card header + metadata (rendered as HTML)
                 st.markdown(f"""
 <div class="detail-card">
 <div class="detail-header">
@@ -1694,12 +1675,6 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 <span>{chr(0x1f441)}</span>
 <span>{chr(0x1f517)}</span>
 </div>
-</div>
-
-<div class="detail-tabs">
-<a href="{phish_url}" target="_self" class="detail-tab {phish_active}">Phishing Signals</a>
-<a href="{link_url}" target="_self" class="detail-tab {link_active}">Link Analysis</a>
-<a href="{scam_url}" target="_self" class="detail-tab {scam_active}">Scam Signals</a>
 </div>
 
 <div class="metadata-grid">
@@ -1724,14 +1699,31 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 <span class="subject-val">{_html.escape(str(row['subject']))}</span>
 </div>
 </div>
-
-<div class="signals-list">
-{tab_content}
-</div>
-
-{llm_analysis_html}
 </div>
 """, unsafe_allow_html=True)
+                
+                # Native Streamlit tabs for signal inspection
+                phishing_tab, link_tab, scam_tab = st.tabs([
+                    f"{chr(0x1f3af)} Phishing Signals",
+                    f"{chr(0x1f517)} Link Analysis",
+                    f"{chr(0x26a0)} Scam Signals"
+                ])
+                
+                with phishing_tab:
+                    phishing_html = _generate_checklist_html(row, filter_type="phishing")
+                    st.markdown(f'<div class="signals-list">{phishing_html}</div>', unsafe_allow_html=True)
+                
+                with link_tab:
+                    link_html = _generate_link_analysis_html(row)
+                    st.markdown(f'<div class="signals-list">{link_html}</div>', unsafe_allow_html=True)
+                
+                with scam_tab:
+                    scam_html = _generate_checklist_html(row, filter_type="scam")
+                    st.markdown(f'<div class="signals-list">{scam_html}</div>', unsafe_allow_html=True)
+                
+                # LLM analysis below tabs
+                if llm_analysis_html:
+                    st.markdown(llm_analysis_html, unsafe_allow_html=True)
             else:
                 st.info("Select an email from the list to inspect.")
 
