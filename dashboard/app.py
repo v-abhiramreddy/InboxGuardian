@@ -652,8 +652,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                     <span class="conf-pill">Confidence: {conf_pct}%</span>
                     <span class="conf-pill" style="color:#475569; font-size:11px;">#{_html.escape(str(eid))}</span>
                 </div>
-                <div class="explanation">🔍 {_html.escape(str(row['explanation']))}</div>
-                {llm_exp}
+                <div class="explanation">🔍 {_html.escape(str(row['explanation']))}</div>{llm_exp}
             </div>
             """, unsafe_allow_html=True)
 
