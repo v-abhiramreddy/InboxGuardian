@@ -525,6 +525,88 @@ html, body, [class*="css"] {
     text-align: center;
 }
 hr { border-color: rgba(255,255,255,0.07) !important; margin: 20px 0; }
+
+/* -- Sign-in Page Container -- */
+.signin-outer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh;
+    width: 100%;
+}
+.signin-card {
+    background: rgba(10, 20, 36, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 18px;
+    padding: 48px 40px;
+    max-width: 440px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
+}
+.signin-logo-container {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 24px auto;
+    border-radius: 16px;
+    background: rgba(14, 165, 233, 0.1);
+    border: 1px solid rgba(14, 165, 233, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+}
+.signin-title-text {
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+.signin-desc-text {
+    font-size: 14.5px;
+    color: #94a3b8;
+    line-height: 1.6;
+    margin-bottom: 32px;
+}
+.google-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: #ffffff !important;
+    color: #1e293b !important;
+    font-weight: 600;
+    font-size: 14.5px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    text-decoration: none !important;
+    width: 100%;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: all 0.2s ease;
+}
+.google-btn:hover {
+    background: #f8fafc !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+.demo-link-container {
+    margin-top: 20px;
+    font-size: 13.5px;
+    color: #64748b;
+}
+.demo-link-container a {
+    color: #38bdf8 !important;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: color 0.2s;
+}
+.demo-link-container a:hover {
+    color: #0ea5e9 !important;
+    text-decoration: underline !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -1253,21 +1335,20 @@ def build_oauth_url() -> str:
 
 
 def render_signin_page() -> None:
+    oauth_url = build_oauth_url()
     st.markdown(f"""
-    <div class="signin-wrapper">
-        <div class="signin-logo">{chr(0x1f6e1)}</div>
-        <div class="signin-title">Inbox Guardian</div>
-        <div class="signin-desc">Score your Gmail inbox for phishing and fraud risk</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-    _, centre, _ = st.columns([1, 2, 1])
-    with centre:
-        oauth_url = build_oauth_url()
-        st.markdown(f"""
-        <div style="text-align:center; margin-top:-20px;">
-            <a href="{oauth_url}" class="google-btn" id="google-signin-btn">
-                <svg width="20" height="20" viewBox="0 0 48 48">
+    <div class="signin-outer">
+        <div class="signin-card">
+            <div class="signin-logo-container">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+            </div>
+            <div class="signin-title-text">Inbox Guardian</div>
+            <div class="signin-desc-text">Score your Gmail inbox for phishing and fraud risk with real-time AI security checks</div>
+            
+            <a href="{oauth_url}" class="google-btn" id="google-signin-btn" target="_self">
+                <svg width="18" height="18" viewBox="0 0 48 48" style="margin-right: 4px;">
                     <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
                     <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
                     <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
@@ -1276,11 +1357,13 @@ def render_signin_page() -> None:
                 </svg>
                 Sign in with Google
             </a>
-            <div class="demo-link">
-                No account? <a href="?demo=1" id="view-demo-link">View demo</a>
+            
+            <div class="demo-link-container">
+                No account? <a href="?demo=1" id="view-demo-link" target="_self">View demo</a>
             </div>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ==============================================================================
