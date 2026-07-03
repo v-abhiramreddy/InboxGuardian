@@ -1224,14 +1224,14 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                     
                     st.markdown(f"""
 <div class="master-card {active_class}">
-    <div class="master-subject">{_html.escape(str(row['subject']))}</div>
-    <div class="master-meta">
-        <span>{_html.escape(str(row['sender'][:25]))}...</span>
-        <div style="display:flex; align-items:center; gap:6px;">
-            <span style="color:{_score_color(row['score'])}; font-weight:700;">{row['score']}</span>
-            {cat_badge}
-        </div>
-    </div>
+<div class="master-subject">{_html.escape(str(row['subject']))}</div>
+<div class="master-meta">
+<span>{_html.escape(str(row['sender'][:25]))}...</span>
+<div style="display:flex; align-items:center; gap:6px;">
+<span style="color:{_score_color(row['score'])}; font-weight:700;">{row['score']}</span>
+{cat_badge}
+</div>
+</div>
 </div>
 """, unsafe_allow_html=True)
                     
@@ -1255,52 +1255,52 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                     
                 st.markdown(f"""
 <div class="detail-card">
-    <div class="detail-header">
-        <div class="detail-title">
-            <span style="font-size:16px;">{chr(0x2709)}</span>
-            <span class="detail-title-text">Email Analysis</span>
-            {cat_pill}
-        </div>
-        <div class="detail-actions">
-            <span>{chr(0x1f441)}</span>
-            <span>{chr(0x1f517)}</span>
-        </div>
-    </div>
-    
-    <div class="detail-tabs">
-        <span class="detail-tab active">Phishing Signals</span>
-        <span class="detail-tab">Link Analysis</span>
-        <span class="detail-tab">Scam Signals</span>
-    </div>
-    
-    <div class="metadata-grid">
-        <div class="meta-item">
-            <span class="meta-label">From:</span>
-            <span class="meta-val">{_html.escape(str(row['sender']))}</span>
-        </div>
-        <div class="meta-item">
-            <span class="meta-label">Display Name:</span>
-            <span class="meta-val">{_html.escape(display_name)}</span>
-        </div>
-        <div class="meta-item">
-            <span class="meta-label">To:</span>
-            <span class="meta-val">sarah.chen@company.com</span>
-        </div>
-        <div class="meta-item">
-            <span class="meta-label">Received:</span>
-            <span class="meta-val">2026-07-03 09:42:07 UTC</span>
-        </div>
-        <div class="meta-item full-width">
-            <span class="meta-label">Subject:</span>
-            <span class="subject-val">{_html.escape(str(row['subject']))}</span>
-        </div>
-    </div>
-    
-    <div class="signals-list">
-        {_generate_checklist_html(row)}
-    </div>
-    
-    {llm_analysis_html}
+<div class="detail-header">
+<div class="detail-title">
+<span style="font-size:16px;">{chr(0x2709)}</span>
+<span class="detail-title-text">Email Analysis</span>
+{cat_pill}
+</div>
+<div class="detail-actions">
+<span>{chr(0x1f441)}</span>
+<span>{chr(0x1f517)}</span>
+</div>
+</div>
+
+<div class="detail-tabs">
+<span class="detail-tab active">Phishing Signals</span>
+<span class="detail-tab">Link Analysis</span>
+<span class="detail-tab">Scam Signals</span>
+</div>
+
+<div class="metadata-grid">
+<div class="meta-item">
+<span class="meta-label">From:</span>
+<span class="meta-val">{_html.escape(str(row['sender']))}</span>
+</div>
+<div class="meta-item">
+<span class="meta-label">Display Name:</span>
+<span class="meta-val">{_html.escape(display_name)}</span>
+</div>
+<div class="meta-item">
+<span class="meta-label">To:</span>
+<span class="meta-val">sarah.chen@company.com</span>
+</div>
+<div class="meta-item">
+<span class="meta-label">Received:</span>
+<span class="meta-val">2026-07-03 09:42:07 UTC</span>
+</div>
+<div class="meta-item full-width">
+<span class="meta-label">Subject:</span>
+<span class="subject-val">{_html.escape(str(row['subject']))}</span>
+</div>
+</div>
+
+<div class="signals-list">
+{_generate_checklist_html(row)}
+</div>
+
+{llm_analysis_html}
 </div>
 """, unsafe_allow_html=True)
             else:
