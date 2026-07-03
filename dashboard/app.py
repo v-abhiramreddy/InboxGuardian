@@ -874,14 +874,14 @@ def _generate_checklist_html(row: dict) -> str:
             label_class = "signal-label pass"
             
         html += f"""
-        <div class="signal-item">
-            <div class="signal-left">
-                {icon}
-                <span class="{label_class}">{c['label']}</span>
-            </div>
-            <span class="{badge_class}">{badge_text}</span>
-        </div>
-        """
+<div class="signal-item">
+<div class="signal-left">
+{icon}
+<span class="{label_class}">{c['label']}</span>
+</div>
+<span class="{badge_class}">{badge_text}</span>
+</div>
+"""
     return html
 
 
