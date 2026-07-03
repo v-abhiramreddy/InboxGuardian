@@ -982,20 +982,23 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     status_label = "LIVE" if not is_demo else "DEMO"
     status_badge_html = f'<div class="{status_class}"><span class="{status_dot}"></span> {status_label}</div>'
 
+    title = "Threat Dashboard" if active_tab == "Dashboard" else "Email Analysis"
+    subtitle = "Real-time phishing intelligence & threat signal analysis" if active_tab == "Dashboard" else "Granular inspection of phishing signals, authentication checks, and threat heuristics"
+
     header_col1, header_col2 = st.columns([3, 1])
     with header_col1:
         st.markdown(f"""
-        <h2 style="margin:0 0 4px 0; font-weight:700; color:#ffffff; font-size:24px;">Threat Dashboard</h2>
-        <p style="margin:0; font-size:12.5px; color:#64748b;">Real-time phishing intelligence & threat signal analysis</p>
-        """, unsafe_allow_html=True)
+<h2 style="margin:0 0 4px 0; font-weight:700; color:#ffffff; font-size:24px;">{title}</h2>
+<p style="margin:0; font-size:12.5px; color:#64748b;">{subtitle}</p>
+""", unsafe_allow_html=True)
     with header_col2:
         st.markdown(f"""
-        <div style="display:flex; justify-content:flex-end; align-items:center; height:100%; gap:14px; margin-top:8px;">
-            {status_badge_html}
-            <span style="color:#64748b; font-size:16px; cursor:pointer;">{chr(0x1f514)}</span>
-            <span style="color:#64748b; font-size:16px; cursor:pointer;">{chr(0x1f504)}</span>
-        </div>
-        """, unsafe_allow_html=True)
+<div style="display:flex; justify-content:flex-end; align-items:center; height:100%; gap:14px; margin-top:8px;">
+    {status_badge_html}
+    <span style="color:#64748b; font-size:16px; cursor:pointer;">{chr(0x1f514)}</span>
+    <span style="color:#64748b; font-size:16px; cursor:pointer;">{chr(0x1f504)}</span>
+</div>
+""", unsafe_allow_html=True)
     st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
 
     # -- Summary metrics ----                                                
@@ -1220,17 +1223,17 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                     cat_badge = f'<span class="badge badge-{cat}" style="font-size:9px; padding:1px 6px;">{cat}</span>'
                     
                     st.markdown(f"""
-                    <div class="master-card {active_class}">
-                        <div class="master-subject">{_html.escape(str(row['subject']))}</div>
-                        <div class="master-meta">
-                            <span>{_html.escape(str(row['sender'][:25]))}...</span>
-                            <div style="display:flex; align-items:center; gap:6px;">
-                                <span style="color:{_score_color(row['score'])}; font-weight:700;">{row['score']}</span>
-                                {cat_badge}
-                            </div>
-                        </div>
-                    </div>
-                    """, unsafe_allow_html=True)
+<div class="master-card {active_class}">
+    <div class="master-subject">{_html.escape(str(row['subject']))}</div>
+    <div class="master-meta">
+        <span>{_html.escape(str(row['sender'][:25]))}...</span>
+        <div style="display:flex; align-items:center; gap:6px;">
+            <span style="color:{_score_color(row['score'])}; font-weight:700;">{row['score']}</span>
+            {cat_badge}
+        </div>
+    </div>
+</div>
+""", unsafe_allow_html=True)
                     
         with detail_col:
             st.markdown("<p style='font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;'>Signal Analysis Inspector</p>", unsafe_allow_html=True)
@@ -1251,55 +1254,55 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                     )
                     
                 st.markdown(f"""
-                <div class="detail-card">
-                    <div class="detail-header">
-                        <div class="detail-title">
-                            <span style="font-size:16px;">{chr(0x2709)}</span>
-                            <span class="detail-title-text">Email Analysis</span>
-                            {cat_pill}
-                        </div>
-                        <div class="detail-actions">
-                            <span>{chr(0x1f441)}</span>
-                            <span>{chr(0x1f517)}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="detail-tabs">
-                        <span class="detail-tab active">Phishing Signals</span>
-                        <span class="detail-tab">Link Analysis</span>
-                        <span class="detail-tab">Scam Signals</span>
-                    </div>
-                    
-                    <div class="metadata-grid">
-                        <div class="meta-item">
-                            <span class="meta-label">From:</span>
-                            <span class="meta-val">{_html.escape(str(row['sender']))}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Display Name:</span>
-                            <span class="meta-val">{_html.escape(display_name)}</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">To:</span>
-                            <span class="meta-val">sarah.chen@company.com</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Received:</span>
-                            <span class="meta-val">2026-07-03 09:42:07 UTC</span>
-                        </div>
-                        <div class="meta-item full-width">
-                            <span class="meta-label">Subject:</span>
-                            <span class="subject-val">{_html.escape(str(row['subject']))}</span>
-                        </div>
-                    </div>
-                    
-                    <div class="signals-list">
-                        {_generate_checklist_html(row)}
-                    </div>
-                    
-                    {llm_analysis_html}
-                </div>
-                """, unsafe_allow_html=True)
+<div class="detail-card">
+    <div class="detail-header">
+        <div class="detail-title">
+            <span style="font-size:16px;">{chr(0x2709)}</span>
+            <span class="detail-title-text">Email Analysis</span>
+            {cat_pill}
+        </div>
+        <div class="detail-actions">
+            <span>{chr(0x1f441)}</span>
+            <span>{chr(0x1f517)}</span>
+        </div>
+    </div>
+    
+    <div class="detail-tabs">
+        <span class="detail-tab active">Phishing Signals</span>
+        <span class="detail-tab">Link Analysis</span>
+        <span class="detail-tab">Scam Signals</span>
+    </div>
+    
+    <div class="metadata-grid">
+        <div class="meta-item">
+            <span class="meta-label">From:</span>
+            <span class="meta-val">{_html.escape(str(row['sender']))}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Display Name:</span>
+            <span class="meta-val">{_html.escape(display_name)}</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">To:</span>
+            <span class="meta-val">sarah.chen@company.com</span>
+        </div>
+        <div class="meta-item">
+            <span class="meta-label">Received:</span>
+            <span class="meta-val">2026-07-03 09:42:07 UTC</span>
+        </div>
+        <div class="meta-item full-width">
+            <span class="meta-label">Subject:</span>
+            <span class="subject-val">{_html.escape(str(row['subject']))}</span>
+        </div>
+    </div>
+    
+    <div class="signals-list">
+        {_generate_checklist_html(row)}
+    </div>
+    
+    {llm_analysis_html}
+</div>
+""", unsafe_allow_html=True)
             else:
                 st.info("Select an email from the list to inspect.")
 
