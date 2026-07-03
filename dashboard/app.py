@@ -636,11 +636,11 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
             # Format the LLM explanation if available
             llm_exp = ""
             if "llm_explanation" in row and pd.notna(row["llm_explanation"]) and row["llm_explanation"]:
-                llm_exp = f"""
-                <div class="llm-explanation">
-                    🤖 <b>AI Analysis (Gemini):</b> {_html.escape(str(row['llm_explanation']))}
-                </div>
-                """
+                llm_exp = (
+                    f'<div class="llm-explanation">'
+                    f'🤖 <b>AI Analysis (Gemini):</b> {_html.escape(str(row["llm_explanation"]))}'
+                    f'</div>'
+                )
 
             st.markdown(f"""
             <div class="email-card">
