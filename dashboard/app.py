@@ -1,17 +1,18 @@
+# -*- coding: utf-8 -*-
 """
 dashboard/app.py
 ----------------
-Inbox Guardian — Streamlit web app.
+Inbox Guardian - Streamlit web app.
 
 Flow
 ────
-1. No session  →  Sign-in page (Google OAuth button + "View demo" link).
-2. ?code=…     →  Exchange code for access token, store in session_state,
+1. No session  ->  Sign-in page (Google OAuth button + "View demo" link).
+2. ?code=...     ->  Exchange code for access token, store in session_state,
                    clear URL param, rerun.
-3. Signed in   →  Fetch live Gmail, score every message, render dashboard.
-4. Demo mode   →  Load results-demo.json, show "Demo mode" banner.
+3. Signed in   ->  Fetch live Gmail, score every message, render dashboard.
+4. Demo mode   ->  Load results-demo.json, show "Demo mode" banner.
 
-OAuth is implemented with plain `requests` — no authlib / google-auth-oauthlib.
+OAuth is implemented with plain `requests` - no authlib / google-auth-oauthlib.
 """
 
 from __future__ import annotations
@@ -31,14 +32,14 @@ import pandas as pd
 import requests
 import streamlit as st
 
-# ──────────────────────────────────────────────────────────────────────────────
-#  Path plumbing — use centralised _path_setup instead of inline sys.path hacks
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
+#  Path plumbing - use centralised _path_setup instead of inline sys.path hacks
+# ==============================================================================
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 if str(_PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(_PROJECT_ROOT))
 
-import _path_setup  # noqa: E402  — adds mcp-server/ to sys.path
+import _path_setup  # noqa: E402  - adds mcp-server/ to sys.path
 
 from agents.scoring_agent import score_email  # noqa: E402  (our own module)
 # FIX Bug 12: Import shared email helpers from the single source of truth
@@ -51,25 +52,41 @@ from agents.email_utils import (           # noqa: E402
     extract_auth_result as _auth_result,
 )
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 #  Page config  (must be first Streamlit call)
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 st.set_page_config(
     page_title="Inbox Guardian",
-    page_icon="🛡️",
+    page_icon=chr(0x1f6e1),
     layout="wide",
 )
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 #  Global CSS
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
+/* Force dark theme layout for the entire app */
+[data-testid="stAppViewContainer"] {
+    background-color: #0b1329 !important;
+    background-image: radial-gradient(at 0% 0%, rgba(124, 58, 237, 0.08) 0, transparent 50%),
+                      radial-gradient(at 50% 0%, rgba(59, 130, 246, 0.05) 0, transparent 50%) !important;
+}
+[data-testid="stHeader"] {
+    background-color: transparent !important;
+}
+[data-testid="stSidebar"] {
+    background-color: #070d1e !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
 
-/* ── Sign-in page ── */
+html, body, [class*="css"] { 
+    font-family: 'Inter', sans-serif; 
+}
+
+/* -- Sign-in page -- */
 .signin-wrapper {
     display: flex;
     flex-direction: column;
@@ -125,11 +142,11 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 .demo-link {
     margin-top: 24px;
     font-size: 13px;
-    color: #475569;
+    color: #94a3b8;
 }
-.demo-link a { color: #7c3aed; text-decoration: underline; }
+.demo-link a { color: #a78bfa; text-decoration: underline; }
 
-/* ── Demo banner ── */
+/* -- Demo banner -- */
 .demo-banner {
     background: linear-gradient(90deg, rgba(245,158,11,0.15) 0%, rgba(245,158,11,0.05) 100%);
     border: 1px solid rgba(245,158,11,0.35);
@@ -143,7 +160,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     gap: 8px;
 }
 
-/* ── Glassmorphic card ── */
+/* -- Glassmorphic card -- */
 .email-card {
     background: rgba(255, 255, 255, 0.04);
     border: 1px solid rgba(255, 255, 255, 0.10);
@@ -165,8 +182,8 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     line-height: 1.4;
 }
 .card-sender {
-    font-size: 12px;
-    color: #8892a4;
+    font-size: 12.5px;
+    color: #94a3b8;
     margin-bottom: 14px;
     font-weight: 400;
 }
@@ -205,12 +222,12 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     color: #94a3b8;
 }
 .explanation {
-    font-size: 12.5px;
-    color: #64748b;
+    font-size: 13px;
+    color: #94a3b8;
     line-height: 1.55;
-    border-left: 3px solid rgba(148,163,184,0.25);
+    border-left: 3px solid rgba(99, 102, 241, 0.35);
     padding-left: 10px;
-    margin-top: 4px;
+    margin-top: 6px;
 }
 .llm-explanation {
     margin-top: 10px;
@@ -223,7 +240,7 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
     color: #cbd5e1;
 }
 
-/* ── Metric cards ── */
+/* -- Metric cards -- */
 .metric-card {
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.09);
@@ -234,11 +251,12 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 .metric-value {
     font-size: 32px;
     font-weight: 700;
+    color: #f8fafc;
     line-height: 1.1;
 }
 .metric-label {
     font-size: 11px;
-    color: #64748b;
+    color: #94a3b8;
     margin-top: 4px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
@@ -246,28 +264,27 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 .section-header {
     font-size: 13px;
     font-weight: 600;
-    color: #475569;
+    color: #818cf8;
     text-transform: uppercase;
     letter-spacing: 0.8px;
-    margin: 20px 0 10px 0;
+    margin: 24px 0 12px 0;
 }
 .privacy-note {
     font-size: 12px;
-    color: #334155;
+    color: #64748b;
     border-top: 1px solid rgba(255,255,255,0.06);
     padding-top: 16px;
     margin-top: 24px;
     text-align: center;
 }
 hr { border-color: rgba(255,255,255,0.07) !important; margin: 20px 0; }
-section[data-testid="stSidebar"] { background: rgba(15, 17, 26, 0.9); }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 #  OAuth constants  (read from Streamlit secrets or env)
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 def _secret(key: str, fallback: str = "") -> str:
     """Read from st.secrets first, then os.environ, then fallback to credentials.json."""
     try:
@@ -305,9 +322,9 @@ AUTH_URL    = "https://accounts.google.com/o/oauth2/v2/auth"
 TOKEN_URL   = "https://oauth2.googleapis.com/token"
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 #  Gmail REST helpers  (no google-auth-oauthlib needed)
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 
 _RATE_LIMIT = 0.35   # seconds between Gmail API calls
 _last_call  = 0.0
@@ -335,7 +352,7 @@ def _gmail_get(path: str, access_token: str, **params) -> dict:
     return resp.json()
 
 
-# ── Body / link / auth extraction helpers ────────────────────────────────────
+# ====================================================================== Body / link / auth extraction helpers ----                                
 # FIX Bug 12: All helpers are imported from agents/email_utils.py above.
 # _decode_mime_header, _strip_html, _extract_body_text, _extract_links,
 # and _auth_result are already available as imported names.
@@ -366,9 +383,9 @@ def _parse_message(raw_b64: str, message_id: str) -> dict:
     }
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 #  High-level: fetch + score
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 
 def fetch_and_score(access_token: str, count: int = 20) -> pd.DataFrame:
     """
@@ -411,9 +428,9 @@ def fetch_and_score(access_token: str, count: int = 20) -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("score", ascending=False).reset_index(drop=True)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 #  Demo data loader
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 
 @st.cache_data
 def load_demo_data() -> pd.DataFrame:
@@ -423,8 +440,8 @@ def load_demo_data() -> pd.DataFrame:
     rows = [
         {
             "email_id":    r["email_id"],
-            "subject":     r.get("subject", "—"),
-            "sender":      r.get("sender",  "—"),
+            "subject":     r.get("subject", "-"),
+            "sender":      r.get("sender",  "-"),
             "score":       r["score"],
             "category":    r["category"],
             "confidence":  r["confidence"],
@@ -436,9 +453,9 @@ def load_demo_data() -> pd.DataFrame:
     return pd.DataFrame(rows).sort_values("score", ascending=False).reset_index(drop=True)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 #  Dashboard renderer  (shared by live and demo paths)
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 
 CATEGORY_ICONS = {"phishing": "🎣", "scam": "💀", "spam": "📧", "safe": "✅"}
 
@@ -460,14 +477,14 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 
     if is_demo:
         st.markdown(
-            '<div class="demo-banner">⚠️ <strong>Demo mode</strong> — '
+            '<div class="demo-banner">Warning <strong>Demo mode</strong> - '
             'sign in to score your own inbox</div>',
             unsafe_allow_html=True,
         )
 
-    # ── Sidebar filters ────────────────────────────────────────────────────
+    # -- Sidebar filters ----                                                
     with st.sidebar:
-        st.markdown("## 🛡️ Inbox Guardian")
+        st.markdown("## Shield Inbox Guardian")
         st.markdown("---")
         st.markdown("### Filters")
 
@@ -487,7 +504,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
             if st.button("🔄 Re-scan inbox"):
                 st.session_state.pop("scored_df", None)
                 st.rerun()
-            if st.button("🚪 Sign out"):
+            if st.button("Exit Sign out"):
                 st.session_state.clear()
                 st.rerun()
         else:
@@ -498,17 +515,17 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
         st.markdown("<br>", unsafe_allow_html=True)
         st.caption("Capstone · Inbox Guardian")
 
-    # ── Apply filters ──────────────────────────────────────────────────────
+    # -- Apply filters ----                                                  
     filtered = df[
         df["category"].isin(selected_cats) & (df["score"] >= min_score)
     ].reset_index(drop=True)
 
-    # ── Page header ────────────────────────────────────────────────────────
-    st.markdown("# 🛡️ Inbox Guardian")
+    # -- Page header ----                                                    
+    st.markdown("# Shield Inbox Guardian")
     st.markdown("Real-time phishing, scam, spam, and safety classification for your Gmail inbox.")
     st.markdown("---")
 
-    # ── Summary metrics ────────────────────────────────────────────────────
+    # -- Summary metrics ----                                                
     total     = len(df)
     n_phish   = len(df[df["category"] == "phishing"])
     n_scam    = len(df[df["category"] == "scam"])
@@ -519,7 +536,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     cols    = st.columns(6)
     metrics = [
         ("Total Scanned", total,     "#a78bfa"),
-        ("⚠️ Phishing",   n_phish,   "#f87171"),
+        ("Warning Phishing",   n_phish,   "#f87171"),
         ("🚨 Scam",       n_scam,    "#fc8181"),
         ("📬 Spam",       n_spam,    "#fb923c"),
         ("✅ Safe",       n_safe,    "#4ade80"),
@@ -537,7 +554,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 
     st.markdown("---")
 
-    # ── Analytics Section ──────────────────────────────────────────────────
+    # -- Analytics Section ----                                              
     with st.expander("📊 View Inbox Analytics & Risk Trends", expanded=False):
         chart_col1, chart_col2 = st.columns(2)
         with chart_col1:
@@ -617,55 +634,55 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 
     st.markdown("---")
 
-    # ── Results count ──────────────────────────────────────────────────────
+    # -- Results count ----                                                  
     extra = "  ·  filtered" if len(filtered) < total else ""
     st.markdown(
         f"<div class='section-header'>Showing {len(filtered)} of {total} emails{extra}</div>",
         unsafe_allow_html=True,
     )
 
-    # ── Email cards ────────────────────────────────────────────────────────
+    # -- Email cards ----                                                    
     if filtered.empty:
         st.info("No emails match the current filters.")
     else:
         for _, row in filtered.iterrows():
             conf_pct = int(row["confidence"] * 100)
             s_color  = _score_color(row["score"])
-            eid      = row.get("email_id", "—")
+            eid      = row.get("email_id", "-")
 
             # Format the LLM explanation if available
             llm_exp = ""
             if "llm_explanation" in row and pd.notna(row["llm_explanation"]) and row["llm_explanation"]:
                 llm_exp = (
                     f'<div class="llm-explanation">'
-                    f'🤖 <b>AI Analysis (Gemini):</b> {_html.escape(str(row["llm_explanation"]))}'
+                    f'{chr(0x1f916)} <b>AI Analysis (Gemini):</b> {_html.escape(str(row["llm_explanation"]))}'
                     f'</div>'
                 )
 
             st.markdown(f"""
             <div class="email-card">
                 <div class="card-subject">{_html.escape(str(row['subject']))}</div>
-                <div class="card-sender">✉️ {_html.escape(str(row['sender']))}</div>
+                <div class="card-sender">{chr(0x2709)} {_html.escape(str(row['sender']))}</div>
                 <div class="meta-row">
                     {_badge(row['category'])}
                     <span class="score-pill">Score: <span style="color:{s_color}">{row['score']}</span> / 100</span>
                     <span class="conf-pill">Confidence: {conf_pct}%</span>
                     <span class="conf-pill" style="color:#475569; font-size:11px;">#{_html.escape(str(eid))}</span>
                 </div>
-                <div class="explanation">🔍 {_html.escape(str(row['explanation']))}</div>{llm_exp}
+                <div class="explanation">{chr(0x1f50d)} {_html.escape(str(row['explanation']))}</div>{llm_exp}
             </div>
             """, unsafe_allow_html=True)
 
-    # ── Raw data expander ──────────────────────────────────────────────────
+    # -- Raw data expander ----                                              
     st.markdown("---")
-    with st.expander("📄 View raw data table"):
+    with st.expander("Document View raw data table"):
         show_cols = [c for c in
                      ["email_id", "subject", "sender", "score",
                       "category", "confidence", "explanation", "llm_explanation"]
                      if c in filtered.columns]
         st.dataframe(filtered[show_cols], use_container_width=True, hide_index=True)
 
-    # ── Privacy note ───────────────────────────────────────────────────────
+    # -- Privacy note ----                                                   
     if not is_demo:
         st.markdown(
             '<div class="privacy-note">'
@@ -676,9 +693,9 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
         )
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 #  Sign-in page
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 
 def build_oauth_url() -> str:
     params = {
@@ -693,9 +710,9 @@ def build_oauth_url() -> str:
 
 
 def render_signin_page() -> None:
-    st.markdown("""
+    st.markdown(f"""
     <div class="signin-wrapper">
-        <div class="signin-logo">🛡️</div>
+        <div class="signin-logo">{chr(0x1f6e1)}</div>
         <div class="signin-title">Inbox Guardian</div>
         <div class="signin-desc">Score your Gmail inbox for phishing and fraud risk</div>
     </div>
@@ -723,9 +740,9 @@ def render_signin_page() -> None:
         """, unsafe_allow_html=True)
 
 
-# ──────────────────────────────────────────────────────────────────────────────
-#  OAuth callback — exchange code for token
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
+#  OAuth callback - exchange code for token
+# ==============================================================================
 
 def exchange_code(code: str) -> str:
     """POST to Google's token endpoint; return the access_token string."""
@@ -749,17 +766,17 @@ def exchange_code(code: str) -> str:
     return data["access_token"]
 
 
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 #  Main app router
-# ──────────────────────────────────────────────────────────────────────────────
+# ==============================================================================
 
 def main() -> None:
     params = st.query_params
 
-    # ── 1. OAuth callback: ?code=… ────────────────────────────────────────
+    # -- 1. OAuth callback: ?code=... ----                                    
     if "code" in params and "access_token" not in st.session_state:
         code = params["code"]
-        with st.spinner("Completing sign-in …"):
+        with st.spinner("Completing sign-in..."):
             try:
                 token = exchange_code(code)
                 st.session_state["access_token"] = token
@@ -767,18 +784,18 @@ def main() -> None:
                 st.rerun()
             except Exception as exc:
                 st.query_params.clear()
-                st.error(f"❌ Sign-in failed: {exc}")
-                if st.button("🔁 Try again", key="retry_signin"):
+                st.error(f"Sign-in failed: {exc}")
+                if st.button("Try again", key="retry_signin"):
                     st.rerun()
                 return
 
-    # ── 2. Demo mode: ?demo=1 ─────────────────────────────────────────────
+    # -- 2. Demo mode: ?demo=1 ----                                         
     if "demo" in params and params["demo"] == "1":
         st.session_state["demo_mode"] = True
         st.query_params.clear()
         st.rerun()
 
-    # ── 3. Demo dashboard ─────────────────────────────────────────────────
+    # -- 3. Demo dashboard ----                                             
     if st.session_state.get("demo_mode"):
         try:
             df = load_demo_data()
@@ -787,46 +804,46 @@ def main() -> None:
             st.error("Demo data file (results-demo.json) not found.")
         return
 
-    # ── 4. Authenticated dashboard ────────────────────────────────────────
+    # -- 4. Authenticated dashboard ----                                    
     if "access_token" in st.session_state:
         token = st.session_state["access_token"]
 
         if "scored_df" not in st.session_state:
-            with st.spinner("🔍 Fetching and scoring your inbox …"):
+            with st.spinner(f"{chr(0x1f50d)} Fetching and scoring your inbox..."):
                 try:
                     df = fetch_and_score(token, count=20)
                     st.session_state["scored_df"] = df
                 except PermissionError:
                     st.error(
-                        "⚠️ Your Gmail access has expired or been revoked. "
+                        "Your Gmail access has expired or been revoked. "
                         "Please sign in again."
                     )
                     st.session_state.clear()
-                    if st.button("🔁 Sign in again", key="resign_perm"):
+                    if st.button("Sign in again", key="resign_perm"):
                         st.rerun()
                     return
                 except Exception as exc:
-                    st.error(f"❌ Failed to fetch emails: {exc}")
+                    st.error(f"Failed to fetch emails: {exc}")
                     st.session_state.clear()
-                    if st.button("🔁 Sign in again", key="resign_err"):
+                    if st.button("Sign in again", key="resign_err"):
                         st.rerun()
                     return
 
         df = st.session_state["scored_df"]
 
         if df.empty:
-            st.info("📭 No recent emails found in your inbox.")
+            st.info(f"{chr(0x1f4eb)} No recent emails found in your inbox.")
             with st.sidebar:
-                st.markdown("## 🛡️ Inbox Guardian")
+                st.markdown(f"## {chr(0x1f6e1)} Inbox Guardian")
                 st.markdown("---")
-                if st.button("🚪 Sign out"):
+                if st.button("Sign out"):
                     st.session_state.clear()
                     st.rerun()
         else:
             render_dashboard(df, is_demo=False)
         return
 
-    # ── 5. Sign-in page (default) ─────────────────────────────────────────
+    # -- 5. Sign-in page (default) ----                                     
     render_signin_page()
 
 
