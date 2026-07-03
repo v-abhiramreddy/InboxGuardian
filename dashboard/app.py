@@ -1740,14 +1740,15 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     elif active_tab == "Settings":
         render_settings_tab(is_demo)
 
-    # -- Raw data expander ----                                              
-    st.markdown("---")
-    with st.expander("Document View raw data table"):
-        show_cols = [c for c in
-                     ["email_id", "subject", "sender", "score",
-                      "category", "confidence", "explanation", "llm_explanation"]
-                     if c in filtered.columns]
-        st.dataframe(filtered[show_cols], use_container_width=True, hide_index=True)
+    # -- Raw data expander (only shown in Dashboard and Analytics) ----
+    if active_tab in ["Dashboard", "Analytics"]:
+        st.markdown("---")
+        with st.expander("Document View raw data table"):
+            show_cols = [c for c in
+                         ["email_id", "subject", "sender", "score",
+                          "category", "confidence", "explanation", "llm_explanation"]
+                         if c in filtered.columns]
+            st.dataframe(filtered[show_cols], use_container_width=True, hide_index=True)
 
     # -- Privacy note ----                                                   
     if not is_demo:
