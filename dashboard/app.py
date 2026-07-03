@@ -380,6 +380,15 @@ def fetch_and_score(access_token: str, count: int = 20) -> pd.DataFrame:
             # Attach display fields that scoring_agent doesn't return
             scored["subject"] = email_obj["subject"]
             scored["sender"]  = email_obj["sender"]
+            
+            # Dynamically call Gemini threat analyzer on-the-fly for flagged emails
+            # if an API key is set in the environment
+            from agents.llm_analysis_agent import analyze_email_with_llm
+            if scored["score"] >= 25:
+                scored["llm_explanation"] = analyze_email_with_llm(email_obj, scored)
+            else:
+                scored["llm_explanation"] = None
+                
             rows.append(scored)
         except PermissionError:
             raise
@@ -410,6 +419,7 @@ def load_demo_data() -> pd.DataFrame:
             "category":    r["category"],
             "confidence":  r["confidence"],
             "explanation": r["explanation"],
+            "llm_explanation": r.get("llm_explanation"),
         }
         for r in results
     ]
@@ -613,6 +623,22 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
             s_color  = _score_color(row["score"])
             eid      = row.get("email_id", "—")
 
+            # Format the LLM explanation if available
+            llm_exp = ""
+            if "llm_explanation" in row and pd.notna(row["llm_explanation"]) and row["llm_explanation"]:
+                llm_exp = f"""
+                <div class="llm-explanation" style="
+                    margin-top: 10px;
+                    padding: 10px;
+                    border-left: 3px solid #8b5cf6;
+                    background: rgba(139, 92, 246, 0.05);
+                    border-radius: 0 6px 6px 0;
+                    font-size: 13px;
+                ">
+                    🤖 <b>AI Analysis (Gemini):</b> {_html.escape(str(row['llm_explanation']))}
+                </div>
+                """
+
             st.markdown(f"""
             <div class="email-card">
                 <div class="card-subject">{_html.escape(str(row['subject']))}</div>
@@ -624,6 +650,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                     <span class="conf-pill" style="color:#475569; font-size:11px;">#{_html.escape(str(eid))}</span>
                 </div>
                 <div class="explanation">🔍 {_html.escape(str(row['explanation']))}</div>
+                {llm_exp}
             </div>
             """, unsafe_allow_html=True)
 
@@ -632,7 +659,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     with st.expander("📄 View raw data table"):
         show_cols = [c for c in
                      ["email_id", "subject", "sender", "score",
-                      "category", "confidence", "explanation"]
+                      "category", "confidence", "explanation", "llm_explanation"]
                      if c in filtered.columns]
         st.dataframe(filtered[show_cols], use_container_width=True, hide_index=True)
 
