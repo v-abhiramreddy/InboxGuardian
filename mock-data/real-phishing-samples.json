@@ -1,0 +1,182 @@
+[
+  {
+    "id": "real-phish-001",
+    "sender": "chase-alert-support@secure-chase-update.net",
+    "subject": "Urgent: Your Chase Online Access has been suspended",
+    "body_text": "We detected suspicious login activity on your Chase Online Banking account. For security reasons, your access has been temporarily suspended. You must verify your credentials within 24 hours to restore access. Please click the link below to verify your identity.",
+    "links": [
+      "http://chase-login-verify-account.com/auth/login"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-002",
+    "sender": "ceo-office@company-executives.com",
+    "subject": "Urgent: Overdue Vendor Invoice - Direct Wire Transfer Required Today",
+    "body_text": "Please process the attached overdue invoice for our vendor Acme Corp today. It is critical that this payment goes out via wire transfer by end of day to avoid contract suspension. Please update the payment details to the new account listed in the link below.",
+    "links": [
+      "http://company-executives.com/invoice-details-acme"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-003",
+    "sender": "tracking-agent@fedex-delivery-agent.com",
+    "subject": "Delivery Notice: Package delivery pending due to outstanding fee",
+    "body_text": "Your package could not be delivered on June 25th due to an incorrect shipping address. A redelivery fee of $1.99 is required to reschedule. Please click below to update your home address and make the payment immediately.",
+    "links": [
+      "http://fedex-delivery-agent.com/redelivery-verify-fee"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-004",
+    "sender": "security@google-security-alert.org",
+    "subject": "Critical: Google Account Password Reset Request",
+    "body_text": "Someone recently requested a password reset for your Google account. If this was not you, please secure your account immediately by verifying your current credentials using the link below. If you fail to verify, your account will be locked in 12 hours.",
+    "links": [
+      "http://google-security-alert.org/login/secure-account"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-005",
+    "sender": "benefits-hr@company-internal-portal.net",
+    "subject": "Important Notice: Mid-Year Salary Adjustment and Direct Deposit Update",
+    "body_text": "The company has approved a mid-year cost-of-living salary adjustment for all employees. To receive the updated pay in your next direct deposit, you must log into the HR portal and verify your bank account details.",
+    "links": [
+      "https://bit.ly/company-hr-benefits-portal-update"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-006",
+    "sender": "billing-issue@netflix-member-services.com",
+    "subject": "Action Required: Update your Netflix payment method",
+    "body_text": "We were unable to process your monthly membership payment. To keep your subscription active and prevent immediate suspension of service, please update your billing details and payment card information.",
+    "links": [
+      "https://bit.ly/netflix-billing-update-9932"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-007",
+    "sender": "support@metamask-secure-recovery.io",
+    "subject": "Immediate Action Required: Wallet Security Upgrade and Account Lockout Notice",
+    "body_text": "Due to a recent network-wide upgrade, MetaMask users must verify their wallets to protect their cryptocurrency assets. If you do not verify your wallet by inputting your 12-word recovery phrase, your wallet will be blocked.",
+    "links": [
+      "http://metamask-secure-recovery.io/wallet/verify"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-008",
+    "sender": "refunds@irs-tax-claims.gov.us",
+    "subject": "Congratulations: You have an unclaimed federal tax refund of $1,420.00",
+    "body_text": "Our records indicate you are eligible for an outstanding tax refund of $1,420.00. To claim your refund, click the button below to fill out the direct deposit form. You will need your social security number and banking credentials.",
+    "links": [
+      "http://irs-tax-claims.gov.us/refund/form"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "none"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-009",
+    "sender": "docusign-envelope@docusign-verification-desk.com",
+    "subject": "Review and Sign: Employment Offer and Confidentiality Agreement",
+    "body_text": "You have received an urgent document to review and sign from your new employer. Please review the employment terms and sign the document using the secure link below to complete your onboarding process.",
+    "links": [
+      "https://bit.ly/docusign-employment-onboarding-2903"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-010",
+    "sender": "it-service-desk@university-security-patch.net",
+    "subject": "Mandatory Security Upgrade: Install Outlook Mail Security Patch",
+    "body_text": "Attention University Students and Staff: A new security vulnerability has been identified in Outlook Web Mail. You must immediately install the system security patch by clicking the portal link below to keep your mail active.",
+    "links": [
+      "http://university-security-patch.net/system/patch.exe"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-011",
+    "sender": "adobe-support@adobe-document-signing.com",
+    "subject": "Adobe Sign: Please sign your pending Invoice #99283",
+    "body_text": "Please view and sign the attached digital document. This document contains an overdue invoice and payment terms. You must open the document and enable macros to view the full details.",
+    "links": [
+      "http://adobe-document-signing.com/view/document"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "real-phish-012",
+    "sender": "rewards-program@amazon-giftcard-winner.com",
+    "subject": "Notice: You won an Amazon Grand Prize - $1,000 Gift Card Claim Code Inside",
+    "body_text": "Congratulations! You have been randomly selected as the Amazon loyalty sweepstakes grand prize winner. To claim your $1,000 gift card, click the link below, complete the customer satisfaction survey, and verify your details.",
+    "links": [
+      "http://amazon-giftcard-winner.com/claims/survey"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "none"
+    },
+    "ground_truth": "phishing"
+  }
+]

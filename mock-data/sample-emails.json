@@ -1,0 +1,371 @@
+[
+  {
+    "id": "phish-001",
+    "sender": "netflix-alert-update@customer-billing-portal.com",
+    "subject": "Your Netflix membership is about to be suspended",
+    "body_text": "We were unable to process your monthly membership payment. To prevent service disruption, you must update your billing details within 24 hours. Click the link below to enter your payment details.",
+    "links": [
+      "https://bit.ly/netflix-billing-update-3827"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "phish-002",
+    "sender": "security@chase-secure-banking-alert.com",
+    "subject": "Urgent: Suspicious login attempt detected on your account",
+    "body_text": "Dear customer, we detected a login attempt to your Chase account from an unrecognized IP address in Russia. If this was not you, please log in immediately to verify your identity and protect your funds. Failure to verify will result in temporary account restriction.",
+    "links": [
+      "http://chase-login-verify-account.com/auth/login"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "phish-003",
+    "sender": "info@studentfunds-verify.net",
+    "subject": "Congratulations! You won the $15,000 Global Excellence Scholarship",
+    "body_text": "Your student profile has been randomly selected to receive the Global Excellence Scholarship award of $15,000. To claim your funds, please click the link below, fill out the application form, and submit a one-time registration processing fee of $45.",
+    "links": [
+      "http://studentfunds-verify.net/claims/excellence"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "none",
+      "dmarc": "none"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "phish-004",
+    "sender": "support@micros0ft-office-upgrade.com",
+    "subject": "Critical Update: Renew your Office 365 student subscription",
+    "body_text": "Your student Office 365 license is expiring in 48 hours. If you do not update your login details, you will lose access to all your files stored on OneDrive. Click the link to update your portal credentials.",
+    "links": [
+      "http://micros0ft-office-upgrade.com/portal/login"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "phish-005",
+    "sender": "docusign-notification@envelope-status-alert.com",
+    "subject": "Action Required: Sign your university tax document now",
+    "body_text": "You have received an urgent tax disclosure document from your university financial services. Please review and sign the document online using the link below to avoid delay in your financial aid distribution.",
+    "links": [
+      "https://bit.ly/docusign-tax-envelope-2819"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "phish-006",
+    "sender": "accounts@blockcha1n-security-desk.com",
+    "subject": "Urgent: Your cryptocurrency wallet has been compromised",
+    "body_text": "We detected unauthorized transactions initiated from your wallet. To protect your crypto assets, we have temporarily locked your funds. You must input your 12-word recovery seed phrase on our secure server to unlock your account.",
+    "links": [
+      "http://blockcha1n-security-desk.com/recovery/wallet"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "phish-007",
+    "sender": "rewards@amazon-gift-sweepstakes.com",
+    "subject": "You have (1) unclaimed $500 Amazon Gift Card reward",
+    "body_text": "Great news! As a loyal shopper, you have been chosen as today's grand prize winner of a $500 Amazon Gift Card. Click below to verify your details, fill out a short survey, and claim your gift card instantly.",
+    "links": [
+      "http://amazon-gift-sweepstakes.com/survey/claim"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "none"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "phish-008",
+    "sender": "delivery-agent@fedex-shipping-notice.com",
+    "subject": "Unable to deliver package - Action required within 24 hours",
+    "body_text": "Your package could not be delivered due to an incorrect address. To schedule a redelivery, you must update your address and pay a small outstanding shipping surcharge of $1.50 at the link below.",
+    "links": [
+      "http://fedex-shipping-notice.com/redeliver/package"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "phish-009",
+    "sender": "security-division@paypal-support-desk.com",
+    "subject": "Your account has been restricted - Review needed",
+    "body_text": "We notice unusual activity associated with your PayPal wallet. As a precaution, we have limited your ability to send or receive funds. Click the button below to resolve this restriction by verifying your bank details.",
+    "links": [
+      "http://paypal-support-desk.com/verify/account-limit"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "phish-010",
+    "sender": "administrator@it-helpdesk-system-warning.com",
+    "subject": "Mandatory Password Expiry Warning - University Portal",
+    "body_text": "Attention Student: Your university portal password will expire in 12 hours. If you fail to change your password now, your school email and enrollment portal access will be permanently deactivated. Change your password here.",
+    "links": [
+      "http://it-helpdesk-system-warning.com/update/password"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "none",
+      "dmarc": "fail"
+    },
+    "ground_truth": "phishing"
+  },
+  {
+    "id": "border-011",
+    "sender": "scholarships@educate-future-foundation.org",
+    "subject": "Reminder: Deadline for the Educate Future Grant is approaching",
+    "body_text": "This is a reminder that the application deadline for our yearly academic grant is tomorrow. Apply now to secure funding. Note: please make sure to use our alternative grant submission page due to server upgrades.",
+    "links": [
+      "http://educate-future-foundation.org/grant-apply"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "fail",
+      "dmarc": "none"
+    },
+    "ground_truth": "borderline_phishing"
+  },
+  {
+    "id": "border-012",
+    "sender": "billing-support@adobe-license-renewal.com",
+    "subject": "Adobe Creative Cloud Student License Renewal Notice",
+    "body_text": "Your student subscription for Adobe Creative Cloud will renew automatically on July 1st. If you wish to cancel or modify your payment method, please visit the portal linked below.",
+    "links": [
+      "http://adobe-license-renewal-portal.com/billing"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "fail"
+    },
+    "ground_truth": "borderline_phishing"
+  },
+  {
+    "id": "border-013",
+    "sender": "careers-notice@linkedin-student-recruiting.com",
+    "subject": "You have 3 new matching internship suggestions",
+    "body_text": "Based on your student profile, recruiters from tech companies have matched with you. Check out these positions and apply through our portal link.",
+    "links": [
+      "http://linkedin-student-recruiting.com/jobs/matches"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "borderline_phishing"
+  },
+  {
+    "id": "border-014",
+    "sender": "no-reply@venmo-payment-confirmation.com",
+    "subject": "You received $120.00 from Roommate Expenses",
+    "body_text": "You received a payment of $120.00. To transfer these funds directly to your linked bank account, click below.",
+    "links": [
+      "http://venmo-payment-confirmation-site.com/transfer"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "none",
+      "dmarc": "none"
+    },
+    "ground_truth": "borderline_phishing"
+  },
+  {
+    "id": "border-015",
+    "sender": "administrator@zoom-meeting-recap.com",
+    "subject": "Missed Zoom Meeting Call Log & Transcript Available",
+    "body_text": "You missed a scheduled meeting today. The recording and transcript of the call have been saved to our cloud drive. Please click the link to view the recorded session.",
+    "links": [
+      "https://bit.ly/zoom-missed-call-3728"
+    ],
+    "headers": {
+      "spf": "fail",
+      "dkim": "fail",
+      "dmarc": "none"
+    },
+    "ground_truth": "borderline_phishing"
+  },
+  {
+    "id": "legit-016",
+    "sender": "j.smith@state-university.edu",
+    "subject": "Homework Assignment 3 Extension",
+    "body_text": "Hi Class, I have received feedback that several of you need more time on Homework 3 due to the midterms. I am extending the deadline to Friday at 11:59 PM. Please submit your PDF through the university LMS.",
+    "links": [],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  },
+  {
+    "id": "legit-017",
+    "sender": "no-reply@state-university.edu",
+    "subject": "Official Grade Notification: Midterm Exam 1",
+    "body_text": "Your grade for Midterm Exam 1 has been posted to the student registry portal. Please log into the official portal to view your score and read professor comments.",
+    "links": [
+      "https://portal.state-university.edu/grades"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  },
+  {
+    "id": "legit-018",
+    "sender": "hr-careers@futuretech-solutions.com",
+    "subject": "Interview Invitation: Software Engineering Internship",
+    "body_text": "Dear Applicant, we were impressed by your resume for the Software Engineering Intern role. We would like to invite you for a 45-minute technical screen next week. Please use the scheduling link below.",
+    "links": [
+      "https://calendly.com/futuretech-careers/se-intern-screen"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  },
+  {
+    "id": "legit-019",
+    "sender": "security-system@github.com",
+    "subject": "[GitHub] One-Time Verification Code: 492813",
+    "body_text": "We detected a login attempt from a new browser. Please use this verification code to confirm your identity: 492813. This code expires in 10 minutes.",
+    "links": [],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  },
+  {
+    "id": "legit-020",
+    "sender": "sarah.jones@student-mail.state-university.edu",
+    "subject": "Study group session tonight at the library",
+    "body_text": "Hey! Are you coming to the library study group tonight around 7 PM? We're going over the practice questions for the chemistry exam tomorrow.",
+    "links": [],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  },
+  {
+    "id": "legit-021",
+    "sender": "accounts-support@spotify.com",
+    "subject": "Your monthly receipt for Spotify Premium Student",
+    "body_text": "Thanks for subscribing! Your transaction was successful, and we have charged your payment card $5.99 for your Premium Student plan. You can view full invoices on your account page.",
+    "links": [
+      "https://www.spotify.com/account/receipts"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  },
+  {
+    "id": "legit-022",
+    "sender": "no-reply@housing-state-university.edu",
+    "subject": "Fall Housing Assignment & Roommate Details",
+    "body_text": "Dear Student, your campus housing assignment for the upcoming Fall semester is now available. Log in to the housing portal using your NetID to see your building, room number, and roommate details.",
+    "links": [
+      "https://housing.state-university.edu/student-login"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  },
+  {
+    "id": "legit-023",
+    "sender": "newsletter@academic-news-digest.org",
+    "subject": "Weekly Science & Tech News Roundup",
+    "body_text": "Read the top science stories from this week, including updates on space exploration, quantum computing milestones, and environmental conservation progress.",
+    "links": [
+      "https://academic-news-digest.org/newsletter/june-25"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  },
+  {
+    "id": "legit-024",
+    "sender": "advisor-services@state-university.edu",
+    "subject": "Mandatory Academic Advising Appointment Required",
+    "body_text": "Hello, all junior-year students are required to meet with their academic advisor prior to class registration for next semester. Please schedule a slot with your advisor by end of the week.",
+    "links": [
+      "https://advising.state-university.edu/schedule"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  },
+  {
+    "id": "legit-025",
+    "sender": "support@digital-library-consortium.org",
+    "subject": "Library account set up complete - Access activated",
+    "body_text": "Your account with the Digital Library Consortium has been successfully registered. You now have full access to our online collections, peer-reviewed journals, and digital textbooks.",
+    "links": [
+      "https://digital-library-consortium.org/login"
+    ],
+    "headers": {
+      "spf": "pass",
+      "dkim": "pass",
+      "dmarc": "pass"
+    },
+    "ground_truth": "safe"
+  }
+]

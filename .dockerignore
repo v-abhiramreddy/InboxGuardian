@@ -1,0 +1,8 @@
+credentials.json
+token.json
+audit-log.jsonl
+venv/
+.git/
+__pycache__/
+*.pyc
+.env
