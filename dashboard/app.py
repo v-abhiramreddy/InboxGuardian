@@ -32,14 +32,13 @@ import requests
 import streamlit as st
 
 # ──────────────────────────────────────────────────────────────────────────────
-#  Path plumbing — make project-root packages importable
+#  Path plumbing — use centralised _path_setup instead of inline sys.path hacks
 # ──────────────────────────────────────────────────────────────────────────────
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_MCP_SERVER_DIR = _PROJECT_ROOT / "mcp-server"
+_PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
 
-for _p in [str(_PROJECT_ROOT), str(_MCP_SERVER_DIR)]:
-    if _p not in sys.path:
-        sys.path.insert(0, _p)
+import _path_setup  # noqa: E402  — adds mcp-server/ to sys.path
 
 from agents.scoring_agent import score_email  # noqa: E402  (our own module)
 # FIX Bug 12: Import shared email helpers from the single source of truth

@@ -30,11 +30,16 @@ from gmail_auth import get_gmail_service
 
 # FIX Bug 12: Shared helpers used to be copy-pasted here and in dashboard/app.py.
 # They now live in agents/email_utils.py and are imported from both places.
+# Use centralised _path_setup instead of inline sys.path hacks.
+import sys as _sys
 from pathlib import Path as _Path
-_AGENTS_DIR = str(_Path(__file__).resolve().parent.parent / "agents")
-if _AGENTS_DIR not in sys.path:
-    sys.path.insert(0, _AGENTS_DIR)
-from email_utils import (  # noqa: E402
+_PROJECT_ROOT = str(_Path(__file__).resolve().parent.parent)
+if _PROJECT_ROOT not in _sys.path:
+    _sys.path.insert(0, _PROJECT_ROOT)
+
+import _path_setup  # noqa: E402  — adds project root to sys.path
+
+from agents.email_utils import (  # noqa: E402
     decode_mime_header  as _decode_mime_header,
     strip_html          as _strip_html,
     extract_body_text   as _extract_body_text,

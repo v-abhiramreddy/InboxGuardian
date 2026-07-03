@@ -20,14 +20,11 @@ import sys
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
-# Path plumbing — allow importing from mcp-server/ regardless of CWD
+# Path plumbing — use centralised _path_setup instead of inline sys.path hacks
 # ---------------------------------------------------------------------------
 
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-_MCP_SERVER_DIR = _PROJECT_ROOT / "mcp-server"
-
-if str(_MCP_SERVER_DIR) not in sys.path:
-    sys.path.insert(0, str(_MCP_SERVER_DIR))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+import _path_setup  # noqa: E402  — adds mcp-server/ to sys.path
 
 # These imports resolve to mcp-server/gmail_auth.py and the helper functions
 # defined in mcp-server/gmail_mcp_server.py.

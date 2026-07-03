@@ -2,8 +2,10 @@ import json
 import os
 import sys
 
-# Add project root to path to allow importing agents
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Use centralised _path_setup instead of inline sys.path hacks
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import _path_setup  # noqa: E402  — adds project root + mcp-server/ to sys.path
+
 from agents.scoring_agent import score_email
 
 def inject_ground_truth():

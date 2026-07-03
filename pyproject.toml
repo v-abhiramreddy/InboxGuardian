@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "email-safety"
+version = "1.0.0"
+description = "Inbox Guardian — AI-powered email safety analysis pipeline"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+
+dependencies = [
+    "google-adk",
+    "google-genai",
+    "streamlit",
+    "pandas",
+    "plotly",
+    "mcp",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+include = ["agents*"]
+exclude = ["tests*", "evaluation*", "mock-data*"]
+
+# ---------------------------------------------------------------------------
+# Ruff linter / formatter configuration
+# ---------------------------------------------------------------------------
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+ignore = ["E402"]  # Allow module-level imports not at top (for path compat)
