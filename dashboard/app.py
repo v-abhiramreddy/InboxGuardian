@@ -1448,8 +1448,6 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
         st.markdown(f"""
 <div style="display:flex; justify-content:flex-end; align-items:center; height:100%; gap:14px; margin-top:8px;">
     {status_badge_html}
-    <span style="color:#64748b; font-size:16px; cursor:pointer;">{chr(0x1f514)}</span>
-    <span style="color:#64748b; font-size:16px; cursor:pointer;">{chr(0x1f504)}</span>
 </div>
 """, unsafe_allow_html=True)
     st.markdown("<div style='margin-bottom:20px;'></div>", unsafe_allow_html=True)
@@ -1714,10 +1712,6 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 <span style="font-size:16px;">{chr(0x2709)}</span>
 <span class="detail-title-text">Email Analysis</span>
 {cat_pill}
-</div>
-<div class="detail-actions">
-<span>{chr(0x1f441)}</span>
-<span>{chr(0x1f517)}</span>
 </div>
 </div>
 
