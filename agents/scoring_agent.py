@@ -56,6 +56,17 @@ def is_subdomain_of(domain: str, parent: str) -> bool:
     """Check if domain is parent domain or a subdomain of parent."""
     return domain == parent or domain.endswith("." + parent)
 
+def is_sender_self_identified(display_name: str, sender_domain: str) -> bool:
+    """
+    Check if the display name openly and honestly identifies the sender domain.
+    E.g. display name 'Kaggle' for domain 'kaggle.com' is self-identified.
+    """
+    if not display_name:
+        return False
+    dn = re.sub(r'[^a-zA-Z0-9]', '', display_name.lower())
+    sd = re.sub(r'[^a-zA-Z0-9]', '', sender_domain.split('.')[0].lower())
+    return dn == sd or sd in dn or dn in sd
+
 def is_shortener(url: str) -> bool:
     """Check if the given URL uses a known link shortener."""
     try:
@@ -183,13 +194,16 @@ def score_email(email: dict) -> dict:
                 break
 
     # Signal B: Domain Mismatch (Claimed Org vs Actual Domain)
-    # If the subject claims a brand, but the sender domain does not match
-    for brand, legit in LEGITIMATE_DOMAINS.items():
-        # Check if the brand is mentioned in the subject line (stronger claim of sender identity)
-        if re.search(r'\b' + re.escape(brand) + r'\b', subject.lower()):
-            if not is_subdomain_of(sender_domain, legit):
-                signals_sender.append("Domain Mismatch (Claimed Org vs. Actual Domain)")
-                break
+    # If the subject claims a brand, but the sender domain does not match.
+    # We do NOT trigger this if the sender's display name openly and honestly matches their sender domain
+    # (e.g. 'Kaggle' sending an email with 'Google' in the subject is not spoofing Google).
+    if not is_sender_self_identified(display_name, sender_domain):
+        for brand, legit in LEGITIMATE_DOMAINS.items():
+            # Check if the brand is mentioned in the subject line (stronger claim of sender identity)
+            if re.search(r'\b' + re.escape(brand) + r'\b', subject.lower()):
+                if not is_subdomain_of(sender_domain, legit):
+                    signals_sender.append("Domain Mismatch (Claimed Org vs. Actual Domain)")
+                    break
 
     # Signal C: Failed Authentication
     spf = headers.get("spf", "").lower()
