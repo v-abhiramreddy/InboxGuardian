@@ -21,6 +21,13 @@ LEGITIMATE_DOMAINS = {
     "spotify": "spotify.com",
     "adobe": "adobe.com",
     "linkedin": "linkedin.com",
+    "infosys": "infosys.com",
+    "wipro": "wipro.com",
+    "tcs": "tcs.com",
+    "hcl": "hcltech.com",
+    "accenture": "accenture.com",
+    "naukri": "naukri.com",
+    "internshala": "internshala.com",
 }
 
 # Lookalike/typosquatted character replacements for detection
@@ -264,7 +271,8 @@ def score_email(email: dict) -> dict:
         "restrict", "restriction", "restricted", "action required", 
         "immediately", "within 24 hours", "within 12 hours", 
         "deactivated", "lock", "locked", "compromised", "unauthorized",
-        "suspicious login", "billing-support"
+        "suspicious login", "billing-support", "immediate joining",
+        "offer letter attached", "work from home"
     ]
     if any(re.search(r'\b' + re.escape(kw) + r'\b', (subject + " " + body_text).lower()) for kw in urgency_keywords):
         signals_language.append("Urgency and Threats")
@@ -274,7 +282,8 @@ def score_email(email: dict) -> dict:
         "verify your identity", "verify your credentials", "verify bank details",
         "recovery seed phrase", "payment details", "billing details",
         "update your login", "change your password", "processing fee", "surcharge",
-        "registration fee", "recovery seed", "recovery phrase"
+        "registration fee", "recovery seed", "recovery phrase", "training fee",
+        "joining fee", "security deposit", "refundable deposit"
     ]
     credential_patterns = [
         r"\bverify\b.*\bbank\b",
