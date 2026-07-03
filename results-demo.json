@@ -14,7 +14,7 @@
     "score": 82,
     "category": "phishing",
     "confidence": 0.9,
-    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
+    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Urgent: Suspicious login attempt detected on your account",
     "sender": "security@chase-secure-banking-alert.com",
     "llm_explanation": "This email claims to be a security alert from Chase but originates from chase-secure-banking-alert.com, a lookalike typosquatted domain. The combination of failed authentication and requests for urgent verification indicates credential phishing. Report this to IT security."
@@ -34,7 +34,7 @@
     "score": 82,
     "category": "phishing",
     "confidence": 0.9,
-    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
+    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Critical Update: Renew your Office 365 student subscription",
     "sender": "support@micros0ft-office-upgrade.com",
     "llm_explanation": "This email impersonates Microsoft Office but utilizes the lookalike domain micros0ft-office-upgrade.com (using a zero '0' instead of 'o'). It asks to renew a subscription immediately, which is a credential harvesting attack. Do not log in."
@@ -64,17 +64,17 @@
     "score": 70,
     "category": "phishing",
     "confidence": 0.9,
-    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Domain (Typosquatting), Too-Good-To-Be-True Offers.",
+    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Too-Good-To-Be-True Offers.",
     "subject": "You have (1) unclaimed $500 Amazon Gift Card reward",
     "sender": "rewards@amazon-gift-sweepstakes.com",
     "llm_explanation": "This email uses a too-good-to-be-true offer ($500 Amazon Gift Card reward) to lure the user into clicking a link from amazon-gift-sweepstakes.com. Amazon does not distribute rewards from this domain. Avoid clicking."
   },
   {
     "email_id": "phish-008",
-    "score": 77,
+    "score": 82,
     "category": "phishing",
     "confidence": 0.9,
-    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
+    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Unable to deliver package - Action required within 24 hours",
     "sender": "delivery-agent@fedex-shipping-notice.com",
     "llm_explanation": "This email claims a package delivery failure, demanding action within 24 hours from fedex-shipping-notice.com. This domain is not affiliated with FedEx. The urgency is designed to install malware or steal personal data. Do not interact."
@@ -84,7 +84,7 @@
     "score": 82,
     "category": "phishing",
     "confidence": 0.9,
-    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
+    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Your account has been restricted - Review needed",
     "sender": "security-division@paypal-support-desk.com",
     "llm_explanation": "This email claims a PayPal account restriction, sent from paypal-support-desk.com. The actual sender domain is unaffiliated with PayPal, and the link leads to a credential harvesting site. Report this phishing attempt."
@@ -101,10 +101,10 @@
   },
   {
     "email_id": "border-011",
-    "score": 25,
-    "category": "spam",
-    "confidence": 0.65,
-    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC).",
+    "score": 52,
+    "category": "phishing",
+    "confidence": 0.75,
+    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Urgency and Threats, Too-Good-To-Be-True Offers.",
     "subject": "Reminder: Deadline for the Educate Future Grant is approaching",
     "sender": "scholarships@educate-future-foundation.org",
     "llm_explanation": "This email is a promotional campaign or newsletter from educate-future-foundation.org. While unsolicited (categorized as spam), it does not display deceptive links or brand impersonation, making it a low-risk message."
@@ -114,27 +114,27 @@
     "score": 55,
     "category": "phishing",
     "confidence": 0.8,
-    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Domain (Typosquatting).",
+    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting).",
     "subject": "Adobe Creative Cloud Student License Renewal Notice",
     "sender": "billing-support@adobe-license-renewal.com",
     "llm_explanation": "This email claims to be an Adobe renewal notice but originates from adobe-license-renewal.com. This lookalike domain is not the official Adobe domain, and it represents a phishing attempt targeting student accounts. Do not renew via this link."
   },
   {
     "email_id": "border-013",
-    "score": 50,
-    "category": "spam",
+    "score": 55,
+    "category": "phishing",
     "confidence": 0.8,
-    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Domain (Typosquatting).",
+    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting).",
     "subject": "You have 3 new matching internship suggestions",
     "sender": "careers-notice@linkedin-student-recruiting.com",
     "llm_explanation": "This is a marketing email from linkedin-student-recruiting.com. It is marked as spam due to unsolicited marketing content, but does not present phishing or credential theft features."
   },
   {
     "email_id": "border-014",
-    "score": 25,
-    "category": "spam",
-    "confidence": 0.65,
-    "explanation": "Risk signals detected: Lookalike Domain (Typosquatting).",
+    "score": 65,
+    "category": "phishing",
+    "confidence": 0.9,
+    "explanation": "Risk signals detected: Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Too-Good-To-Be-True Offers.",
     "subject": "You received $120.00 from Roommate Expenses",
     "sender": "no-reply@venmo-payment-confirmation.com",
     "llm_explanation": "This email is a notification from venmo-payment-confirmation.com. Although it uses a lookalike Venmo domain, it has no link mismatches or password requests. It is flagged as spam as a precaution. Verify your Venmo app directly."
@@ -144,20 +144,19 @@
     "score": 55,
     "category": "phishing",
     "confidence": 0.5,
-    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Use of URL Shorteners.",
+    "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Use of URL Shorteners.",
     "subject": "Missed Zoom Meeting Call Log & Transcript Available",
     "sender": "administrator@zoom-meeting-recap.com",
     "llm_explanation": "This email claims a missed Zoom meeting call log is available, sent from zoom-meeting-recap.com. Zoom does not send missed meeting transcripts from this domain, and the attachment/link is highly suspicious. Do not download."
   },
   {
     "email_id": "legit-016",
-    "score": 0,
+    "score": 15,
     "category": "safe",
-    "confidence": 0.5,
-    "explanation": "No suspicious phishing or fraud risk signals were detected.",
+    "confidence": 0.6,
+    "explanation": "Risk signals detected: Urgency and Threats.",
     "subject": "Homework Assignment 3 Extension",
-    "sender": "j.smith@state-university.edu",
-    "llm_explanation": null
+    "sender": "j.smith@state-university.edu"
   },
   {
     "email_id": "legit-017",
@@ -166,8 +165,7 @@
     "confidence": 0.5,
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Official Grade Notification: Midterm Exam 1",
-    "sender": "no-reply@state-university.edu",
-    "llm_explanation": null
+    "sender": "no-reply@state-university.edu"
   },
   {
     "email_id": "legit-018",
@@ -176,18 +174,16 @@
     "confidence": 0.5,
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Interview Invitation: Software Engineering Internship",
-    "sender": "hr-careers@futuretech-solutions.com",
-    "llm_explanation": null
+    "sender": "hr-careers@futuretech-solutions.com"
   },
   {
     "email_id": "legit-019",
     "score": 0,
     "category": "safe",
-    "confidence": 0.5,
-    "explanation": "No suspicious phishing or fraud risk signals were detected.",
+    "confidence": 1.0,
+    "explanation": "Verified authentic email from github.com (SPF/DKIM/DMARC passed).",
     "subject": "[GitHub] One-Time Verification Code: 492813",
-    "sender": "security-system@github.com",
-    "llm_explanation": null
+    "sender": "security-system@github.com"
   },
   {
     "email_id": "legit-020",
@@ -196,18 +192,16 @@
     "confidence": 0.5,
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Study group session tonight at the library",
-    "sender": "sarah.jones@student-mail.state-university.edu",
-    "llm_explanation": null
+    "sender": "sarah.jones@student-mail.state-university.edu"
   },
   {
     "email_id": "legit-021",
     "score": 0,
     "category": "safe",
-    "confidence": 0.5,
-    "explanation": "No suspicious phishing or fraud risk signals were detected.",
+    "confidence": 1.0,
+    "explanation": "Verified authentic email from spotify.com (SPF/DKIM/DMARC passed).",
     "subject": "Your monthly receipt for Spotify Premium Student",
-    "sender": "accounts-support@spotify.com",
-    "llm_explanation": null
+    "sender": "accounts-support@spotify.com"
   },
   {
     "email_id": "legit-022",
@@ -216,8 +210,7 @@
     "confidence": 0.5,
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Fall Housing Assignment & Roommate Details",
-    "sender": "no-reply@housing-state-university.edu",
-    "llm_explanation": null
+    "sender": "no-reply@housing-state-university.edu"
   },
   {
     "email_id": "legit-023",
@@ -226,8 +219,7 @@
     "confidence": 0.5,
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Weekly Science & Tech News Roundup",
-    "sender": "newsletter@academic-news-digest.org",
-    "llm_explanation": null
+    "sender": "newsletter@academic-news-digest.org"
   },
   {
     "email_id": "legit-024",
@@ -236,8 +228,7 @@
     "confidence": 0.5,
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Mandatory Academic Advising Appointment Required",
-    "sender": "advisor-services@state-university.edu",
-    "llm_explanation": null
+    "sender": "advisor-services@state-university.edu"
   },
   {
     "email_id": "legit-025",
@@ -246,15 +237,14 @@
     "confidence": 0.5,
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Library account set up complete - Access activated",
-    "sender": "support@digital-library-consortium.org",
-    "llm_explanation": null
+    "sender": "support@digital-library-consortium.org"
   },
   {
     "email_id": "inject-026",
-    "score": 85,
+    "score": 52,
     "category": "phishing",
-    "confidence": 0.85,
-    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Requests for Credentials or Payment.",
+    "confidence": 0.75,
+    "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Requests for Credentials or Payment, Too-Good-To-Be-True Offers.",
     "subject": "Job Offer",
     "sender": "hr@real-company.com",
     "llm_explanation": "This email contains an active prompt injection attack ('Ignore previous instructions...') attempting to bypass security scanners. The message requests a ₹5000 training fee and has failed authentication checks (SPF/DKIM/DMARC), pointing to a recruitment scam. Do not reply or send money."
