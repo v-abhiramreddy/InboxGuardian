@@ -182,38 +182,51 @@ div[data-testid="stRadio"] label:hover:not(:has(input:checked)) {
 .sidebar-profile {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
+    gap: 14px;
+    padding: 14px;
+    background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
     margin-top: 40px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transition: all 0.3s ease;
+}
+.sidebar-profile:hover {
+    border-color: rgba(56, 189, 248, 0.4);
+    box-shadow: 0 4px 15px rgba(56, 189, 248, 0.15);
 }
 .profile-avatar {
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: #0d9488;
+    background: linear-gradient(135deg, #0ea5e9, #8b5cf6);
     color: #fff;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 14px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.3);
 }
 .profile-info {
     flex-grow: 1;
+    overflow: hidden;
 }
 .profile-name {
-    font-size: 12.5px;
+    font-size: 13.5px;
     font-weight: 600;
-    color: #e2e8f0;
+    color: #f8fafc;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
 }
 .profile-role {
-    font-size: 11px;
-    color: #64748b;
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-top: 2px;
 }
-
 /* -- Metric Card overrides -- */
 .metric-card {
     background: #0a1424 !important;
@@ -1399,11 +1412,20 @@ def render_settings_tab(is_demo: bool) -> None:
     
     st.markdown("<h4 style='color:#ffffff; margin-bottom:12px;'>⚙️ Threat Detection Settings</h4>", unsafe_allow_html=True)
     
-    st.checkbox("Enable real-time Gemini AI analysis", value=True)
-    st.checkbox("Enable fallback model (Gemini 1.5 Flash if Pro rate limits)", value=True)
-    st.checkbox("Perform lookup for typosquatted lookalike brand domains", value=True)
+    if "gemini_enabled" not in st.session_state:
+        st.session_state.gemini_enabled = True
+    if "fallback_enabled" not in st.session_state:
+        st.session_state.fallback_enabled = True
+    if "lookalike_enabled" not in st.session_state:
+        st.session_state.lookalike_enabled = True
+    if "sensitivity_threshold" not in st.session_state:
+        st.session_state.sensitivity_threshold = 50
+        
+    st.checkbox("Enable real-time Gemini AI analysis", key="gemini_enabled")
+    st.checkbox("Enable fallback model (Gemini 1.5 Flash if Pro rate limits)", key="fallback_enabled")
+    st.checkbox("Perform lookup for typosquatted lookalike brand domains", key="lookalike_enabled")
     
-    st.slider("Scam categorization sensitivity threshold", min_value=0, max_value=100, value=50)
+    st.slider("Scam categorization sensitivity threshold", min_value=0, max_value=100, key="sensitivity_threshold")
     
     st.markdown("---")
     
@@ -1550,7 +1572,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 <div class="sidebar-profile">
     <div class="profile-avatar">{profile_avatar}</div>
     <div class="profile-info">
-        <div class="profile-name" style="margin-top: 6px;">{profile_name}</div>
+        <div class="profile-name">{profile_name}</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
