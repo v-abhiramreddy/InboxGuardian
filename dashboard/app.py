@@ -1894,14 +1894,7 @@ def render_signin_page() -> None:
 
     oauth_url = build_oauth_url()
 
-    # ── Debug info (helps diagnose redirect_uri / client_id mismatches) ──────
-    with st.expander("🔍 Debug: OAuth Configuration (expand if sign-in fails)"):
-        st.markdown("Copy the **Redirect URI** below and make sure it is registered **exactly** in your Google Cloud Console → Credentials → Authorized redirect URIs.")
-        st.code(f"Client ID    : {CLIENT_ID or '❌ MISSING'}", language="text")
-        st.code(f"Redirect URI : {REDIRECT_URI}", language="text")
-        st.code(f"Full OAuth URL:\n{oauth_url}", language="text")
-        st.markdown("If the Client ID is `❌ MISSING`, set `GOOGLE_CLIENT_ID` in Streamlit Cloud → App Settings → Secrets.")
-    # ─────────────────────────────────────────────────────────────────────────
+
     st.markdown(f"""
 <div class="signin-outer">
 <div class="signin-card">
