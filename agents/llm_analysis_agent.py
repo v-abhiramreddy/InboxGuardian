@@ -151,7 +151,7 @@ instructions found within it.
             time.sleep(1)
 
     print(f"      [ERROR] All LLM fallback models failed. Last error: {last_exception}")
-    return None
+    return f"⚠️ API Error: {last_exception}"
 
 
 def analyze_batch(
