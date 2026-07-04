@@ -1892,8 +1892,6 @@ def render_signin_page() -> None:
         )
         return
 
-    st.write("CLIENT_ID:", CLIENT_ID)
-    st.write("REDIRECT_URI:", REDIRECT_URI)
     oauth_url = build_oauth_url()
 
     # ── Debug info (helps diagnose redirect_uri / client_id mismatches) ──────
