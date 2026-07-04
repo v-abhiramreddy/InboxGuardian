@@ -860,13 +860,9 @@ def fetch_and_score(access_token: str, count: int = 20) -> pd.DataFrame:
             scored["subject"] = email_obj["subject"]
             scored["sender"]  = email_obj["sender"]
             
-            # Dynamically call Gemini threat analyzer on-the-fly for flagged emails
-            # if an API key is set in the environment
+            # Dynamically call Gemini threat analyzer on-the-fly for all emails
             from agents.llm_analysis_agent import analyze_email_with_llm
-            if scored["score"] >= 25:
-                scored["llm_explanation"] = analyze_email_with_llm(email_obj, scored)
-            else:
-                scored["llm_explanation"] = None
+            scored["llm_explanation"] = analyze_email_with_llm(email_obj, scored)
                 
             rows.append(scored)
         except PermissionError:
@@ -1808,11 +1804,33 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 cat_pill = f'<span class="badge badge-{cat}" style="font-size:10px; border-radius:4px;">{cat.upper()}</span>'
                 
                 llm_analysis_html = ""
-                if "llm_explanation" in row and pd.notna(row["llm_explanation"]) and row["llm_explanation"]:
+                explanation = row.get("llm_explanation")
+                
+                # Check if API key is configured
+                api_key = None
+                try:
+                    import streamlit as st
+                    api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
+                except Exception:
+                    pass
+                if not api_key:
+                    import os
+                    api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+                
+                if explanation and pd.notna(explanation) and str(explanation).strip():
                     llm_analysis_html = (
                         f'<div class="llm-explanation">'
                         f'<b>{chr(0x1f916)} AI Threat Analysis (Gemini):</b><br>'
-                        f'{_html.escape(str(row["llm_explanation"]))}'
+                        f'{_html.escape(str(explanation))}'
+                        f'</div>'
+                    )
+                elif not is_demo and not api_key:
+                    # Provide visual helper when the Gemini key is not added in Secrets
+                    llm_analysis_html = (
+                        f'<div class="llm-explanation" style="border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.04);">'
+                        f'<b>{chr(0x1f916)} AI Threat Analysis (Gemini):</b><br>'
+                        f'<span style="color:#f87171; font-size:12.5px;">⚠️ <b>AI Analysis Offline:</b> No Gemini API key found. '
+                        f'Add <code>GEMINI_API_KEY</code> to your Streamlit Secrets to enable real-time AI security checks.</span>'
                         f'</div>'
                     )
                 
