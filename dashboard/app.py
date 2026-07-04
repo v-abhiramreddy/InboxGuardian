@@ -1876,12 +1876,22 @@ def build_oauth_url() -> str:
         "response_type": "code",
         "scope":         GMAIL_SCOPE,
         "access_type":   "online",
-        "prompt":        "select_account",
+        # Use 'consent' so Google always shows the account chooser + permission screen.
+        # 'select_account' alone can silently reuse a cached denied session.
+        "prompt":        "consent",
     }
     return f"{AUTH_URL}?{urlencode(params)}"
 
 
 def render_signin_page() -> None:
+    # Guard: if CLIENT_ID is not configured, show a setup warning instead of a broken button
+    if not CLIENT_ID:
+        st.error(
+            "⚠️ **OAuth not configured.** `GOOGLE_CLIENT_ID` is missing. "
+            "Add it to your Streamlit secrets or environment variables."
+        )
+        return
+
     oauth_url = build_oauth_url()
     st.markdown(f"""
 <div class="signin-outer">
@@ -2004,12 +2014,18 @@ Google has returned a <strong>403 Forbidden / Access Denied</strong> error. This
 # ==============================================================================
 
 def main() -> None:
-    # -- 0. Check persistent 403 error state ----
-    if "oauth_403_error" in st.session_state:
-        render_403_error_page(st.session_state["oauth_403_error"])
-        return
-
     params = st.query_params
+
+    # -- 0. Check persistent 403 error state ----
+    # If there is a stale 403 error but the user is visiting fresh (no code param),
+    # clear it automatically so the sign-in page is shown instead of being stuck.
+    if "oauth_403_error" in st.session_state:
+        if "code" not in params:
+            # Fresh page load with no OAuth callback — clear stale error, show sign-in
+            del st.session_state["oauth_403_error"]
+        else:
+            render_403_error_page(st.session_state["oauth_403_error"])
+            return
 
     # -- 1. OAuth callback: ?code=... ----                                    
     if "code" in params and "access_token" not in st.session_state:
