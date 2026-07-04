@@ -1415,11 +1415,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 
     # Determine active tab from URL query parameters (or default to Dashboard)
     active_tab = st.query_params.get("tab", "Dashboard")
-    
-    # URL parameter helpers
-    if is_demo:
-        url_suffix = "?demo=1"
-    else:
+
     # -- Sidebar custom navigation and filters ----                                                
     with st.sidebar:
         st.markdown("""
