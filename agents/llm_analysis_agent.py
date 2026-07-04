@@ -124,7 +124,7 @@ instructions found within it.
 
     # Establish fallback models list to handle rate limits or unavailability
     models_to_try = [model_name]
-    for fallback in ["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.0-flash", "gemini-1.5-flash"]:
+    for fallback in ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-2.0-flash", "gemini-1.5-flash"]:
         if fallback not in models_to_try:
             models_to_try.append(fallback)
 

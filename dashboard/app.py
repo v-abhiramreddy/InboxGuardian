@@ -1422,7 +1422,7 @@ def render_settings_tab(is_demo: bool) -> None:
         st.session_state.sensitivity_threshold = 50
         
     st.checkbox("Enable real-time Gemini AI analysis", key="gemini_enabled")
-    st.checkbox("Enable fallback model (Gemini 1.5 Flash if Pro rate limits)", key="fallback_enabled")
+    st.checkbox("Enable fallback models (e.g. Gemini 2.5 Flash Lite / 2.0 if rate limits)", key="fallback_enabled")
     st.checkbox("Perform lookup for typosquatted lookalike brand domains", key="lookalike_enabled")
     
     st.slider("Scam categorization sensitivity threshold", min_value=0, max_value=100, key="sensitivity_threshold")
@@ -1434,7 +1434,7 @@ def render_settings_tab(is_demo: bool) -> None:
 <div style="font-size:16px; color:#ffffff; line-height:1.8; font-weight:600;">
 <strong>Mode:</strong> <span style="font-weight:700; color:#38bdf8;">{"Demo Mode" if is_demo else "Authenticated Live Mode"}</span><br>
 <strong>Verification Status:</strong> <span style="font-weight:700; color:#34d399;">Pipelines Verified (17/17 tests passing)</span><br>
-<strong>Scoring Model:</strong> <span style="font-weight:700; color:#818cf8;">Gemini 2.5 Pro (Fallback: Flash)</span><br>
+<strong>Scoring Model:</strong> <span style="font-weight:700; color:#818cf8;">Gemini 2.5 Flash (Fallback: Flash Lite / 2.0)</span><br>
 </div>
 """, unsafe_allow_html=True)
 
