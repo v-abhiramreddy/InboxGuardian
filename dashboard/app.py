@@ -744,6 +744,23 @@ hr { border-color: rgba(255,255,255,0.07) !important; margin: 20px 0; }
     color: #ffffff;
 }
 
+/* Custom Download button style */
+div[data-testid="stDownloadButton"] button {
+    background: linear-gradient(135deg, #0ea5e9, #8b5cf6) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3) !important;
+}
+div[data-testid="stDownloadButton"] button:hover {
+    background: linear-gradient(135deg, #38bdf8, #a78bfa) !important;
+    box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4) !important;
+    transform: translateY(-1px) !important;
+    color: white !important;
+}
+
 /* Custom sidebar button styles */
 div[data-testid="stSidebar"] button {
     background: rgba(255, 255, 255, 0.05) !important;
@@ -1428,22 +1445,30 @@ def render_settings_tab(is_demo: bool) -> None:
     
     st.markdown("<h4 style='color:#ffffff; margin-bottom:12px;'>⚙️ Threat Detection Settings</h4>", unsafe_allow_html=True)
     
-    if "gemini_enabled" not in st.session_state:
-        st.session_state.gemini_enabled = True
-    if "fallback_enabled" not in st.session_state:
-        st.session_state.fallback_enabled = True
-    if "lookalike_enabled" not in st.session_state:
-        st.session_state.lookalike_enabled = True
-    if "sensitivity_threshold" not in st.session_state:
-        st.session_state.sensitivity_threshold = 50
-        
-    st.checkbox("Enable real-time Gemini AI analysis", key="gemini_enabled")
-    st.checkbox("Enable fallback models (e.g. Gemini 2.5 Flash Lite / 2.0 if rate limits)", key="fallback_enabled")
-    st.checkbox("Perform lookup for typosquatted lookalike brand domains", key="lookalike_enabled")
+    if "gemini_enabled" not in st.session_state: st.session_state.gemini_enabled = True
+    if "fallback_enabled" not in st.session_state: st.session_state.fallback_enabled = True
+    if "lookalike_enabled" not in st.session_state: st.session_state.lookalike_enabled = True
+    if "sensitivity_threshold" not in st.session_state: st.session_state.sensitivity_threshold = 50
+
+    def sync_settings():
+        if "widget_gemini" in st.session_state: st.session_state.gemini_enabled = st.session_state.widget_gemini
+        if "widget_fallback" in st.session_state: st.session_state.fallback_enabled = st.session_state.widget_fallback
+        if "widget_lookalike" in st.session_state: st.session_state.lookalike_enabled = st.session_state.widget_lookalike
+        if "widget_slider" in st.session_state: st.session_state.sensitivity_threshold = st.session_state.widget_slider
+
+    st.markdown("""
+<div style="background:linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%); border:1px solid rgba(255,255,255,0.05); padding:20px; border-radius:12px; margin-bottom:24px; box-shadow:0 4px 16px rgba(0,0,0,0.15);">
+    <h5 style="color:#f8fafc; margin-top:0; margin-bottom:16px; font-weight:600;">Analysis Preferences</h5>
+""", unsafe_allow_html=True)
+
+    st.checkbox("Enable real-time Gemini AI analysis", value=st.session_state.gemini_enabled, key="widget_gemini", on_change=sync_settings)
+    st.checkbox("Enable fallback models (e.g. Gemini 2.5 Flash Lite / 2.0 if rate limits)", value=st.session_state.fallback_enabled, key="widget_fallback", on_change=sync_settings)
+    st.checkbox("Perform lookup for typosquatted lookalike brand domains", value=st.session_state.lookalike_enabled, key="widget_lookalike", on_change=sync_settings)
     
-    st.slider("Scam categorization sensitivity threshold", min_value=0, max_value=100, key="sensitivity_threshold")
-    
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
+    st.slider("Scam categorization sensitivity threshold", min_value=0, max_value=100, value=st.session_state.sensitivity_threshold, key="widget_slider", on_change=sync_settings)
+
+    st.markdown("</div>", unsafe_allow_html=True)
     
     st.markdown("<h4 style='color:#ffffff; margin-bottom:12px;'>📊 Session Information</h4>", unsafe_allow_html=True)
     st.markdown(f"""
