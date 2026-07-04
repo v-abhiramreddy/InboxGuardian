@@ -723,7 +723,7 @@ CLIENT_SECRET = _secret("GOOGLE_CLIENT_SECRET")
 # Default redirect URI to Streamlit's default local address if not configured
 REDIRECT_URI  = _secret("REDIRECT_URI", "http://localhost:8501")
 
-GMAIL_SCOPE = "openid email profile"
+GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
 AUTH_URL    = "https://accounts.google.com/o/oauth2/v2/auth"
 TOKEN_URL   = "https://oauth2.googleapis.com/token"
 
