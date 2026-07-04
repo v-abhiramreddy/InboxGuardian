@@ -152,6 +152,17 @@ instructions found within it.
             traceback.print_exc()
             print("=" * 80)
             last_exception = exc
+            
+            # Detect quota exhaustion
+            err_str = str(exc)
+            err_repr = repr(exc)
+            if "429" in err_str or "429" in err_repr or "RESOURCE_EXHAUSTED" in err_str or "RESOURCE_EXHAUSTED" in err_repr:
+                print(f"      [WARNING] Quota exhausted on {model}. Aborting fallback chain.")
+                return (
+                    "⚠️ API Quota Exceeded (429 RESOURCE_EXHAUSTED): You have exhausted your Gemini free-tier quota. "
+                    "Please wait for your quota to reset or configure a paid API key in the app settings."
+                )
+            
             import time
             time.sleep(1)
 
