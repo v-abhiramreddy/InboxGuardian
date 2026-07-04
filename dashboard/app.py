@@ -84,7 +84,10 @@ st.markdown("""
 }
 
 /* Hide Streamlit default header anchor link buttons next to headings */
-.header-anchor {
+.header-anchor, 
+[data-testid="stHeaderActionElements"], 
+div[data-testid="StyledLinkIconContainer"] > a:first-child,
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
     display: none !important;
 }
 
