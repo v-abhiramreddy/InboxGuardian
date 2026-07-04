@@ -75,7 +75,16 @@ def analyze_email_with_llm(
         A string with the LLM-generated explanation, or None if the API call
         fails or no API key is configured.
     """
-    api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    # Retrieve API key from Streamlit secrets first, falling back to environment variables
+    api_key = None
+    try:
+        import streamlit as st
+        api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
+    except Exception:
+        pass
+    if not api_key:
+        api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+
     if not api_key:
         return None
 
@@ -167,7 +176,16 @@ def analyze_batch(
     Returns:
         The same results list, with an added "llm_explanation" key on each dict.
     """
-    api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+    # Retrieve API key from Streamlit secrets first, falling back to environment variables
+    api_key = None
+    try:
+        import streamlit as st
+        api_key = st.secrets.get("GEMINI_API_KEY") or st.secrets.get("GOOGLE_API_KEY")
+    except Exception:
+        pass
+    if not api_key:
+        api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
+
     if not api_key:
         print("      [INFO] No GOOGLE_API_KEY or GEMINI_API_KEY set — skipping LLM analysis.")
         for r in results:

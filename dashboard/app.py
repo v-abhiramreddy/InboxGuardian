@@ -104,8 +104,8 @@ html, body, [class*="css"] {
     margin-bottom: 24px;
 }
 .sidebar-logo-text {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 800;
     color: #38bdf8;
     letter-spacing: 0.5px;
 }
@@ -122,7 +122,7 @@ div[data-testid="stRadio"] {
 div[data-testid="stRadio"] div[role="radiogroup"] {
     display: flex !important;
     flex-direction: column !important;
-    gap: 6px !important;
+    gap: 14px !important;
 }
 div[data-testid="stRadio"] div[role="radiogroup"] label {
     display: flex !important;
@@ -573,8 +573,9 @@ div[data-testid="stRadio"] label:hover:not(:has(input:checked)) {
     gap: 8px;
 }
 .privacy-note {
-    font-size: 12px;
-    color: #64748b;
+    font-size: 13px;
+    color: #fbbf24; /* Warning Gold/Yellow */
+    font-weight: 600;
     border-top: 1px solid rgba(255,255,255,0.06);
     padding-top: 16px;
     margin-top: 24px;
@@ -1385,10 +1386,10 @@ def render_settings_tab(is_demo: bool) -> None:
     
     st.markdown("<h4 style='color:#ffffff; margin-bottom:12px;'>📊 Session Information</h4>", unsafe_allow_html=True)
     st.markdown(f"""
-<div style="font-size:13px; color:#94a3b8; line-height:1.6;">
-<strong>Mode:</strong> {"Demo Mode" if is_demo else "Authenticated Live Mode"}<br>
-<strong>Verification Status:</strong> Pipelines Verified (17/17 tests passing)<br>
-<strong>Scoring Model:</strong> Gemini 2.5 Pro (Fallback: Flash)<br>
+<div style="font-size:16px; color:#ffffff; line-height:1.8; font-weight:600;">
+<strong>Mode:</strong> <span style="font-weight:700; color:#38bdf8;">{"Demo Mode" if is_demo else "Authenticated Live Mode"}</span><br>
+<strong>Verification Status:</strong> <span style="font-weight:700; color:#34d399;">Pipelines Verified (17/17 tests passing)</span><br>
+<strong>Scoring Model:</strong> <span style="font-weight:700; color:#818cf8;">Gemini 2.5 Pro (Fallback: Flash)</span><br>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1398,11 +1399,11 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 
     # Brand Title Header at the very top of the page
     st.markdown("""
-<div style="display:flex; align-items:center; gap:10px; margin-bottom:18px; margin-top: -10px;">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+<div style="display:flex; align-items:center; gap:12px; margin-bottom:24px; margin-top: -10px;">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
     </svg>
-    <span style="font-size:24px; font-weight:800; color:#ffffff; letter-spacing:0.5px; font-family: 'Outfit', sans-serif;">Inbox Guardian</span>
+    <span style="font-size:32px; font-weight:850; color:#ffffff; letter-spacing:0.5px; font-family: 'Outfit', sans-serif;">Inbox Guardian</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -1419,8 +1420,8 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     # -- Sidebar custom navigation and filters ----                                                
     with st.sidebar:
         st.markdown("""
-<div class="sidebar-logo" style="margin-bottom: 12px;">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+<div class="sidebar-logo">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
     <span class="sidebar-logo-text">INBOX GUARDIAN</span>
 </div>
 """, unsafe_allow_html=True)
@@ -1759,7 +1760,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
         master_col, detail_col = st.columns([2, 3])
         
         with master_col:
-            st.markdown("<p style='font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;'>Inbox Explorer</p>", unsafe_allow_html=True)
+            st.markdown("<p style='font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;'>Inbox Explorer</p>", unsafe_allow_html=True)
             
             # Searchable selectbox
             if not filtered.empty:
@@ -1798,7 +1799,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 """, unsafe_allow_html=True)
                     
         with detail_col:
-            st.markdown("<p style='font-size:12px; font-weight:600; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;'>Signal Analysis Inspector</p>", unsafe_allow_html=True)
+            st.markdown("<p style='font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px; margin-bottom:10px;'>Signal Analysis Inspector</p>", unsafe_allow_html=True)
             
             if selected_idx is not None and selected_idx < len(filtered):
                 row = filtered.iloc[selected_idx]
