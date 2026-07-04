@@ -1372,17 +1372,22 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     active_tab = st.query_params.get("tab", "Dashboard")
     
     # URL parameter helpers
-    demo_param = "?demo=1" if is_demo else ""
-    tab_prefix = "&" if demo_param else "?"
+    if is_demo:
+        url_suffix = "?demo=1"
+    else:
+        token = st.session_state.get("access_token", "")
+        url_suffix = f"?access_token={token}" if token else ""
+
+    tab_prefix = "&" if url_suffix else "?"
     
-    db_url = f"{demo_param}{tab_prefix}tab=Dashboard"
-    ea_url = f"{demo_param}{tab_prefix}tab=Analysis"
-    ti_url = f"{demo_param}{tab_prefix}tab=ThreatIntel"
-    ls_url = f"{demo_param}{tab_prefix}tab=LinkScanner"
-    sd_url = f"{demo_param}{tab_prefix}tab=ScamDetector"
-    ur_url = f"{demo_param}{tab_prefix}tab=UserReports"
-    an_url = f"{demo_param}{tab_prefix}tab=Analytics"
-    se_url = f"{demo_param}{tab_prefix}tab=Settings"
+    db_url = f"{url_suffix}{tab_prefix}tab=Dashboard"
+    ea_url = f"{url_suffix}{tab_prefix}tab=Analysis"
+    ti_url = f"{url_suffix}{tab_prefix}tab=ThreatIntel"
+    ls_url = f"{url_suffix}{tab_prefix}tab=LinkScanner"
+    sd_url = f"{url_suffix}{tab_prefix}tab=ScamDetector"
+    ur_url = f"{url_suffix}{tab_prefix}tab=UserReports"
+    an_url = f"{url_suffix}{tab_prefix}tab=Analytics"
+    se_url = f"{url_suffix}{tab_prefix}tab=Settings"
     
     db_active = "active" if active_tab == "Dashboard" else ""
     ea_active = "active" if active_tab == "Analysis" else ""
@@ -2031,6 +2036,14 @@ Google has returned a <strong>403 Forbidden / Access Denied</strong> error. This
 
 def main() -> None:
     params = st.query_params
+
+    # -- 0. Restore access token from URL parameters if present (occurs on tab switches) --
+    if "access_token" in params:
+        st.session_state["access_token"] = params["access_token"]
+        tab = params.get("tab", "Dashboard")
+        st.query_params.clear()
+        st.query_params["tab"] = tab
+        st.rerun()
 
     # -- 0a. Google OAuth error redirect: ?error=access_denied ----
     # When Google DENIES access, it redirects back with ?error=... (no ?code=)
