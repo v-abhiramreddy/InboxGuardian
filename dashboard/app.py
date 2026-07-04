@@ -730,6 +730,27 @@ hr { border-color: rgba(255,255,255,0.07) !important; margin: 20px 0; }
 .troubleshoot-list li strong {
     color: #ffffff;
 }
+
+/* Custom sidebar button styles */
+div[data-testid="stSidebar"] button {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e2e8f0 !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+    font-size: 13.5px !important;
+    padding: 6px 12px !important;
+    height: 38px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+div[data-testid="stSidebar"] button:hover {
+    background: #0284c7 !important;
+    border-color: #38bdf8 !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(56, 189, 248, 0.2) !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -815,10 +836,12 @@ def _parse_message(raw_b64: str, message_id: str) -> dict:
     raw_bytes = base64.urlsafe_b64decode(raw_b64 + "==")
     msg       = message_from_bytes(raw_bytes)
 
-    sender  = _decode_mime_header(msg.get("From", ""))
-    subject = _decode_mime_header(msg.get("Subject", ""))
-    body    = _extract_body_text(msg)[:1500]
-    links   = _extract_links(body)
+    sender   = _decode_mime_header(msg.get("From", ""))
+    subject  = _decode_mime_header(msg.get("Subject", ""))
+    body     = _extract_body_text(msg)[:1500]
+    links    = _extract_links(body)
+    to_hdr   = _decode_mime_header(msg.get("To", ""))
+    date_hdr = _decode_mime_header(msg.get("Date", ""))
 
     auth_hdr = msg.get("Authentication-Results", "")
     return {
@@ -827,6 +850,8 @@ def _parse_message(raw_b64: str, message_id: str) -> dict:
         "subject":   subject,
         "body_text": body,
         "links":     links,
+        "to":        to_hdr,
+        "date":      date_hdr,
         "headers": {
             "spf":   _auth_result(auth_hdr, "spf"),
             "dkim":  _auth_result(auth_hdr, "dkim"),
@@ -859,6 +884,8 @@ def fetch_and_score(access_token: str, count: int = 20) -> pd.DataFrame:
             # Attach display fields that scoring_agent doesn't return
             scored["subject"] = email_obj["subject"]
             scored["sender"]  = email_obj["sender"]
+            scored["to"]      = email_obj.get("to", "")
+            scored["date"]    = email_obj.get("date", "")
             
             # Dynamically call Gemini threat analyzer on-the-fly for all emails
             from agents.llm_analysis_agent import analyze_email_with_llm
@@ -1465,14 +1492,17 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
         st.markdown("---")
 
         if not is_demo:
-            if st.button("🔄 Re-scan inbox"):
-                st.session_state.pop("scored_df", None)
-                st.rerun()
-            if st.button("Exit Sign out"):
-                st.session_state.clear()
-                st.rerun()
+            col1, col2 = st.columns(2)
+            with col1:
+                if st.button("🔄 Re-scan", key="btn_rescan", use_container_width=True):
+                    st.session_state.pop("scored_df", None)
+                    st.rerun()
+            with col2:
+                if st.button("🚪 Sign out", key="btn_signout", use_container_width=True):
+                    st.session_state.clear()
+                    st.rerun()
         else:
-            if st.button("🔙 Back to sign-in"):
+            if st.button("🔙 Back to sign-in", use_container_width=True):
                 st.session_state.pop("demo_mode", None)
                 st.rerun()
 
@@ -1480,15 +1510,47 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
         profile_name = "Sarah Chen"
         profile_avatar = "SC"
         if not is_demo and "access_token" in st.session_state:
-            profile_name = "Gmail User"
-            profile_avatar = "GU"
+            if "profile_name" not in st.session_state:
+                # Try calling Google userinfo endpoint first
+                try:
+                    userinfo_resp = requests.get(
+                        "https://www.googleapis.com/oauth2/v3/userinfo",
+                        headers={"Authorization": f"Bearer {st.session_state['access_token']}"},
+                        timeout=5
+                    )
+                    if userinfo_resp.status_code == 200:
+                        userinfo = userinfo_resp.json()
+                        st.session_state["profile_name"] = userinfo.get("name") or userinfo.get("email", "Gmail User")
+                        email_addr = userinfo.get("email") or ""
+                        email_part = email_addr.split("@")[0] if email_addr else "GU"
+                        st.session_state["profile_avatar"] = "".join([w[0].upper() for w in userinfo.get("name", email_part).split()[:2]])
+                    else:
+                        raise Exception("Scope restriction")
+                except Exception:
+                    # Fallback to Gmail API users.getProfile
+                    try:
+                        profile_info = _gmail_get("profile", st.session_state["access_token"])
+                        email_addr = profile_info.get("emailAddress", "Gmail User")
+                        st.session_state["profile_name"] = email_addr
+                        email_part = email_addr.split("@")[0]
+                        if "." in email_part:
+                            st.session_state["profile_avatar"] = "".join([part[0].upper() for part in email_part.split(".")[:2]])
+                        elif "_" in email_part:
+                            st.session_state["profile_avatar"] = "".join([part[0].upper() for part in email_part.split("_")[:2]])
+                        else:
+                            st.session_state["profile_avatar"] = email_part[:2].upper()
+                    except Exception:
+                        st.session_state["profile_name"] = "Gmail User"
+                        st.session_state["profile_avatar"] = "GU"
+            
+            profile_name = st.session_state.get("profile_name", "Gmail User")
+            profile_avatar = st.session_state.get("profile_avatar", "GU")
             
         st.markdown(f"""
 <div class="sidebar-profile">
     <div class="profile-avatar">{profile_avatar}</div>
     <div class="profile-info">
-        <div class="profile-name">{profile_name}</div>
-        <div class="profile-role">Security Analyst</div>
+        <div class="profile-name" style="margin-top: 6px;">{profile_name}</div>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1833,6 +1895,18 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                         f'</div>'
                     )
                 
+                # Resolve the 'To' field
+                to_val = "sarah.chen@company.com"
+                if "to" in row and pd.notna(row["to"]) and str(row["to"]).strip():
+                    to_val = str(row["to"])
+                elif not is_demo and "profile_email" in st.session_state:
+                    to_val = st.session_state["profile_email"]
+
+                # Resolve the 'Received' date field
+                received_val = "2026-07-03 09:42:07 UTC"
+                if "date" in row and pd.notna(row["date"]) and str(row["date"]).strip():
+                    received_val = str(row["date"])
+
                 # Card header + metadata (rendered as HTML)
                 st.markdown(f"""
 <div class="detail-card">
@@ -1855,11 +1929,11 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 </div>
 <div class="meta-item">
 <span class="meta-label">To:</span>
-<span class="meta-val">sarah.chen@company.com</span>
+<span class="meta-val">{_html.escape(to_val)}</span>
 </div>
 <div class="meta-item">
 <span class="meta-label">Received:</span>
-<span class="meta-val">2026-07-03 09:42:07 UTC</span>
+<span class="meta-val">{_html.escape(received_val)}</span>
 </div>
 <div class="meta-item full-width">
 <span class="meta-label">Subject:</span>
