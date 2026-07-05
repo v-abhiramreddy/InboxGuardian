@@ -251,16 +251,20 @@ def score_email(email: dict) -> dict:
     sender_local = sender_parts[0] if len(sender_parts) > 1 else ""
     sender_domain = clean_domain(sender_parts[1]) if len(sender_parts) > 1 else ""
 
-    # Short-circuit: If the email is from a verified legitimate brand (passing SPF, DKIM, and DMARC)
-    # we know for a fact it is authentic and should be marked safe immediately.
+    # --- AUTHENTICATION ASSESSMENT ---
     spf = headers.get("spf", "").lower()
     dkim = headers.get("dkim", "").lower()
     dmarc = headers.get("dmarc", "").lower()
-    
+
+    auth_all_pass = (spf == "pass" and dkim == "pass" and dmarc == "pass")
+    auth_has_failure = any("fail" in v for v in (spf, dkim, dmarc))
+
+    # Short-circuit: If the email is from a verified legitimate brand (passing SPF, DKIM, and DMARC)
+    # we know for a fact it is authentic and should be marked safe immediately.
     is_verified_brand = False
     for brand, legit in LEGITIMATE_DOMAINS.items():
         if is_subdomain_of(sender_domain, legit):
-            if spf == "pass" and dkim == "pass" and dmarc == "pass":
+            if auth_all_pass:
                 is_verified_brand = True
                 break
                 
@@ -273,6 +277,32 @@ def score_email(email: dict) -> dict:
             "explanation": f"Verified authentic email from {sender_domain} (SPF/DKIM/DMARC passed)."
         }
 
+    # --- SENDER TRUST BASELINE (not a short-circuit, a score modifier) ---
+    # Institutional/government TLD patterns that require verified registration
+    INSTITUTIONAL_TLD_PATTERNS = (
+        ".edu", ".edu.in", ".ac.in", ".ac.uk",
+        ".gov", ".gov.in", ".nic.in", ".gov.uk",
+        ".mil", ".int",
+    )
+    is_institutional_tld = any(sender_domain.endswith(tld) for tld in INSTITUTIONAL_TLD_PATTERNS)
+    is_self_identified = is_sender_self_identified(display_name, sender_domain)
+
+    # Compute a trust reduction applied AFTER scoring.
+    # This shifts the baseline for authenticated-but-unknown senders without
+    # creating a blind spot (verified + strong scam signals can still score high).
+    #   - auth_all_pass alone:                      reduce by 15 pts
+    #   - auth_all_pass + institutional TLD:         reduce by 25 pts
+    #   - auth_all_pass + self-identified sender:    reduce by 20 pts
+    #   - auth_all_pass + institutional + self-id:   reduce by 30 pts
+    # None of these reductions apply if authentication fails.
+    trust_reduction = 0
+    if auth_all_pass:
+        trust_reduction = 15
+        if is_institutional_tld:
+            trust_reduction += 10
+        if is_self_identified:
+            trust_reduction += 5
+
     # Keep track of triggered signals
     signals_sender = []
     signals_links = []
@@ -280,11 +310,6 @@ def score_email(email: dict) -> dict:
     signals_attachment = []
 
     # Keep track of confidence components
-    # FIX Bug 8: These were never updated (except conf_links for shorteners),
-    # so confidence was always 0.3+0.3+0.2+0.2 = 1.0 and thus meaningless.
-    # Now each component starts at full weight and is reduced when signals are
-    # ambiguous (e.g., zero signals in a category means that category gives 0
-    # evidence, so its confidence contribution is halved).
     conf_auth = 0.3
     conf_links = 0.3
     conf_lang = 0.2
@@ -292,7 +317,6 @@ def score_email(email: dict) -> dict:
 
     # --- CATEGORY 1: Sender Authenticity ---
     # Signal A: Display Name / Local Part vs Actual Email Mismatch
-    # If the local part or display name claims a brand, but the domain doesn't match
     for brand, legit in LEGITIMATE_DOMAINS.items():
         if brand in sender_local.lower() or brand in display_name.lower():
             if not is_subdomain_of(sender_domain, legit):
@@ -300,24 +324,15 @@ def score_email(email: dict) -> dict:
                 break
 
     # Signal B: Domain Mismatch (Claimed Org vs Actual Domain)
-    # If the subject claims a brand, but the sender domain does not match.
-    # We do NOT trigger this if the sender's display name openly and honestly matches their sender domain
-    # (e.g. 'Kaggle' sending an email with 'Google' in the subject is not spoofing Google).
-    if not is_sender_self_identified(display_name, sender_domain):
+    if not is_self_identified:
         for brand, legit in LEGITIMATE_DOMAINS.items():
-            # Check if the brand is mentioned in the subject line (stronger claim of sender identity)
             if re.search(r'\b' + re.escape(brand) + r'\b', subject.lower()):
                 if not is_subdomain_of(sender_domain, legit):
                     signals_sender.append("Domain Mismatch (Claimed Org vs. Actual Domain)")
                     break
 
     # Signal C: Failed Authentication
-    spf = headers.get("spf", "").lower()
-    dkim = headers.get("dkim", "").lower()
-    dmarc = headers.get("dmarc", "").lower()
-    # FIX Bug 2: "fail" in (spf, dkim, dmarc) only matched the exact string "fail".
-    # Use substring check so "softfail" (a real SPF result) is also caught.
-    if any("fail" in v for v in (spf, dkim, dmarc)):
+    if auth_has_failure:
         signals_sender.append("Failed Authentication (SPF/DKIM/DMARC)")
 
     # Signal D: Lookalike Sender Domain (Typosquatting)
@@ -326,11 +341,9 @@ def score_email(email: dict) -> dict:
 
     # --- CATEGORY 2: Link Analysis ---
     # Signal A: Display Text vs URL Destination Mismatch
-    # We look for a brand name domain mentioned in body_text, but the actual links list has a different domain.
     body_mentions_brand_domain = False
     for brand, legit in LEGITIMATE_DOMAINS.items():
         if legit in body_text.lower():
-            # Only trigger if the email contains links, but does NOT link to the claimed brand domain at all
             has_legit_link = any(is_subdomain_of(clean_domain(urlparse(link).netloc or urlparse(link).path.split("/")[0]), legit) for link in links)
             if not has_legit_link:
                 for link in links:
@@ -352,7 +365,7 @@ def score_email(email: dict) -> dict:
         if is_shortener(link):
             signals_links.append("Use of URL Shorteners")
             has_shortener = True
-            conf_links = 0.0  # Link resolution failed due to short URL (cannot expand offline)
+            conf_links = 0.0
             break
 
     # Signal C: Lookalike Domains and Live Threat Feeds
@@ -361,12 +374,10 @@ def score_email(email: dict) -> dict:
             parsed = urlparse(link)
             link_domain = clean_domain(parsed.netloc or parsed.path.split("/")[0])
             
-            # Check against live OpenPhish threat feed
             if link_domain in get_threat_domains():
                 signals_links.append("Known Malicious Domain (Threat Database)")
                 break
                 
-            # Check lookalike domain
             if check_lookalike(link_domain):
                 signals_links.append("Lookalike Domain (Typosquatting)")
                 break
@@ -374,107 +385,101 @@ def score_email(email: dict) -> dict:
             pass
 
     # --- CATEGORY 3: Language and Psychological Pressure ---
+    combined_text = (subject + " " + body_text).lower()
+
     # Signal A: Urgency and Threats
+    # TIGHTENED: Removed overly generic words ("deadline", "work from home",
+    # "offer letter attached") that fire on legitimate institutional/college emails.
     urgency_keywords = [
-        "urgent", "suspension", "suspended", "expire", "expiring", 
-        "restrict", "restriction", "restricted", "action required", 
-        "immediately", "within 24 hours", "within 12 hours", 
+        "urgent", "suspension", "suspended", "expire", "expiring",
+        "restrict", "restriction", "restricted", "action required",
+        "immediately", "within 24 hours", "within 12 hours",
         "deactivated", "lock", "locked", "compromised", "unauthorized",
-        "suspicious login", "billing-support", "immediate joining",
-        "offer letter attached", "work from home", "deadline"
+        "suspicious login", "billing-support",
     ]
-    if any(re.search(r'\b' + re.escape(kw) + r'\b', (subject + " " + body_text).lower()) for kw in urgency_keywords):
+    has_urgency = any(re.search(r'\b' + re.escape(kw) + r'\b', combined_text) for kw in urgency_keywords)
+    if has_urgency:
         signals_language.append("Urgency and Threats")
 
     # Signal B: Requests for Credentials or Payment
-    credential_keywords = [
+    # TIGHTENED: Split into strong and weak signals.
+    # Strong signals always trigger. Weak signals require corroboration.
+    credential_keywords_strong = [
         "verify your identity", "verify your credentials", "verify bank details",
         "recovery seed phrase", "payment details", "billing details",
-        "update your login", "change your password", "processing fee", "surcharge",
-        "registration fee", "recovery seed", "recovery phrase", "training fee",
-        "joining fee", "security deposit", "refundable deposit"
+        "update your login", "change your password",
+        "recovery seed", "recovery phrase", "training fee",
+        "joining fee", "security deposit", "refundable deposit",
+        "surcharge",
     ]
     credential_patterns = [
         r"\bverify\b.*\bbank\b",
-        r"\bbank\b.*\bdetails\b"
+        r"\bbank\b.*\bdetails\b",
     ]
-    has_credential_signal = any(re.search(r'\b' + re.escape(kw) + r'\b', (subject + " " + body_text).lower()) for kw in credential_keywords) or \
-                             any(re.search(pat, (subject + " " + body_text).lower()) for pat in credential_patterns)
-    if has_credential_signal:
+    has_credential_strong = (
+        any(re.search(r'\b' + re.escape(kw) + r'\b', combined_text) for kw in credential_keywords_strong)
+        or any(re.search(pat, combined_text) for pat in credential_patterns)
+    )
+
+    # Weak credential signals: only trigger if accompanied by another risk factor
+    credential_keywords_weak = ["registration fee", "processing fee"]
+    has_credential_weak = any(re.search(r'\b' + re.escape(kw) + r'\b', combined_text) for kw in credential_keywords_weak)
+    weak_corroborated = has_credential_weak and (
+        auth_has_failure or has_shortener or bool(signals_sender) or bool(signals_links)
+    )
+
+    if has_credential_strong or weak_corroborated:
         signals_language.append("Requests for Credentials or Payment")
 
     # Signal C: Too-Good-To-Be-True Offers
     offer_keywords = [
         "congratulations", "won", "selected as the winner", "sweepstakes",
         "cash prize", "gift card", "free gift", "scholarship award", "grant",
-        "received a payment"
+        "received a payment",
     ]
-    if any(re.search(r'\b' + re.escape(kw) + r'\b', (subject + " " + body_text).lower()) for kw in offer_keywords):
+    if any(re.search(r'\b' + re.escape(kw) + r'\b', combined_text) for kw in offer_keywords):
         signals_language.append("Too-Good-To-Be-True Offers")
 
     # --- CATEGORY 4: Attachment and Content Risk ---
-    # Checked via body text references for simplicity (since schema has no attachments field)
-    # Signal A: Unexpected Attachments
     attachment_keywords = ["attached file", "attached invoice", "attached receipt", "shipping document"]
     attachment_patterns = [
         r"\battached\b.*\binvoice\b",
-        r"\battached\b.*\breceipt\b"
+        r"\battached\b.*\breceipt\b",
     ]
     has_attachment_signal = any(kw in body_text.lower() for kw in attachment_keywords) or \
                             any(re.search(pat, body_text.lower()) for pat in attachment_patterns)
     if has_attachment_signal:
         signals_attachment.append("Unexpected Attachments")
 
-    # Signal B: Dangerous File Extensions
     dangerous_exts = [r"\.exe\b", r"\.js\b", r"\.vbs\b", r"\.bat\b", r"\.scr\b", r"\.zip\b"]
-    
     link_match = any(any(re.search(ext, link.lower()) for ext in dangerous_exts) for link in links)
     body_match = any(re.search(ext, body_text.lower()) for ext in dangerous_exts)
-    
     if link_match or body_match:
         signals_attachment.append("Dangerous File Extensions")
 
-    # Signal C: Request to Enable Macros
     macro_keywords = ["enable editing", "enable content", "enable macros"]
     if any(kw in body_text.lower() for kw in macro_keywords):
         signals_attachment.append("Request to Enable Macros")
 
     # --- CALCULATE CATEGORY SCORES ---
-    # Sender Authenticity (Max 30 pts)
-    score_sender = 0
-    if len(signals_sender) > 0:
-        score_sender = 25 + (len(signals_sender) - 1) * 10
-    score_sender = min(score_sender, 30)
+    score_sender = min(25 + (len(signals_sender) - 1) * 10, 30) if signals_sender else 0
+    score_links = min(25 + (len(signals_links) - 1) * 10, 30) if signals_links else 0
+    score_language = min(15 + (len(signals_language) - 1) * 12, 27) if signals_language else 0
+    score_attachment = min(15 + (len(signals_attachment) - 1) * 5, 20) if signals_attachment else 0
 
-    # Link Analysis (Max 30 pts)
-    score_links = 0
-    if len(signals_links) > 0:
-        score_links = 25 + (len(signals_links) - 1) * 10
-    score_links = min(score_links, 30)
+    total_score = min(score_sender + score_links + score_language + score_attachment, 100)
 
-    # Language and Psychological Pressure (Max 27 pts)
-    score_language = 0
-    if len(signals_language) > 0:
-        score_language = 15 + (len(signals_language) - 1) * 12
-    score_language = min(score_language, 27)
-
-    # Attachment and Content Risk (Max 20 pts)
-    score_attachment = 0
-    if len(signals_attachment) > 0:
-        score_attachment = 15 + (len(signals_attachment) - 1) * 5
-    score_attachment = min(score_attachment, 20)
-
-    total_score = score_sender + score_links + score_language + score_attachment
-    # FIX Bug 9: Max possible before clamping was 30+30+27+20=107, exceeding the
-    # advertised 0-100 range. Clamp to 100.
-    total_score = min(total_score, 100)
+    # --- APPLY SENDER TRUST BASELINE REDUCTION ---
+    # Reduce score for authenticated senders. This rewards passing SPF/DKIM/DMARC
+    # and institutional TLDs, but does NOT zero-out the score.
+    # The reduction is NOT applied if:
+    #   - the sender has impersonation signals (lookalike, brand mismatch, failed auth)
+    #   - multiple language signals fired (co-occurring urgency + credential request
+    #     indicates genuinely suspicious content regardless of authentication)
+    if trust_reduction > 0 and not signals_sender and len(signals_language) <= 1:
+        total_score = max(0, total_score - trust_reduction)
 
     # --- DETERMINING CATEGORY BAND ---
-    # FIX Bug 10: Previously a high-scoring email (95+) with any lottery/prize
-    # language was labelled "scam" instead of "phishing", allowing phishing
-    # attempts with offer-hooks to evade the phishing label.
-    # Rule: phishing always wins over scam when score > 50 AND sender/link
-    # signals are present (i.e., the email is actively impersonating a brand).
     is_scam_offer = "Too-Good-To-Be-True Offers" in signals_language
     has_impersonation = bool(signals_sender or signals_links)
 
@@ -483,7 +488,6 @@ def score_email(email: dict) -> dict:
     elif total_score <= 50:
         category = "scam" if is_scam_offer else "spam"
     else:
-        # At high scores, phishing takes priority if impersonation signals exist
         if is_scam_offer and not has_impersonation:
             category = "scam"
         else:
@@ -497,8 +501,6 @@ def score_email(email: dict) -> dict:
         explanation = "No suspicious phishing or fraud risk signals were detected."
 
     # --- CONFIDENCE SCORE ---
-    # FIX Bug 8 (continued): Reduce confidence contribution of any category that
-    # produced zero signals — we have less certainty about that dimension.
     if not signals_sender:
         conf_auth *= 0.5
     if not signals_links:
@@ -518,6 +520,7 @@ def score_email(email: dict) -> dict:
     }
 
 def main():
+    """Run scoring on mock data, followed by false-positive regression tests."""
     mock_data_path = os.path.join("mock-data", "sample-emails.json")
     results_path = "results-demo.json"
 
@@ -552,5 +555,131 @@ def main():
     except Exception as e:
         print(f"Error saving results to {results_path}: {e}")
 
+    # --- FALSE-POSITIVE REGRESSION TESTS ---
+    print("\n" + "=" * 60)
+    print("FALSE-POSITIVE REGRESSION TESTS")
+    print("=" * 60)
+
+    test_cases = [
+        # --- Tests that MUST score LOW / SAFE ---
+        {
+            "name": "College .ac.in event email with deadline",
+            "email": {
+                "id": "fp-test-college-event",
+                "sender": "Events Cell <events@iitb.ac.in>",
+                "subject": "TechFest 2026 Registration Deadline Extended",
+                "body_text": "Dear students, the registration deadline for TechFest 2026 has been extended to July 15th. Join us for workshops, competitions, and keynote talks. Register at our portal.",
+                "links": ["https://techfest.iitb.ac.in/register"],
+                "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass"},
+            },
+            "expect_safe": True,
+        },
+        {
+            "name": "Government .gov.in routine update",
+            "email": {
+                "id": "fp-test-gov-update",
+                "sender": "NPTEL <no-reply@nptel.gov.in>",
+                "subject": "Course Registration Update",
+                "body_text": "Your course registration for the July 2026 semester is confirmed. Complete remaining steps before the closing date. Visit the NPTEL portal for details.",
+                "links": ["https://nptel.gov.in/courses"],
+                "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass"},
+            },
+            "expect_safe": True,
+        },
+        {
+            "name": "Small org (not whitelisted) with legit event",
+            "email": {
+                "id": "fp-test-small-org-event",
+                "sender": "Devfolio <hello@devfolio.co>",
+                "subject": "Hackathon Registration Now Open",
+                "body_text": "We are excited to announce HackWithIndia 2026! Registration is now open. Build, learn, and win prizes. Submit your project before the closing date.",
+                "links": ["https://devfolio.co/hackwithindia"],
+                "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass"},
+            },
+            "expect_safe": True,
+        },
+        {
+            "name": "University professor with passing auth",
+            "email": {
+                "id": "fp-test-professor",
+                "sender": "Professor <prof@state-university.edu>",
+                "subject": "Project Extension Approved",
+                "body_text": "Your extension request is approved. Submissions close next week.",
+                "links": [],
+                "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass"},
+            },
+            "expect_safe": True,
+        },
+        # --- Tests that MUST score HIGH / PHISHING/SCAM ---
+        {
+            "name": "Spoofed Netflix billing phishing",
+            "email": {
+                "id": "tp-test-netflix-phish",
+                "sender": "Netflix Alert <billing-update@customer-netfl1x-support.com>",
+                "subject": "Your Netflix membership is about to be suspended",
+                "body_text": "Please update your credentials immediately at http://bit.ly/netflix-suspend",
+                "links": ["http://bit.ly/netflix-suspend"],
+                "headers": {"spf": "fail", "dkim": "fail", "dmarc": "fail"},
+            },
+            "expect_safe": False,
+        },
+        {
+            "name": "Lottery scam with bank detail request",
+            "email": {
+                "id": "tp-test-lottery-scam",
+                "sender": "Lottery Office <claims@freelotto-rewards.net>",
+                "subject": "Congratulations! You won the $50,000 sweepstakes prize",
+                "body_text": "Verify your identity and bank details to claim your free reward.",
+                "links": [],
+                "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass"},
+            },
+            "expect_safe": False,
+        },
+        {
+            "name": "Fake Infosys HR training fee scam",
+            "email": {
+                "id": "tp-test-infosys-hr-scam",
+                "sender": "Infosys HR <careers@infosys-training-hr.info>",
+                "subject": "Infosys Immediate Joining - Training Fee Required",
+                "body_text": "Congratulations on your selection. Please pay the training fee of Rs 15,000 as a refundable deposit to confirm your joining.",
+                "links": ["https://infosys-training-hr.info/pay"],
+                "headers": {"spf": "fail", "dkim": "fail", "dmarc": "fail"},
+            },
+            "expect_safe": False,
+        },
+        {
+            "name": "BEC: Authenticated sender with strong scam signals",
+            "email": {
+                "id": "tp-test-bec-check",
+                "sender": "Admin <admin@legit-company.com>",
+                "subject": "Urgent: Wire Transfer Required Immediately",
+                "body_text": "This is urgent. Please verify your identity and send the security deposit immediately. Your account will be locked within 24 hours.",
+                "links": [],
+                "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass"},
+            },
+            "expect_safe": False,
+        },
+    ]
+
+    passed = 0
+    failed = 0
+    for tc in test_cases:
+        res = score_email(tc["email"])
+        is_safe = (res["category"] == "safe")
+        ok = (is_safe == tc["expect_safe"])
+        status = "PASS" if ok else "FAIL"
+        if ok:
+            passed += 1
+        else:
+            failed += 1
+        expect_label = "safe" if tc["expect_safe"] else "risky"
+        print(f"  [{status}] {tc['name']}: score={res['score']} cat={res['category']} (expected {expect_label})")
+
+    print(f"\nRegression: {passed} passed, {failed} failed out of {len(test_cases)} tests.")
+    if failed > 0:
+        print("WARNING: Some regression tests failed!")
+    print("=" * 60)
+
 if __name__ == "__main__":
     main()
+
