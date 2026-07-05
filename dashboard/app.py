@@ -2538,10 +2538,24 @@ def main() -> None:
                     if not step["df"].empty:
                         final_df = step["df"]
                         with dashboard_container.container():
-                            render_dashboard(step["df"], is_demo=False)
+                            st.markdown("### 📥 Scanning Inbox...")
+                            
+                            # Safely extract columns for the loading view
+                            display_cols = []
+                            for col in ["subject", "sender", "score", "category"]:
+                                if col in step["df"].columns:
+                                    display_cols.append(col)
+                                    
+                            if display_cols:
+                                st.dataframe(
+                                    step["df"][display_cols], 
+                                    use_container_width=True,
+                                    hide_index=True
+                                )
                             
                 st.session_state["scored_df"] = final_df
                 progress_container.empty()
+                dashboard_container.empty()
                 st.rerun()
             except PermissionError:
                 st.error("Your Gmail access has expired or been revoked. Please sign in again.")
