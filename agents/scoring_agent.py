@@ -262,10 +262,18 @@ def score_email(email: dict) -> dict:
     # Valid forwarding (Mailing lists like Google Groups, etc.)
     # Forwarders break SPF (softfail/fail) but DKIM and ARC should pass
     is_valid_forward = (dkim == "pass" and arc == "pass" and spf in ["fail", "softfail", "none"])
+
+    # Direct senders with missing/weak SPF but valid DKIM
+    is_dkim_verified_direct = (
+        dkim == "pass"
+        and dmarc in ("pass", "none")
+        and spf in ("softfail", "none", "neutral")
+    )
     
     auth_has_failure = False
-    if not (auth_all_pass or is_valid_forward):
+    if not (auth_all_pass or is_valid_forward or is_dkim_verified_direct):
         # Escalate risk if DKIM fails, or if ARC fails alongside SPF failure
+        # A hard SPF fail without ARC remains an auth failure even if DKIM passes
         if "fail" in dkim or ("fail" in spf and "pass" not in arc):
             auth_has_failure = True
         elif "fail" in dmarc:
@@ -303,13 +311,20 @@ def score_email(email: dict) -> dict:
     # This shifts the baseline for authenticated-but-unknown senders without
     # creating a blind spot (verified + strong scam signals can still score high).
     #   - auth_all_pass/is_valid_forward alone:      reduce by 15 pts
-    #   - + institutional TLD:                       reduce by 25 pts
-    #   - + self-identified sender:                  reduce by 20 pts
-    #   - + institutional + self-id:                 reduce by 30 pts
-    # None of these reductions apply if authentication fails.
+    #   - is_dkim_verified_direct alone:             reduce by 7 pts
+    #   - + institutional TLD:                       reduce by 25 pts (or 17)
+    #   - + self-identified sender:                  reduce by 20 pts (or 12)
+    #   - + institutional + self-id:                 reduce by 30 pts (or 22)
+    # None of these reductions apply if authentication fails completely.
     trust_reduction = 0
     if auth_all_pass or is_valid_forward:
         trust_reduction = 15
+        if is_institutional_tld:
+            trust_reduction += 10
+        if is_self_identified:
+            trust_reduction += 5
+    elif is_dkim_verified_direct:
+        trust_reduction = 7
         if is_institutional_tld:
             trust_reduction += 10
         if is_self_identified:
@@ -657,7 +672,43 @@ def main():
             },
             "expect_safe": True,
         },
+        {
+            "name": "Direct sender weak SPF with valid DKIM",
+            "email": {
+                "id": "fp-test-dkim-direct",
+                "sender": "Local Org <info@local-community-org.org>",
+                "subject": "Community Meeting Update",
+                "body_text": "Please join us for the community meeting on Friday.",
+                "links": [],
+                "headers": {"spf": "softfail", "dkim": "pass", "dmarc": "none", "arc": "none"},
+            },
+            "expect_safe": True,
+        },
         # --- Tests that MUST score HIGH / PHISHING/SCAM ---
+        {
+            "name": "Spoofed email with no signing (genuine spoof)",
+            "email": {
+                "id": "tp-test-no-signing",
+                "sender": "IT Helpdesk <admin@your-company.com>",
+                "subject": "Action Required: Update your login",
+                "body_text": "Your account is compromised. Please verify your identity immediately.",
+                "links": [],
+                "headers": {"spf": "fail", "dkim": "none", "dmarc": "fail", "arc": "none"},
+            },
+            "expect_safe": False,
+        },
+        {
+            "name": "Borderline hard SPF fail with valid DKIM",
+            "email": {
+                "id": "tp-test-dkim-spf-hardfail",
+                "sender": "Security <alerts@secure-platform.net>",
+                "subject": "Suspicious login attempt",
+                "body_text": "We detected an unauthorized login. Action required immediately to lock your account.",
+                "links": [],
+                "headers": {"spf": "fail", "dkim": "pass", "dmarc": "none", "arc": "none"},
+            },
+            "expect_safe": False,
+        },
         {
             "name": "Spoofed Netflix billing phishing",
             "email": {
