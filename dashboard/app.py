@@ -1289,6 +1289,17 @@ def render_link_scanner() -> None:
 
 
 def render_scam_detector() -> None:
+    st.markdown("""
+<div class="detail-card" style="margin-bottom:24px;">
+<h3 style="margin-top:0; color:#38bdf8;">🎣 Scam Detector</h3>
+<p style="font-size:14px; color:#cbd5e1; margin-bottom:8px;"><strong>How to use it:</strong></p>
+<ul style="font-size:14px; color:#94a3b8; line-height:1.6; margin-top:0; margin-bottom:0; padding-left:20px;">
+    <li>Paste the contents of a suspicious email into the fields below.</li>
+    <li>Select the email authentication results (SPF/DKIM) if you know them, or leave them as 'fail' to simulate a suspicious sender.</li>
+    <li>Click 'Run Real-Time Scam Analysis' to see how the Gemini AI and heuristic engine score the threat.</li>
+</ul>
+</div>
+""", unsafe_allow_html=True)
     
     sender = st.text_input("Sender Email / Display Name", value="HR Recruiting <hr@wipro-jobs-portal.info>")
     subject = st.text_input("Subject Line", value="Offer Letter Attached: Job Selection as Graduate Engineer Trainee")
@@ -1296,9 +1307,9 @@ def render_scam_detector() -> None:
     
     col1, col2 = st.columns(2)
     with col1:
-        spf = st.selectbox("SPF Result", ["fail", "pass", "none", "softfail"])
+        spf = st.selectbox("SPF (Sender Policy Framework) Result", ["fail", "pass", "none", "softfail"])
     with col2:
-        dkim = st.selectbox("DKIM Result", ["fail", "pass", "none"])
+        dkim = st.selectbox("DKIM (DomainKeys Identified Mail) Result", ["fail", "pass", "none"])
         
     if st.button("🔍 Run Real-Time Scam Analysis", use_container_width=True):
         email_payload = {
@@ -1721,7 +1732,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 
     header_col1, header_col2 = st.columns([3, 1])
     with header_col1:
-        if active_tab not in ["ThreatIntel", "LinkScanner"]:
+        if active_tab not in ["ThreatIntel", "LinkScanner", "ScamDetector"]:
             st.markdown(f"""
 <h2 style="margin:0 0 4px 0; font-weight:700; color:#ffffff; font-size:24px;">{title}</h2>
 <p style="margin:0; font-size:13.5px; color:#94a3b8; font-weight:500;">{subtitle}</p>
