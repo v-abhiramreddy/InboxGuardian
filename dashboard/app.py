@@ -1205,8 +1205,17 @@ def render_threat_intel() -> None:
 
 
 def render_link_scanner() -> None:
-    
-    url = st.text_input("🔗 Suspected URL", placeholder="e.g. tcs-hr-portal.info")
+    st.markdown("""
+<div class="detail-card" style="margin-bottom:24px;">
+<h3 style="margin-top:0; color:#38bdf8;">🔗 Link Scanner</h3>
+<ul style="font-size:15px; color:#cbd5e1; line-height:1.6; margin-top:8px; margin-bottom:0; padding-left:20px;">
+    <li>Manually verify if a suspicious URL is trying to impersonate a trusted corporate brand.</li>
+    <li>Our engine breaks down the link and checks it against known lookalike patterns.</li>
+</ul>
+</div>
+""", unsafe_allow_html=True)
+
+    url = st.text_input("Enter Suspected URL to Scan", placeholder="e.g. tcs-hr-portal.info")
     
     if url:
         # Run heuristic check
@@ -1685,7 +1694,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 
     header_col1, header_col2 = st.columns([3, 1])
     with header_col1:
-        if active_tab != "ThreatIntel":
+        if active_tab not in ["ThreatIntel", "LinkScanner"]:
             st.markdown(f"""
 <h2 style="margin:0 0 4px 0; font-weight:700; color:#ffffff; font-size:24px;">{title}</h2>
 <p style="margin:0; font-size:13.5px; color:#94a3b8; font-weight:500;">{subtitle}</p>
