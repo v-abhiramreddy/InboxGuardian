@@ -955,7 +955,11 @@ def fetch_and_score_generator(access_token: str, count: int = 10):
                     llm_cache[cache_key] = explanation
                     atomic_write_json(cache_path, llm_cache)
             else:
-                scored["llm_explanation"] = "Email heuristically determined safe. Deep analysis skipped."
+                cat = scored.get("category", "safe").lower()
+                if cat == "safe":
+                    scored["llm_explanation"] = "Email heuristically determined safe. Deep analysis skipped."
+                else:
+                    scored["llm_explanation"] = f"Email heuristically flagged as {cat}. Deep analysis skipped as high-risk threshold was not met."
                 
             rows.append(scored)
         except PermissionError:
