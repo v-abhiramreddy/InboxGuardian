@@ -255,9 +255,21 @@ def score_email(email: dict) -> dict:
     spf = headers.get("spf", "").lower()
     dkim = headers.get("dkim", "").lower()
     dmarc = headers.get("dmarc", "").lower()
+    arc = headers.get("arc", "none").lower()
 
     auth_all_pass = (spf == "pass" and dkim == "pass" and dmarc == "pass")
-    auth_has_failure = any("fail" in v for v in (spf, dkim, dmarc))
+    
+    # Valid forwarding (Mailing lists like Google Groups, etc.)
+    # Forwarders break SPF (softfail/fail) but DKIM and ARC should pass
+    is_valid_forward = (dkim == "pass" and arc == "pass" and spf in ["fail", "softfail", "none"])
+    
+    auth_has_failure = False
+    if not (auth_all_pass or is_valid_forward):
+        # Escalate risk if DKIM fails, or if ARC fails alongside SPF failure
+        if "fail" in dkim or ("fail" in spf and "pass" not in arc):
+            auth_has_failure = True
+        elif "fail" in dmarc:
+            auth_has_failure = True
 
     # Short-circuit: If the email is from a verified legitimate brand (passing SPF, DKIM, and DMARC)
     # we know for a fact it is authentic and should be marked safe immediately.
@@ -282,21 +294,21 @@ def score_email(email: dict) -> dict:
     INSTITUTIONAL_TLD_PATTERNS = (
         ".edu", ".edu.in", ".ac.in", ".ac.uk",
         ".gov", ".gov.in", ".nic.in", ".gov.uk",
-        ".mil", ".int",
+        ".mil", ".int", ".ac.", ".edu.", ".gov.",
     )
-    is_institutional_tld = any(sender_domain.endswith(tld) for tld in INSTITUTIONAL_TLD_PATTERNS)
+    is_institutional_tld = any(tld in sender_domain or sender_domain.endswith(tld) for tld in INSTITUTIONAL_TLD_PATTERNS)
     is_self_identified = is_sender_self_identified(display_name, sender_domain)
 
     # Compute a trust reduction applied AFTER scoring.
     # This shifts the baseline for authenticated-but-unknown senders without
     # creating a blind spot (verified + strong scam signals can still score high).
-    #   - auth_all_pass alone:                      reduce by 15 pts
-    #   - auth_all_pass + institutional TLD:         reduce by 25 pts
-    #   - auth_all_pass + self-identified sender:    reduce by 20 pts
-    #   - auth_all_pass + institutional + self-id:   reduce by 30 pts
+    #   - auth_all_pass/is_valid_forward alone:      reduce by 15 pts
+    #   - + institutional TLD:                       reduce by 25 pts
+    #   - + self-identified sender:                  reduce by 20 pts
+    #   - + institutional + self-id:                 reduce by 30 pts
     # None of these reductions apply if authentication fails.
     trust_reduction = 0
-    if auth_all_pass:
+    if auth_all_pass or is_valid_forward:
         trust_reduction = 15
         if is_institutional_tld:
             trust_reduction += 10
@@ -408,8 +420,7 @@ def score_email(email: dict) -> dict:
         "verify your identity", "verify your credentials", "verify bank details",
         "recovery seed phrase", "payment details", "billing details",
         "update your login", "change your password",
-        "recovery seed", "recovery phrase", "training fee",
-        "joining fee", "security deposit", "refundable deposit",
+        "recovery seed", "recovery phrase", "security deposit", "refundable deposit",
         "surcharge",
     ]
     credential_patterns = [
@@ -422,7 +433,7 @@ def score_email(email: dict) -> dict:
     )
 
     # Weak credential signals: only trigger if accompanied by another risk factor
-    credential_keywords_weak = ["registration fee", "processing fee"]
+    credential_keywords_weak = ["registration fee", "processing fee", "training fee", "joining fee"]
     has_credential_weak = any(re.search(r'\b' + re.escape(kw) + r'\b', combined_text) for kw in credential_keywords_weak)
     weak_corroborated = has_credential_weak and (
         auth_has_failure or has_shortener or bool(signals_sender) or bool(signals_links)
@@ -607,6 +618,42 @@ def main():
                 "body_text": "Your extension request is approved. Submissions close next week.",
                 "links": [],
                 "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass"},
+            },
+            "expect_safe": True,
+        },
+        {
+            "name": "Fictional university mailing list (SPF softfail, ARC pass)",
+            "email": {
+                "id": "fp-test-mailing-list",
+                "sender": "Student Council <announcements@fictional-uni.edu>",
+                "subject": "Mandatory Registration Event",
+                "body_text": "Please note the upcoming registration event for all students. Update your details before the deadline.",
+                "links": ["https://fictional-uni.edu/register"],
+                "headers": {"spf": "softfail", "dkim": "pass", "dmarc": "none", "arc": "pass"},
+            },
+            "expect_safe": True,
+        },
+        {
+            "name": "Fictional government agency update",
+            "email": {
+                "id": "fp-test-fic-gov",
+                "sender": "Department of Transport <info@transport-dept.gov.in>",
+                "subject": "License Renewal Update",
+                "body_text": "Your application is under review. Visit the portal for the latest update.",
+                "links": ["https://transport-dept.gov.in/status"],
+                "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass", "arc": "none"},
+            },
+            "expect_safe": True,
+        },
+        {
+            "name": "Self-identified small business event",
+            "email": {
+                "id": "fp-test-fic-biz",
+                "sender": "CloudConf <hello@cloudconf.com>",
+                "subject": "Join now for CloudConf 2026",
+                "body_text": "Registration is open! Join us for the biggest cloud event of the year.",
+                "links": ["https://cloudconf.com/register"],
+                "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass", "arc": "none"},
             },
             "expect_safe": True,
         },

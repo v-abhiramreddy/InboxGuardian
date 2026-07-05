@@ -138,7 +138,7 @@ def extract_links(text: str) -> list[str]:
 # ---------------------------------------------------------------------------
 
 _AUTH_RESULT_RE = re.compile(
-    r"(?:^|;)\s*(?P<proto>spf|dkim|dmarc)\s*=\s*(?P<result>\w+)",
+    r"(?:^|;)\s*(?P<proto>spf|dkim|dmarc|arc)\s*=\s*(?P<result>\w+)",
     re.IGNORECASE | re.MULTILINE,
 )
 
