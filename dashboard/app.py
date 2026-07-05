@@ -1136,7 +1136,7 @@ def render_threat_intel() -> None:
     st.markdown("""
 <div class="detail-card">
 <h3 style="margin-top:0; color:#38bdf8;">🛡️ Threat Intelligence Database</h3>
-<ul style="font-size:13px; color:#94a3b8; line-height:1.6; margin-top:8px; margin-bottom:0; padding-left:20px;">
+<ul style="font-size:15px; color:#cbd5e1; line-height:1.6; margin-top:8px; margin-bottom:0; padding-left:20px;">
     <li>Constantly updated database of known scam campaigns and unsafe links.</li>
     <li>Incoming emails are automatically scanned against this database.</li>
 </ul>
@@ -1144,7 +1144,7 @@ def render_threat_intel() -> None:
 <hr>
 
 <h4 style="color:#ffffff; margin-bottom:8px;">🏢 Monitored Brand Domains (Indian Corporates & Portals)</h4>
-<ul style="font-size:13px; color:#94a3b8; line-height:1.6; margin-top:0; margin-bottom:16px; padding-left:20px;">
+<ul style="font-size:15px; color:#cbd5e1; line-height:1.6; margin-top:0; margin-bottom:16px; padding-left:20px;">
     <li>We strictly check sender email addresses against these official domain names.</li>
     <li>Any slight misspelling (e.g., <code style="color:#f87171;">wippro.com</code>) is instantly flagged as a lookalike scam.</li>
 </ul>
@@ -1180,7 +1180,7 @@ def render_threat_intel() -> None:
 </div>
 
 <h4 style="color:#ffffff; margin-bottom:8px;">🚨 High-Risk Urgency Keywords (Student Scam Heuristics)</h4>
-<ul style="font-size:13px; color:#94a3b8; line-height:1.6; margin-top:0; margin-bottom:16px; padding-left:20px;">
+<ul style="font-size:15px; color:#cbd5e1; line-height:1.6; margin-top:0; margin-bottom:16px; padding-left:20px;">
     <li>Scammers often create a false sense of urgency to make you click without thinking.</li>
     <li>Emails containing these financial or urgent phrases are penalized with higher threat scores.</li>
 </ul>
@@ -1196,7 +1196,7 @@ def render_threat_intel() -> None:
 </div>
 
 <h4 style="color:#ffffff; margin-bottom:8px;">🛡️ Email Authentication Baseline Requirements</h4>
-<ul style="font-size:13px; color:#94a3b8; line-height:1.6; margin-top:0; margin-bottom:14px; padding-left:20px;">
+<ul style="font-size:15px; color:#cbd5e1; line-height:1.6; margin-top:0; margin-bottom:14px; padding-left:20px;">
     <li>Every email must pass standard internet security checks (SPF, DKIM, DMARC).</li>
     <li>If these checks fail, the email is likely forged or spoofed, triggering an alert.</li>
 </ul>
