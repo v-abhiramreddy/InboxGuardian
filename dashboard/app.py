@@ -1358,7 +1358,7 @@ def render_scam_detector() -> None:
 </div>
 
 <div class="llm-explanation" style="margin-top:14px;">
-<strong>📋 Heuristic Explanation:</strong><br>
+<strong>📋 Heuristic:</strong><br>
 {res['explanation']}
 </div>
 </div>
