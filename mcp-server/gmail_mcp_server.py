@@ -194,7 +194,7 @@ def _get_message(service, message_id: str) -> dict:
         "subject": str,
         "body_text": str,
         "links": [str],
-        "headers": {"spf": str, "dkim": str, "dmarc": str}
+        "headers": {"spf": str, "dkim": str, "dmarc": str, "arc": str}
     }
     """
     raw_msg = _rate_limited_execute(
@@ -216,11 +216,30 @@ def _get_message(service, message_id: str) -> dict:
     # --- Links ---
     links = _extract_links(body_text)
 
-    # --- Auth headers (SPF / DKIM / DMARC) ---
-    auth_results_header = email_msg.get("Authentication-Results", "")
+    # --- Auth headers (SPF / DKIM / DMARC / ARC) ---
+    # 1. Authentication-Results (can be multi-hop; use the outermost/last one)
+    auth_headers = email_msg.get_all("Authentication-Results") or []
+    auth_results_header = auth_headers[-1] if auth_headers else ""
+    
     spf = _extract_auth_result(auth_results_header, "spf")
     dkim = _extract_auth_result(auth_results_header, "dkim")
     dmarc = _extract_auth_result(auth_results_header, "dmarc")
+    arc = _extract_auth_result(auth_results_header, "arc")
+
+    # 2. Check ARC-Authentication-Results if arc is not found in standard Authentication-Results
+    if arc == "none":
+        arc_auth_headers = email_msg.get_all("ARC-Authentication-Results") or []
+        arc_auth_header = arc_auth_headers[-1] if arc_auth_headers else ""
+        arc = _extract_auth_result(arc_auth_header, "arc")
+
+    # 3. Fallback to ARC-Seal
+    if arc == "none":
+        arc_seal_headers = email_msg.get_all("ARC-Seal") or []
+        arc_seal_header = arc_seal_headers[-1] if arc_seal_headers else ""
+        if "pass" in arc_seal_header.lower():
+            arc = "pass"
+        elif "fail" in arc_seal_header.lower():
+            arc = "fail"
 
     # Truncate body to 1500 chars — enough for phishing analysis, avoids bloat
     body_text = body_text[:1500]
@@ -235,6 +254,7 @@ def _get_message(service, message_id: str) -> dict:
             "spf": spf,
             "dkim": dkim,
             "dmarc": dmarc,
+            "arc": arc,
         },
     }
 

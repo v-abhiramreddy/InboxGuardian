@@ -873,7 +873,30 @@ def _parse_message(raw_b64: str, message_id: str) -> dict:
     to_hdr   = _decode_mime_header(msg.get("To", ""))
     date_hdr = _decode_mime_header(msg.get("Date", ""))
 
-    auth_hdr = msg.get("Authentication-Results", "")
+    # 1. Authentication-Results
+    auth_headers = msg.get_all("Authentication-Results") or []
+    auth_hdr = auth_headers[-1] if auth_headers else ""
+    
+    spf = _auth_result(auth_hdr, "spf")
+    dkim = _auth_result(auth_hdr, "dkim")
+    dmarc = _auth_result(auth_hdr, "dmarc")
+    arc = _auth_result(auth_hdr, "arc")
+
+    # 2. Check ARC-Authentication-Results
+    if arc == "none":
+        arc_auth_headers = msg.get_all("ARC-Authentication-Results") or []
+        arc_auth_hdr = arc_auth_headers[-1] if arc_auth_headers else ""
+        arc = _auth_result(arc_auth_hdr, "arc")
+
+    # 3. Fallback to ARC-Seal
+    if arc == "none":
+        arc_seal_headers = msg.get_all("ARC-Seal") or []
+        arc_seal_hdr = arc_seal_headers[-1] if arc_seal_headers else ""
+        if "pass" in arc_seal_hdr.lower():
+            arc = "pass"
+        elif "fail" in arc_seal_hdr.lower():
+            arc = "fail"
+
     return {
         "id":        message_id,
         "sender":    sender,
@@ -883,9 +906,10 @@ def _parse_message(raw_b64: str, message_id: str) -> dict:
         "to":        to_hdr,
         "date":      date_hdr,
         "headers": {
-            "spf":   _auth_result(auth_hdr, "spf"),
-            "dkim":  _auth_result(auth_hdr, "dkim"),
-            "dmarc": _auth_result(auth_hdr, "dmarc"),
+            "spf":   spf,
+            "dkim":  dkim,
+            "dmarc": dmarc,
+            "arc":   arc,
         },
     }
 
