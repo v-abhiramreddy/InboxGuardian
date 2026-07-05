@@ -1536,12 +1536,12 @@ def render_settings_tab(is_demo: bool) -> None:
 </div>
 """, unsafe_allow_html=True)
 
-    st.checkbox("Enable real-time Gemini AI analysis", value=st.session_state.gemini_enabled, key="widget_gemini", on_change=sync_settings)
-    st.checkbox("Enable fallback models (e.g. Gemini 3.5 / 2.5 Flash Lite if rate limits)", value=st.session_state.fallback_enabled, key="widget_fallback", on_change=sync_settings)
-    st.checkbox("Perform lookup for typosquatted lookalike brand domains", value=st.session_state.lookalike_enabled, key="widget_lookalike", on_change=sync_settings)
+    st.checkbox("Enable real-time Gemini AI analysis", value=st.session_state.gemini_enabled, key="widget_gemini", help="Uses Gemini to read and analyze email content for social engineering tactics.", on_change=sync_settings)
+    st.checkbox("Enable fallback models (e.g. Gemini 3.5 / 2.5 Flash Lite if rate limits)", value=st.session_state.fallback_enabled, key="widget_fallback", help="Automatically switches to backup AI models if the free-tier quota is reached.", on_change=sync_settings)
+    st.checkbox("Perform lookup for typosquatted lookalike brand domains", value=st.session_state.lookalike_enabled, key="widget_lookalike", help="Checks if the sender domain is slightly misspelled to impersonate a known corporate brand.", on_change=sync_settings)
     
     st.markdown("<br>", unsafe_allow_html=True)
-    st.slider("Scam categorization sensitivity threshold", min_value=0, max_value=100, value=st.session_state.sensitivity_threshold, key="widget_slider", on_change=sync_settings)
+    st.slider("Scam categorization sensitivity threshold", min_value=0, max_value=100, value=st.session_state.sensitivity_threshold, key="widget_slider", help="Adjusts how easily an email is flagged. Lower values make the scanner more aggressive.", on_change=sync_settings)
 
     st.markdown("---")
     
