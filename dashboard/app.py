@@ -894,52 +894,68 @@ def _parse_message(raw_b64: str, message_id: str) -> dict:
 #  High-level: fetch + score
 # ==============================================================================
 
-def fetch_and_score(access_token: str, count: int = 20) -> pd.DataFrame:
+def fetch_and_score_generator(access_token: str, count: int = 10):
     """
-    Fetch `count` recent Gmail messages using the access token, score each
-    one with scoring_agent.score_email(), and return a sorted DataFrame.
+    Fetch `count` recent Gmail messages using the access token.
+    Yields dict with 'status', 'progress', and 'df' progressively.
     """
     list_resp = _gmail_get("messages", access_token, maxResults=count)
     stubs     = list_resp.get("messages", [])
 
     if not stubs:
-        return pd.DataFrame()
+        yield {"status": "Complete", "progress": 1.0, "df": pd.DataFrame()}
+        return
 
     rows = []
-    for stub in stubs:
+    total = len(stubs)
+    for i, stub in enumerate(stubs):
         try:
+            yield {
+                "status": f"Fetching and scoring email {i+1} of {total}...",
+                "progress": i / total,
+                "df": pd.DataFrame(rows).sort_values("score", ascending=False).reset_index(drop=True) if rows else pd.DataFrame()
+            }
+            
             raw_resp  = _gmail_get(f"messages/{stub['id']}", access_token, format="raw")
             email_obj = _parse_message(raw_resp.get("raw", ""), stub["id"])
             scored    = score_email(email_obj)
+            
             # Attach display fields that scoring_agent doesn't return
             scored["subject"] = email_obj["subject"]
             scored["sender"]  = email_obj["sender"]
             scored["to"]      = email_obj.get("to", "")
             scored["date"]    = email_obj.get("date", "")
             
-            # Dynamically call Gemini threat analyzer, but use caching to prevent quota exhaustion
-            import sys
-            if "utils" not in sys.path:
-                sys.path.append(str(_PROJECT_ROOT))
-            from utils.cache_utils import safe_read_json, atomic_write_json, generate_cache_key
-            
-            cache_path = str(_PROJECT_ROOT / "llm_cache.json")
-            llm_cache = safe_read_json(cache_path)
+            # Threshold-based Gemini analysis
+            if scored["score"] >= 60:
+                import sys
+                if "utils" not in sys.path:
+                    sys.path.append(str(_PROJECT_ROOT))
+                from utils.cache_utils import safe_read_json, atomic_write_json, generate_cache_key
                 
-            email_id = stub['id']
-            from agents.llm_analysis_agent import SYSTEM_PROMPT
-            
-            # Cache key includes the score, subject, and system prompt text to invalidate strictly on any logic change.
-            cache_key = generate_cache_key(email_id, scored["score"], email_obj.get("subject", ""), SYSTEM_PROMPT)
-            
-            if cache_key in llm_cache:
-                scored["llm_explanation"] = llm_cache[cache_key]
+                cache_path = str(_PROJECT_ROOT / "llm_cache.json")
+                llm_cache = safe_read_json(cache_path)
+                    
+                email_id = stub['id']
+                from agents.llm_analysis_agent import SYSTEM_PROMPT
+                
+                cache_key = generate_cache_key(email_id, scored["score"], email_obj.get("subject", ""), SYSTEM_PROMPT)
+                
+                if cache_key in llm_cache:
+                    scored["llm_explanation"] = llm_cache[cache_key]
+                else:
+                    yield {
+                        "status": f"Running deep LLM analysis for suspicious email {i+1} of {total}...",
+                        "progress": i / total,
+                        "df": pd.DataFrame(rows).sort_values("score", ascending=False).reset_index(drop=True) if rows else pd.DataFrame()
+                    }
+                    from agents.llm_analysis_agent import analyze_email_with_llm
+                    explanation = analyze_email_with_llm(email_obj, scored)
+                    scored["llm_explanation"] = explanation
+                    llm_cache[cache_key] = explanation
+                    atomic_write_json(cache_path, llm_cache)
             else:
-                from agents.llm_analysis_agent import analyze_email_with_llm
-                explanation = analyze_email_with_llm(email_obj, scored)
-                scored["llm_explanation"] = explanation
-                llm_cache[cache_key] = explanation
-                atomic_write_json(cache_path, llm_cache)
+                scored["llm_explanation"] = "Email heuristically determined safe. Deep analysis skipped."
                 
             rows.append(scored)
         except PermissionError:
@@ -947,10 +963,11 @@ def fetch_and_score(access_token: str, count: int = 20) -> pd.DataFrame:
         except Exception as exc:
             st.warning(f"Could not process message {stub['id']}: {exc}")
 
-    if not rows:
-        return pd.DataFrame()
-
-    return pd.DataFrame(rows).sort_values("score", ascending=False).reset_index(drop=True)
+    yield {
+        "status": "Analysis Complete",
+        "progress": 1.0,
+        "df": pd.DataFrame(rows).sort_values("score", ascending=False).reset_index(drop=True) if rows else pd.DataFrame()
+    }
 
 
 # ==============================================================================
@@ -2505,30 +2522,43 @@ def main() -> None:
     if "access_token" in st.session_state:
         token = st.session_state["access_token"]
 
+        if "email_count" not in st.session_state:
+            st.session_state["email_count"] = 10
+
         if "scored_df" not in st.session_state:
-            with st.spinner(f"{chr(0x1f50d)} Fetching and scoring your inbox..."):
-                try:
-                    df = fetch_and_score(token, count=20)
-                    st.session_state["scored_df"] = df
-                except PermissionError:
-                    st.error(
-                        "Your Gmail access has expired or been revoked. "
-                        "Please sign in again."
-                    )
+            progress_container = st.empty()
+            dashboard_container = st.empty()
+            
+            try:
+                final_df = pd.DataFrame()
+                for step in fetch_and_score_generator(token, count=st.session_state["email_count"]):
+                    with progress_container.container():
+                        st.progress(step["progress"], text=step["status"])
+                    
+                    if not step["df"].empty:
+                        final_df = step["df"]
+                        with dashboard_container.container():
+                            render_dashboard(step["df"], is_demo=False)
+                            
+                st.session_state["scored_df"] = final_df
+                progress_container.empty()
+                st.rerun()
+            except PermissionError:
+                st.error("Your Gmail access has expired or been revoked. Please sign in again.")
+                st.session_state.clear()
+                if st.button("Sign in again", key="resign_perm"):
+                    st.rerun()
+                return
+            except Exception as exc:
+                if is_403_error(exc):
+                    st.session_state["oauth_403_error"] = str(exc)
+                    st.rerun()
+                else:
+                    st.error(f"Failed to fetch emails: {exc}")
                     st.session_state.clear()
-                    if st.button("Sign in again", key="resign_perm"):
+                    if st.button("Sign in again", key="resign_err"):
                         st.rerun()
                     return
-                except Exception as exc:
-                    if is_403_error(exc):
-                        st.session_state["oauth_403_error"] = str(exc)
-                        st.rerun()
-                    else:
-                        st.error(f"Failed to fetch emails: {exc}")
-                        st.session_state.clear()
-                        if st.button("Sign in again", key="resign_err"):
-                            st.rerun()
-                        return
 
         df = st.session_state["scored_df"]
 
@@ -2542,6 +2572,14 @@ def main() -> None:
                     st.rerun()
         else:
             render_dashboard(df, is_demo=False)
+            
+            st.write("")
+            col1, col2, col3 = st.columns([1, 2, 1])
+            with col2:
+                if st.button("Load More Emails", use_container_width=True):
+                    st.session_state["email_count"] += 10
+                    del st.session_state["scored_df"]
+                    st.rerun()
         return
 
     # -- 5. Sign-in page (default) ----                                     
