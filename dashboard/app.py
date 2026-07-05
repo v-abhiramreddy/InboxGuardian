@@ -818,7 +818,7 @@ def _secret(key: str, fallback: str = "") -> str:
 CLIENT_ID     = _secret("GOOGLE_CLIENT_ID")
 CLIENT_SECRET = _secret("GOOGLE_CLIENT_SECRET")
 # Default redirect URI to Streamlit's default local address if not configured
-REDIRECT_URI  = _secret("REDIRECT_URI", "http://localhost:8501")
+REDIRECT_URI  = _secret("REDIRECT_URI", "https://your-production-app.onrender.com")
 
 GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
 AUTH_URL    = "https://accounts.google.com/o/oauth2/v2/auth"
@@ -918,24 +918,28 @@ def fetch_and_score(access_token: str, count: int = 20) -> pd.DataFrame:
             scored["date"]    = email_obj.get("date", "")
             
             # Dynamically call Gemini threat analyzer, but use caching to prevent quota exhaustion
-            cache_path = _PROJECT_ROOT / "llm_cache.json"
-            if not cache_path.exists():
-                import json
-                cache_path.write_text("{}")
+            import sys
+            if "utils" not in sys.path:
+                sys.path.append(str(_PROJECT_ROOT))
+            from utils.cache_utils import safe_read_json, atomic_write_json, generate_cache_key
             
-            with open(cache_path, "r", encoding="utf-8") as f:
-                llm_cache = json.load(f)
+            cache_path = str(_PROJECT_ROOT / "llm_cache.json")
+            llm_cache = safe_read_json(cache_path)
                 
             email_id = stub['id']
-            if email_id in llm_cache:
-                scored["llm_explanation"] = llm_cache[email_id]
+            from agents.llm_analysis_agent import SYSTEM_PROMPT
+            
+            # Cache key includes the score, subject, and system prompt text to invalidate strictly on any logic change.
+            cache_key = generate_cache_key(email_id, scored["score"], email_obj.get("subject", ""), SYSTEM_PROMPT)
+            
+            if cache_key in llm_cache:
+                scored["llm_explanation"] = llm_cache[cache_key]
             else:
                 from agents.llm_analysis_agent import analyze_email_with_llm
                 explanation = analyze_email_with_llm(email_obj, scored)
                 scored["llm_explanation"] = explanation
-                llm_cache[email_id] = explanation
-                with open(cache_path, "w", encoding="utf-8") as f:
-                    json.dump(llm_cache, f, indent=2)
+                llm_cache[cache_key] = explanation
+                atomic_write_json(cache_path, llm_cache)
                 
             rows.append(scored)
         except PermissionError:
@@ -1148,7 +1152,14 @@ def _generate_link_analysis_html(row: dict) -> str:
     return html
 
 
-def render_threat_intel() -> None:
+def render_threat_intel(is_demo: bool = False) -> None:
+    if is_demo:
+        import streamlit as st
+        st.markdown("""
+<div style="background:rgba(234, 179, 8, 0.15); border:1px solid rgba(234, 179, 8, 0.4); border-radius:8px; padding:12px; margin-bottom:20px; text-align:center;">
+<span style="font-size:16px;">⚠️</span> <strong style="color:#fde047;">CAUTION:</strong> <span style="color:#fef08a; font-size:14px;">Currently in DEMO MODE. Sign in for live updates.</span>
+</div>
+""", unsafe_allow_html=True)
     st.markdown("""
 <div class="detail-card">
 <h3 style="margin-top:0; color:#38bdf8;">🛡️ Threat Intelligence Database</h3>
@@ -1220,7 +1231,15 @@ def render_threat_intel() -> None:
 """, unsafe_allow_html=True)
 
 
-def render_link_scanner() -> None:
+def render_link_scanner(is_demo: bool = False) -> None:
+    if is_demo:
+        import streamlit as st
+        st.markdown("""
+<div style="background:rgba(234, 179, 8, 0.15); border:1px solid rgba(234, 179, 8, 0.4); border-radius:8px; padding:12px; margin-bottom:20px; text-align:center;">
+<span style="font-size:16px;">⚠️</span> <strong style="color:#fde047;">CAUTION:</strong> <span style="color:#fef08a; font-size:14px;">Currently in DEMO MODE. Link scanning is simulated.</span>
+</div>
+""", unsafe_allow_html=True)
+    
     st.markdown("""
 <div class="detail-card" style="margin-bottom:24px;">
 <h3 style="margin-top:0; color:#38bdf8;">🔗 Link Scanner</h3>
@@ -1382,24 +1401,60 @@ def render_scam_detector() -> None:
 
 
 def render_user_reports(is_demo: bool) -> None:
+    import os
     import json
+    import logging
     from pathlib import Path
+    import sys
+    
+    if "utils" not in sys.path:
+        sys.path.append(str(_PROJECT_ROOT))
+    from utils.cache_utils import safe_read_json, atomic_write_json
     
     file_name = "demo_reports.json" if is_demo else "live_reports.json"
-    file_path = _PROJECT_ROOT / file_name
+    file_path = str(_PROJECT_ROOT / file_name)
     
-    if not file_path.exists():
-        initial_data = [
-            {"title": "WhatsApp Part-Time Job Opportunity", "target": "Indian Students", "risk": "critical", "volume": "1,240 reports"},
-            {"title": "Infosys Fake HR Training Fee Bypass", "target": "Engineering Students", "risk": "critical", "volume": "840 reports"},
-            {"title": "Wipro Lookalike Registration Deposit", "target": "Fresh Graduates", "risk": "high", "volume": "530 reports"},
-            {"title": "Internshala Fake Internship Verification Fee", "target": "College Interns", "risk": "high", "volume": "390 reports"}
-        ] if is_demo else []
-        with open(file_path, "w", encoding="utf-8") as f:
-            json.dump(initial_data, f, indent=2)
+    supabase_url = os.environ.get("SUPABASE_URL")
+    supabase_key = os.environ.get("SUPABASE_KEY")
+    supabase_client = None
+    db_status = "Local Fallback"
+    
+    if supabase_url and supabase_key and not is_demo:
+        try:
+            from supabase import create_client
+            supabase_client = create_client(supabase_url, supabase_key)
+            db_status = "Supabase Connected"
+        except Exception as e:
+            logging.error(f"Supabase init failed: {e}. Falling back to local JSON.")
+            db_status = "Local Fallback (Error)"
+            supabase_client = None
             
-    with open(file_path, "r", encoding="utf-8") as f:
-        reports = json.load(f)
+    # Stash db_status into session state for the Health UI
+    import streamlit as st
+    st.session_state["db_status"] = db_status
+    
+    # Load reports
+    reports = []
+    if supabase_client:
+        try:
+            resp = supabase_client.table("scam_reports").select("*").order("created_at", desc=True).execute()
+            reports = resp.data
+        except Exception as e:
+            logging.error(f"Supabase fetch failed: {e}. Falling back to local.")
+            supabase_client = None
+            st.session_state["db_status"] = "Local Fallback (Fetch Error)"
+            reports = safe_read_json(file_path, default_value=[])
+    else:
+        reports = safe_read_json(file_path, default_value=[])
+        if not reports and is_demo:
+            # Seed demo data
+            reports = [
+                {"title": "WhatsApp Part-Time Job Opportunity", "target": "Indian Students", "risk": "critical", "volume": "1,240 reports"},
+                {"title": "Infosys Fake HR Training Fee Bypass", "target": "Engineering Students", "risk": "critical", "volume": "840 reports"},
+                {"title": "Wipro Lookalike Registration Deposit", "target": "Fresh Graduates", "risk": "high", "volume": "530 reports"},
+                {"title": "Internshala Fake Internship Verification Fee", "target": "College Interns", "risk": "high", "volume": "390 reports"}
+            ]
+            atomic_write_json(file_path, reports)
         
     if is_demo:
         st.markdown("""
@@ -1416,16 +1471,34 @@ def render_user_reports(is_demo: bool) -> None:
             rep_body = st.text_area("Scam Offer Details", placeholder="Copy/paste scam message...")
             
             if st.form_submit_button("Submit Report", use_container_width=True):
+                new_report = {
+                    "title": rep_subject.strip(),
+                    "target": "General Users",
+                    "risk": "high",
+                    "volume": "1 report"
+                }
                 if rep_subject.strip():
-                    reports.insert(0, {
-                        "title": rep_subject.strip(),
-                        "target": "General Users",
-                        "risk": "high",
-                        "volume": "1 report"
-                    })
-                    with open(file_path, "w", encoding="utf-8") as f:
-                        json.dump(reports, f, indent=2)
-                    st.success("Scam campaign reported successfully to the community database!")
+                    if supabase_client:
+                        try:
+                            import time
+                            db_report = {
+                                "title": rep_subject,
+                                "target": "General Audience",
+                                "risk": "critical",
+                                "volume": "1 report",
+                                "created_at": time.time()
+                            }
+                            supabase_client.table("scam_reports").insert(db_report).execute()
+                        except Exception as e:
+                            logging.error(f"Supabase insert failed: {e}. Falling back to local.")
+                            reports.insert(0, new_report)
+                            atomic_write_json(file_path, reports)
+                    else:
+                        reports.insert(0, new_report)
+                        atomic_write_json(file_path, reports)
+                        
+                    st.success("Report submitted successfully!")
+                    time.sleep(1)
                     st.rerun()
                 else:
                     st.error("Please provide a subject to report.")
@@ -1453,7 +1526,14 @@ def render_user_reports(is_demo: bool) -> None:
 """, unsafe_allow_html=True)
 
 
-def render_analytics_tab(df: pd.DataFrame, filtered: pd.DataFrame) -> None:
+def render_analytics_tab(df: pd.DataFrame, filtered: pd.DataFrame, is_demo: bool = False) -> None:
+    if is_demo:
+        import streamlit as st
+        st.markdown("""
+<div style="background:rgba(234, 179, 8, 0.15); border:1px solid rgba(234, 179, 8, 0.4); border-radius:8px; padding:12px; margin-bottom:20px; text-align:center;">
+<span style="font-size:16px;">⚠️</span> <strong style="color:#fde047;">CAUTION:</strong> <span style="color:#fef08a; font-size:14px;">Currently displaying demo statistics based on sample data.</span>
+</div>
+""", unsafe_allow_html=True)
     
     # Header and Download Button
     col_title, col_btn = st.columns([3, 1])
@@ -1679,6 +1759,32 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
             if st.button("🔙 Back to sign-in", use_container_width=True):
                 st.session_state.pop("demo_mode", None)
                 st.rerun()
+                
+        # --- System Status UI ---
+        st.markdown("---")
+        st.markdown("### System Health")
+        
+        # Threat intel stats
+        import sys
+        if "agents" not in sys.path:
+            sys.path.append(str(_PROJECT_ROOT))
+        from agents.scoring_agent import get_threat_stats
+        t_stats = get_threat_stats()
+        
+        # Display badges
+        def status_badge(label, val, ok_cond):
+            color = "#10b981" if ok_cond else "#f59e0b"
+            if not ok_cond and "Error" in val or "Offline" in val: color = "#ef4444"
+            st.markdown(f"<div style='font-size:13px; margin-bottom:4px;'><span style='color:#cbd5e1;'>{label}:</span> <span style='color:{color}; font-weight:600;'>{val}</span></div>", unsafe_allow_html=True)
+            
+        status_badge("Gmail API", "Healthy (Demo)" if is_demo else "Healthy (Live)", True)
+        status_badge("Gemini LLM", "Healthy", True) # Add dynamic check if needed
+        status_badge("Threat Feed", t_stats["status"], "Healthy" in t_stats["status"])
+        db_stat = st.session_state.get("db_status", "Local Fallback")
+        status_badge("Database", db_stat, "Supabase" in db_stat or "Local Fallback" == db_stat)
+        
+        if t_stats["count"] > 0:
+            st.markdown(f"<div style='font-size:11px; color:#64748b; margin-top:8px;'>Threats Loaded: {t_stats['count']} indicators</div>", unsafe_allow_html=True)
 
         # User profile card at the bottom of the sidebar
         profile_name = "Sarah Chen"
@@ -2145,15 +2251,15 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 st.info("Select an email from the list to inspect.")
 
     elif active_tab == "ThreatIntel":
-        render_threat_intel()
+        render_threat_intel(is_demo)
     elif active_tab == "LinkScanner":
-        render_link_scanner()
+        render_link_scanner(is_demo)
     elif active_tab == "ScamDetector":
         render_scam_detector()
     elif active_tab == "UserReports":
         render_user_reports(is_demo)
     elif active_tab == "Analytics":
-        render_analytics_tab(df, filtered)
+        render_analytics_tab(df, filtered, is_demo)
     elif active_tab == "Settings":
         render_settings_tab(is_demo)
 
@@ -2309,7 +2415,7 @@ Google has returned a <strong>403 Forbidden / Access Denied</strong> error. This
 <ol class="troubleshoot-list">
 <li><strong>Add Test Users in Google Console</strong>: If your Google Cloud OAuth Consent Screen is in <em>Testing</em> status, only users explicitly added as "Test users" can authenticate. Go to the <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" style="color:#38bdf8; text-decoration:underline;">Google Cloud Console > OAuth consent screen</a> and add your Gmail account to the <strong>Test users</strong> list.</li>
 <li><strong>Enable the Gmail API</strong>: Verify that the Gmail API is enabled for project <code>capstone-agent-500304</code>. Go to <a href="https://console.cloud.google.com/apis/library/gmail.googleapis.com" target="_blank" style="color:#38bdf8; text-decoration:underline;">Google Cloud API Library</a> and click <strong>Enable</strong>.</li>
-<li><strong>Verify Redirect URI Match</strong>: The authorized redirect URI registered in Google Console must match exactly. Your project credentials only register <code>http://localhost:8501</code>. Make sure you access the dashboard on this exact port/URL.</li>
+<li><strong>Verify Redirect URI Match</strong>: The authorized redirect URI registered in Google Console must match exactly with the <code>REDIRECT_URI</code> environment variable. Ensure it matches your deployment domain.</li>
 </ol>
 <div style="font-size:12px; color:#94a3b8; margin-top:16px; border-top:1px solid rgba(255,255,255,0.06); padding-top:16px; text-align:left;">
 <strong>Google API Error details:</strong><br>

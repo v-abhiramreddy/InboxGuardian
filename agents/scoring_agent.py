@@ -50,6 +50,105 @@ SHORTENER_DOMAINS = {
     "adf.ly",
 }
 
+# Path for local caching
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+THREAT_CACHE_FILE = os.path.join(PROJECT_ROOT, "threat_feed_cache.txt")
+
+_THREAT_DOMAINS = None
+_THREAT_LAST_UPDATE = 0.0
+_THREAT_STATUS = "Offline"
+_THREAT_COUNT = 0
+
+def fetch_threat_feed() -> set:
+    """Fetch live phishing domains from OpenPhish feed with 60-min TTL and offline cache."""
+    global _THREAT_LAST_UPDATE, _THREAT_STATUS, _THREAT_COUNT
+    domains = set()
+    import time
+    import urllib.request
+    import logging
+    
+    current_time = time.time()
+    ttl_seconds = 3600  # 60 minutes
+    
+    # Check if we need to download (file missing or older than TTL)
+    needs_download = True
+    if os.path.exists(THREAT_CACHE_FILE):
+        mtime = os.path.getmtime(THREAT_CACHE_FILE)
+        if (current_time - mtime) < ttl_seconds:
+            needs_download = False
+            _THREAT_STATUS = "Healthy (Cached)"
+            _THREAT_LAST_UPDATE = mtime
+
+    if needs_download:
+        try:
+            url = "https://openphish.com/feed.txt"
+            req = urllib.request.Request(
+                url, 
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
+            )
+            # Strict 5-second timeout
+            with urllib.request.urlopen(req, timeout=5.0) as response:
+                content = response.read().decode('utf-8')
+                if content.strip():
+                    # Safely write using temp file
+                    temp_filepath = f"{THREAT_CACHE_FILE}.tmp"
+                    with open(temp_filepath, "w", encoding="utf-8") as f:
+                        f.write(content)
+                    os.replace(temp_filepath, THREAT_CACHE_FILE)
+                    
+                    _THREAT_STATUS = "Healthy (Live)"
+                    _THREAT_LAST_UPDATE = time.time()
+        except Exception as e:
+            logging.warning(f"Failed to fetch OpenPhish threat feed: {e}. Falling back to cache.")
+            if not os.path.exists(THREAT_CACHE_FILE):
+                _THREAT_STATUS = "Offline (No Cache)"
+
+    # Load from cache file
+    if os.path.exists(THREAT_CACHE_FILE):
+        try:
+            with open(THREAT_CACHE_FILE, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip().lower()
+                    if line:
+                        if "://" in line:
+                            parsed = urlparse(line)
+                            domain = clean_domain(parsed.netloc or parsed.path.split("/")[0])
+                        else:
+                            domain = clean_domain(line.split("/")[0])
+                        if domain:
+                            domains.add(domain)
+            _THREAT_COUNT = len(domains)
+            if _THREAT_STATUS.startswith("Offline"):
+                _THREAT_STATUS = "Warning (Stale Cache)"
+            return domains
+        except Exception as e:
+            logging.error(f"Failed to parse threat feed cache: {e}")
+
+    # Ultimate fallback if no network and no cache
+    fallback_threats = [
+        "infosys-training-hr.info",
+        "wipro-verification-portal.net",
+        "tcs-careers-india.com",
+        "internshala-verify.click"
+    ]
+    for d in fallback_threats:
+        domains.add(clean_domain(d))
+    _THREAT_COUNT = len(domains)
+    return domains
+
+def get_threat_domains() -> set:
+    global _THREAT_DOMAINS
+    if _THREAT_DOMAINS is None:
+        _THREAT_DOMAINS = fetch_threat_feed()
+    return _THREAT_DOMAINS
+
+def get_threat_stats() -> dict:
+    return {
+        "status": _THREAT_STATUS,
+        "last_update": _THREAT_LAST_UPDATE,
+        "count": _THREAT_COUNT
+    }
+
 def clean_domain(domain: str) -> str:
     """Helper to clean and normalize a domain string."""
     # FIX Bug 3: lstrip("www.") stripped any leading char in the SET {'w','.'}
@@ -256,11 +355,17 @@ def score_email(email: dict) -> dict:
             conf_links = 0.0  # Link resolution failed due to short URL (cannot expand offline)
             break
 
-    # Signal C: Lookalike Domains (Typosquatting)
+    # Signal C: Lookalike Domains and Live Threat Feeds
     for link in links:
         try:
             parsed = urlparse(link)
             link_domain = clean_domain(parsed.netloc or parsed.path.split("/")[0])
+            
+            # Check against live OpenPhish threat feed
+            if link_domain in get_threat_domains():
+                signals_links.append("Known Malicious Domain (Threat Database)")
+                break
+                
             # Check lookalike domain
             if check_lookalike(link_domain):
                 signals_links.append("Lookalike Domain (Typosquatting)")

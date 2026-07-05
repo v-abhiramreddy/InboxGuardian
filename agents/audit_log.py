@@ -43,4 +43,5 @@ def log_decision(
             f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     except Exception as exc:
         # Audit logging should never crash the pipeline
-        print(f"[audit_log] WARNING: Failed to write audit entry: {exc}")
+        import logging
+        logging.warning(f"[audit_log] WARNING: Failed to write audit entry: {exc}")

@@ -38,54 +38,38 @@ from gmail_mcp_server import list_messages, get_message     # noqa: E402
 # ---------------------------------------------------------------------------
 
 def fetch_recent_emails(count: int = 10) -> list[dict]:
-    """
-    Fetch the most recent *count* emails from Gmail and return them as a list
-    of email objects.
+    import logging
+    import socket
+    
+    # Set a default timeout for all underlying socket connections to avoid freezing
+    old_timeout = socket.getdefaulttimeout()
+    socket.setdefaulttimeout(15.0)
 
-    Each object matches the project schema:
-    {
-        "id":       str,
-        "sender":   str,
-        "subject":  str,
-        "body_text": str,          # plain text, HTML-stripped, max 1500 chars
-        "links":    list[str],     # all URLs found in body
-        "headers":  {
-            "spf":  str,           # pass | fail | softfail | none
-            "dkim": str,
-            "dmarc": str,
-        }
-    }
+    try:
+        service = get_gmail_service()
+        
+        # Step 1: get message IDs + snippets
+        message_stubs = list_messages(service, max_results=count)
+        
+        # Step 2: fetch full email object for each ID
+        emails: list[dict] = []
+        for stub in message_stubs:
+            try:
+                email_obj = get_message(service, stub["id"])
+                emails.append(email_obj)
+            except Exception as exc:
+                logging.warning(f"Could not fetch message {stub.get('id', 'unknown')}: {exc}")
+                
+        return emails
+        
+    except Exception as exc:
+        logging.error(f"Gmail API connection failed: {exc}")
+        return []
+        
+    finally:
+        # Restore original timeout
+        socket.setdefaulttimeout(old_timeout)
 
-    NOTE (production path):
-        In production, replace the direct function calls below with an MCP
-        client that sends tool-call requests over stdio/HTTP to the running
-        gmail_mcp_server process:
-
-            client.call_tool("list_messages", {"max_results": count})
-            client.call_tool("get_message",   {"message_id": msg_id})
-
-        The returned JSON payloads are identical to what the helpers produce.
-    """
-    service = get_gmail_service()
-
-    # Step 1: get message IDs + snippets
-    message_stubs = list_messages(service, max_results=count)
-
-    # Step 2: fetch full email object for each ID
-    emails: list[dict] = []
-    for stub in message_stubs:
-        try:
-            email_obj = get_message(service, stub["id"])
-            emails.append(email_obj)
-        except Exception as exc:
-            # Log and continue — a single bad message shouldn't abort the batch
-            print(
-                f"[connector_agent] Warning: could not fetch message "
-                f"{stub['id']}: {exc}",
-                file=sys.stderr,
-            )
-
-    return emails
 
 
 # ---------------------------------------------------------------------------
