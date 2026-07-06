@@ -3,9 +3,6 @@
 > **AI-powered email threat detection for your Gmail inbox.**
 > Built by **Team Sentinel** · *AI Agents: Intensive Vibe Coding Capstone Project*
 
-[![Python](https://img.shields.io/badge/Python-3.11-3b82f6?style=flat-square&logo=python)](https://python.org)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-ff4b4b?style=flat-square&logo=streamlit)](https://streamlit.io)
-[![Gemini](https://img.shields.io/badge/Google-Gemini%20API-4ade80?style=flat-square&logo=google)](https://ai.google.dev)
 
 Inbox Guardian is a multi-agent email security platform that combines fast rule-based heuristics, a trained ML classifier, and Google Gemini LLM deep-analysis to detect phishing, scams, and spam in real-time — directly in your browser via a Streamlit dashboard.
 
