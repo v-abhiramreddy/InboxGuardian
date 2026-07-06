@@ -141,7 +141,7 @@ div[data-testid="stRadio"] div[role="radiogroup"] label p {
     gap: 12px !important;
     padding: 10px 14px !important;
     border-radius: 8px !important;
-    font-size: 18px !important;
+    font-size: 17px !important;
     color: #94a3b8 !important;
     background-color: transparent !important;
     border: none !important;
