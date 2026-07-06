@@ -2534,7 +2534,10 @@ def render_signin_page() -> None:
 </svg>
 Sign in with Google
 </a>
-<div class="demo-link-container">
+<div style="margin-top: 16px; font-size: 11.5px; color: #64748b; line-height: 1.5; max-width: 290px; margin-left: auto; margin-right: auto; text-align: center;">
+Judges: contact us to get added as a test user, or try <b>View demo</b> below — no sign-in needed.
+</div>
+<div class="demo-link-container" style="margin-top: 16px;">
 No account? <a href="?demo=1" id="view-demo-link" target="_self">View demo</a>
 </div>
 </div>
