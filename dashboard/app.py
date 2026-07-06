@@ -2560,7 +2560,7 @@ def render_signin_page() -> None:
         <a href="#" style="position:absolute; top:16px; right:20px; color:#64748b; font-size:24px; font-weight:bold; cursor:pointer; text-decoration:none !important; transition:color 0.2s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#64748b'">&times;</a>
         <div style="font-size:32px; margin-bottom:12px;">✉️</div>
         <h4 style="color:#ffffff; margin-top:0; margin-bottom:8px; font-size:20px; font-weight:700;">Email Us At</h4>
-        <p style="color:#94a3b8; font-size:14px; margin-bottom:20px; line-height:1.5;">Contact Sentinel developers to get added as a verified test user:</p>
+        <p style="color:#94a3b8; font-size:14px; margin-bottom:20px; line-height:1.5;">Add Contact Team Sentinel developers to get added as a verified test user</p>
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
             <a href="mailto:haricharankanukuntla@gmail.com" style="display:block; padding:12px; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.15); border-radius:8px; color:#38bdf8 !important; font-size:14px; font-weight:600; text-decoration:none !important; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.12)'; this.style.borderColor='rgba(56,189,248,0.3)';" onmouseout="this.style.background='rgba(56,189,248,0.06)'; this.style.borderColor='rgba(56,189,248,0.15)';">
                 haricharankanukuntla@gmail.com
