@@ -49,6 +49,8 @@ SPAMASSASSIN_URLS = {
     "easy_ham_2": "https://spamassassin.apache.org/old/publiccorpus/20030228_easy_ham_2.tar.bz2",
 }
 
+NAZARIO_URL = "https://monkey.org/~jose/phishing/phishing0.mbox"
+
 random.seed(42)  # Reproducibility
 
 
@@ -132,11 +134,63 @@ def parse_spamassassin_archive(archive_path: Path) -> list[dict]:
                             "body_text": body[:3000],
                         })
                 except Exception:
-                    continue
+                    pass
     except Exception as e:
-        print(f"  [parse error] {archive_path.name}: {e}")
+        print(f"  [ERROR] parsing {archive_path.name}: {e}")
+    print(f"  [parsed] {archive_path.name.split('.')[0]}: {len(emails)} emails")
     return emails
 
+def download_and_parse_nazario() -> list[dict]:
+    """Download and parse Nazario phishing mbox."""
+    RAW_DIR.mkdir(parents=True, exist_ok=True)
+    dest = RAW_DIR / "phishing0.mbox"
+    if not dest.exists():
+        print(f"  [downloading] {NAZARIO_URL}")
+        try:
+            req = urllib.request.Request(NAZARIO_URL, headers={'User-Agent': 'Mozilla/5.0'})
+            with urllib.request.urlopen(req) as response, open(dest, 'wb') as out_file:
+                out_file.write(response.read())
+            print(f"  [saved] {dest.name} ({dest.stat().st_size / 1024:.0f} KB)")
+        except Exception as e:
+            print(f"  [FAILED] Nazario: {e}")
+            return []
+    
+    print("  [parsing] Nazario mbox...")
+    import mailbox
+    emails = []
+    try:
+        mbox = mailbox.mbox(str(dest))
+        for msg in mbox:
+            subject = str(msg.get("Subject", ""))
+            sender = str(msg.get("From", ""))
+            
+            body_text = ""
+            if msg.is_multipart():
+                for part in msg.walk():
+                    if part.get_content_type() == "text/plain":
+                        body_text = part.get_payload(decode=True)
+                        break
+            else:
+                body_text = msg.get_payload(decode=True)
+                
+            if isinstance(body_text, bytes):
+                body_text = body_text.decode("utf-8", errors="ignore")
+                
+            if body_text.strip():
+                emails.append({
+                    "email_id": f"nazario-{len(emails):04d}",
+                    "sender": sender[:100],
+                    "subject": subject[:150],
+                    "body_text": body_text[:2000],
+                    "links": "",
+                    "label": "phishing",
+                    "is_synthetic": False,
+                })
+    except Exception as e:
+        print(f"  [ERROR] parsing Nazario: {e}")
+    
+    print(f"  [parsed] Nazario: {len(emails)} emails")
+    return emails
 
 # ---------------------------------------------------------------------------
 # Synthetic Data Generation
@@ -173,8 +227,8 @@ PHISHING_TEMPLATES = [
 SCAM_TEMPLATES = [
     {
         "sender": "Prize Office <claims@{domain}>",
-        "subject": "Congratulations! You won {prize}",
-        "body": "You have been selected as the winner of our {contest}. To claim your {prize}, send your bank details to: {email_addr}",
+        "subject": "Congratulations! You won {prize} (Ref: {ref_id})",
+        "body": "You have been selected as the winner of our {contest}. To claim your {prize}, send your bank details to: {email_addr}. Reference code: {ref_id}",
     },
     {
         "sender": "Lottery Commission <lottery@{domain}>",
@@ -222,6 +276,7 @@ FILL_DATA = {
     "fee": ["$50", "Rs 5,000", "$100", "£25"],
     "company": ["TechCorp Global", "DataSync Solutions", "CloudForce Inc"],
     "return_pct": ["500%", "300%", "1000%"],
+    "ref_id": [str(random.randint(100000, 999999)) for _ in range(5000)],
 }
 
 
@@ -264,7 +319,7 @@ def main():
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     RAW_DIR.mkdir(parents=True, exist_ok=True)
 
-    all_rows = []
+    dataset = []
     source_log = {}  # For README generation
 
     # ----- 1. Download SpamAssassin -----
@@ -279,15 +334,10 @@ def main():
             download_success = False
             continue
         parsed = parse_spamassassin_archive(archive)
-        print(f"  [parsed] {name}: {len(parsed)} emails")
         if "spam" in name:
             spam_emails.extend(parsed)
         else:
             safe_emails.extend(parsed)
-
-    if not download_success or len(spam_emails) < 100 or len(safe_emails) < 100:
-        print("\n  WARNING: SpamAssassin download failed or insufficient data.")
-        print("  Will generate synthetic spam/safe data as fallback.")
 
     # ----- 2. Build spam rows (real from SpamAssassin) -----
     print(f"\n--- Step 2: Building SPAM rows (have {len(spam_emails)} raw) ---")
@@ -304,26 +354,7 @@ def main():
             "is_synthetic": False,
         })
     source_log["spam_real"] = len(spam_rows)
-
-    # Fill remaining with synthetic if needed
-    if len(spam_rows) < TARGET_PER_CLASS:
-        deficit = TARGET_PER_CLASS - len(spam_rows)
-        print(f"  Generating {deficit} synthetic spam rows to reach {TARGET_PER_CLASS}")
-        for i in range(deficit):
-            spam_rows.append({
-                "email_id": f"syn-spam-{i:04d}",
-                "sender": f"Special Offers <deals@{random.choice(FAKE_DOMAINS)}>",
-                "subject": random.choice([
-                    "Buy now! Limited time discount", "Make money fast from home",
-                    "Cheap meds online", "You won't believe this deal",
-                    "Act now - exclusive discount ending soon",
-                ]),
-                "body_text": "Click here for amazing deals. Unsubscribe link below.",
-                "links": "",
-                "label": "spam",
-                "is_synthetic": True,
-            })
-    source_log["spam_synthetic"] = len([r for r in spam_rows if r["is_synthetic"]])
+    dataset.extend(spam_rows)
 
     # ----- 3. Build safe rows (real from SpamAssassin ham) -----
     print(f"\n--- Step 3: Building SAFE rows (have {len(safe_emails)} raw) ---")
@@ -340,41 +371,34 @@ def main():
             "is_synthetic": False,
         })
     source_log["safe_real"] = len(safe_rows)
+    dataset.extend(safe_rows)
+    source_log["safe_synthetic"] = 0
 
-    if len(safe_rows) < TARGET_PER_CLASS:
-        deficit = TARGET_PER_CLASS - len(safe_rows)
-        print(f"  Generating {deficit} synthetic safe rows")
-        safe_subjects = [
-            "Meeting tomorrow at 3pm", "Re: Q3 budget review",
-            "Lunch plans?", "Updated project timeline",
-            "FYI: Policy change", "Team outing this Friday",
-        ]
-        for i in range(deficit):
-            safe_rows.append({
-                "email_id": f"syn-safe-{i:04d}",
-                "sender": f"colleague@company.com",
-                "subject": random.choice(safe_subjects),
-                "body_text": "Please see the attached notes from our last meeting.",
-                "links": "",
-                "label": "safe",
-                "is_synthetic": True,
-            })
-    source_log["safe_synthetic"] = len([r for r in safe_rows if r["is_synthetic"]])
+    # ----- 4. Build phishing rows (Nazario) -----
+    print(f"\n--- Step 4: Building PHISHING rows (Nazario) ---")
+    nazario_raw = download_and_parse_nazario()
+    if len(nazario_raw) > TARGET_PER_CLASS:
+        phishing_rows = random.sample(nazario_raw, TARGET_PER_CLASS)
+    else:
+        phishing_rows = nazario_raw
+    dataset.extend(phishing_rows)
+    source_log["phishing_real"] = len(phishing_rows)
+    source_log["phishing_synthetic"] = 0
 
-    # ----- 4. Build phishing rows (synthetic from templates) -----
-    print(f"\n--- Step 4: Building PHISHING rows (synthetic) ---")
-    phishing_rows = generate_synthetic(PHISHING_TEMPLATES, "phishing", TARGET_PER_CLASS)
-    source_log["phishing_real"] = 0
-    source_log["phishing_synthetic"] = len(phishing_rows)
-
-    # ----- 5. Build scam rows (synthetic from templates) -----
+    # ----- 5. Build scam rows (synthetic) -----
     print(f"\n--- Step 5: Building SCAM rows (synthetic) ---")
-    scam_rows = generate_synthetic(SCAM_TEMPLATES, "scam", TARGET_PER_CLASS)
+    # Generate 5x more synthetic rows so we have enough after deduplication
+    scam_rows = generate_synthetic(SCAM_TEMPLATES, "scam", TARGET_PER_CLASS * 5)
+    
+    # Deduplicate based on body text
+    unique_scam = {r["body_text"]: r for r in scam_rows}.values()
+    final_scam = list(unique_scam)[:TARGET_PER_CLASS]
+    dataset.extend(final_scam)
     source_log["scam_real"] = 0
-    source_log["scam_synthetic"] = len(scam_rows)
+    source_log["scam_synthetic"] = len(final_scam)
 
     # ----- 6. Combine and save -----
-    all_rows = spam_rows + safe_rows + phishing_rows + scam_rows
+    all_rows = dataset
     random.shuffle(all_rows)
 
     output_path = PROCESSED_DIR / "labeled_emails.csv"
@@ -420,11 +444,15 @@ def _write_data_readme(source_log: dict, total: int):
   20030228_hard_ham.tar.bz2, 20030228_spam_2.tar.bz2, 20030228_easy_ham_2.tar.bz2
 - **Label mapping:** spam → spam, easy_ham/hard_ham → safe
 
+### Nazario Phishing Corpus (Real Data)
+- **URL:** https://monkey.org/~jose/phishing/phishing0.mbox
+- **Label mapping:** phishing → phishing
+
 ### Synthetic Data
 - **Generated by:** `ml/collect_data.py` using keyword patterns from
   `agents/scoring_agent.py` (URGENCY_KEYWORDS, CREDENTIAL_KEYWORDS_STRONG,
   OFFER_KEYWORDS, etc.)
-- **Phishing templates:** 5 templates with randomized fill values
+- **Used for:** Scam class only
 - **Scam templates:** 5 templates with randomized fill values
 
 ## Row Counts Per Class

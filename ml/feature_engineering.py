@@ -186,6 +186,19 @@ def main():
     print("=" * 60)
 
     rows = load_dataset()
+
+    # --- Strict Deduplication ---
+    unique_rows = []
+    seen_bodies = set()
+    for r in rows:
+        body = r.get("body_text", "").strip()
+        if body not in seen_bodies:
+            seen_bodies.add(body)
+            unique_rows.append(r)
+    
+    print(f"Deduplicated dataset: {len(rows)} -> {len(unique_rows)} rows (removed {len(rows) - len(unique_rows)} duplicates)")
+    rows = unique_rows
+
     X, y, le, tfidf, feature_names = build_features(rows)
 
     # Save processed arrays for training

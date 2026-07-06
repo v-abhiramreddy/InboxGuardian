@@ -1,4 +1,4 @@
-﻿"""
+"""
 ml/evaluate.py
 --------------
 Evaluates the trained ML classifier and compares against:
@@ -119,7 +119,7 @@ def rule_engine_predict(test_rows: list[dict]) -> list[str]:
             "subject": row.get("subject", ""),
             "body_text": row.get("body_text", ""),
             "links": [l.strip() for l in row.get("links", "").split(",") if l.strip()],
-            "headers": {"spf": "none", "dkim": "none", "dmarc": "none"},
+            "headers": {"spf": "pass", "dkim": "pass", "dmarc": "pass", "arc": "pass"},
         }
         result = score_email(email_obj)
         predictions.append(result["category"])
@@ -248,24 +248,30 @@ def main():
         status = "PASS" if hc["correct_ml"] else "FAIL"
         print(f"  [{status}] {hc['name']}: ML={hc['ml_predicted']}, Rule={hc['rule_engine_category']} (expected {hc['expected']})")
 
-    # --- Real vs Synthetic breakdown ---
+    # --- 4. Report Real vs Synthetic Accuracy Breakdown ---
     print("\n--- Real vs Synthetic Breakdown ---")
+    
+    # Exclude entirely synthetic rows (scam class) from "Real-World Accuracy"
     real_mask = ~test_synthetic
+    real_y_test = y_test[real_mask]
+    real_y_pred_rf = y_pred_rf[real_mask]
+    
+    if len(real_y_test) > 0:
+        real_acc = accuracy_score(real_y_test, real_y_pred_rf)
+    else:
+        real_acc = 0.0
+        
     syn_mask = test_synthetic
-
-    if np.sum(real_mask) > 0:
-        acc_real = accuracy_score(y_test[real_mask], y_pred_rf[real_mask])
-        print(f"  Real data accuracy: {acc_real:.4f} ({np.sum(real_mask)} rows)")
+    syn_y_test = y_test[syn_mask]
+    syn_y_pred_rf = y_pred_rf[syn_mask]
+    
+    if len(syn_y_test) > 0:
+        syn_acc = accuracy_score(syn_y_test, syn_y_pred_rf)
     else:
-        acc_real = None
-        print(f"  No real data in test set")
-
-    if np.sum(syn_mask) > 0:
-        acc_syn = accuracy_score(y_test[syn_mask], y_pred_rf[syn_mask])
-        print(f"  Synthetic data accuracy: {acc_syn:.4f} ({np.sum(syn_mask)} rows)")
-    else:
-        acc_syn = None
-        print(f"  No synthetic data in test set")
+        syn_acc = 0.0
+        
+    print(f"  Real data accuracy: {real_acc:.4f} ({np.sum(real_mask)} rows)")
+    print(f"  Synthetic data accuracy: {syn_acc:.4f} ({np.sum(syn_mask)} rows)")
 
     # --- Generate report ---
     _write_report(
@@ -274,7 +280,7 @@ def main():
         acc_lr, report_lr, cm_lr,
         acc_rule, report_rule, cm_rule,
         hard_case_results,
-        acc_real, acc_syn,
+        real_acc, syn_acc,
         np.sum(real_mask), np.sum(syn_mask),
     )
 
@@ -289,7 +295,7 @@ def _write_report(
     acc_lr, report_lr, cm_lr,
     acc_rule, report_rule, cm_rule,
     hard_case_results,
-    acc_real, acc_syn,
+    real_acc, syn_acc,
     real_count, syn_count,
 ):
     """Generate the evaluation report markdown."""
@@ -326,8 +332,8 @@ Overlap (exact `body_text` match between train and test splits): **{leakage} row
 ### Real vs Synthetic Data in Test Set
 | Data Type | Rows | RF Accuracy |
 |---|---|---|
-| Real | {real_count} | {f"{acc_real:.4f}" if acc_real is not None else "N/A"} |
-| Synthetic | {syn_count} | {f"{acc_syn:.4f}" if acc_syn is not None else "N/A"} |
+| Real | {real_count} | {f"{real_acc:.4f}" if real_acc is not None else "N/A"} |
+| Synthetic | {syn_count} | {f"{syn_acc:.4f}" if syn_acc is not None else "N/A"} |
 
 ## Cross-Validation Results (Training Set)
 
@@ -336,7 +342,16 @@ Overlap (exact `body_text` match between train and test splits): **{leakage} row
 | **RandomForest** | {training_results['rf_cv_mean']:.4f} | {training_results['rf_cv_std']:.4f} | {training_results['rf_train_acc']:.4f} | {training_results['rf_test_acc']:.4f} |
 | **LogisticRegression** | {training_results['lr_cv_mean']:.4f} | {training_results['lr_cv_std']:.4f} | {training_results['lr_train_acc']:.4f} | {training_results['lr_test_acc']:.4f} |
 
-## Overall Accuracy Comparison
+## Overall Real-World Accuracy (Excluding Synthetic Data)
+
+| Model | Test Accuracy (Real Data Only) |
+|---|---|
+| **RandomForest (ML)** | {real_acc:.4f} ({real_count} rows) |
+
+> [!NOTE]
+> Synthetic data metrics (Scam class) are excluded from the real-world accuracy metric to avoid circularity claims. The synthetic data accuracy was {syn_acc:.4f} ({syn_count} rows).
+
+## Overall Accuracy Comparison (Full Test Set)
 
 | Model | Test Accuracy |
 |---|---|
@@ -404,11 +419,13 @@ These are the exact emails that historically caused false positives in the rule 
 
 - **Train/test split:** 80/20, stratified by class
 - **Cross-validation:** 5-fold stratified on training set
-- **RandomForest:** n_estimators=200, max_depth=5, learning_rate=0.1
-- **LogisticRegression:** max_iter=1000, multinomial, lbfgs solver
+- **RandomForest:** n_estimators=100, max_depth=10 (to prevent overfitting)
+- **LogisticRegression:** max_iter=1000, lbfgs solver
 - **Features:** TF-IDF (max_features=5000, bigrams) + 9 structural features
-- **Rule engine comparison:** score_email() called with no auth headers (spf/dkim/dmarc=none)
-  since the dataset rows don't have real authentication headers
+- **Rule engine comparison:** `score_email()` called with valid auth headers (`spf/dkim/dmarc=pass`)
+  for the test dataset rows so the rule engine is judged fairly on content-detection,
+  rather than failing automatically due to missing authentication.
+- **Hard Cases:** Evaluated using their actual historical auth headers.
 """
 
     with open(report_path, "w", encoding="utf-8") as f:
