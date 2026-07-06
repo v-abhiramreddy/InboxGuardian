@@ -75,23 +75,23 @@ def test_sreenidhi_safe():
     rule_cat, ml_cat, ml_conf, escalated = evaluate_ensemble(email)
     assert not escalated, f"False escalation on Sreenidhi! Rule: {rule_cat}, ML: {ml_cat} ({ml_conf})"
 
-def test_bec_phishing():
-    # Existing BEC case
+def test_netflix_phish():
+    # Spoofed netflix billing suspension
     email = {
-        "id": "bec-test",
-        "sender": "CEO <ceo-exec-office@gmail.com>",
-        "subject": "URGENT: Wire Transfer Required",
-        "body_text": "I need you to process a wire transfer immediately. Please reply.",
-        "links": [],
+        "id": "phish-test-netflix",
+        "sender": "Netflix Alert <billing-update@customer-netfl1x-support.com>",
+        "subject": "Your Netflix membership is about to be suspended",
+        "body_text": "Please update your credentials immediately at http://bit.ly/netflix-suspend",
+        "links": ["http://bit.ly/netflix-suspend"],
         "headers": {
-            "spf": "pass",
-            "dkim": "pass",
-            "dmarc": "pass"
+            "spf": "fail",
+            "dkim": "fail",
+            "dmarc": "fail"
         }
     }
     rule_cat, ml_cat, ml_conf, escalated = evaluate_ensemble(email)
     # It should either be flagged as phishing by rule engine, or escalated
-    assert rule_cat in ("phishing", "scam") or escalated, f"Missed BEC! Rule: {rule_cat}, ML: {ml_cat}"
+    assert rule_cat in ("phishing", "scam") or escalated, f"Missed Netflix phish! Rule: {rule_cat}, ML: {ml_cat}"
 
 def test_gap_phishing_1():
     # Modelled on "Dear Valued Customer" gap analysis
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     print("Testing Ensemble ML + Rule Engine Logic...")
     tests = [
         test_kitsw_safe, test_unstop_safe, test_sreenidhi_safe,
-        test_bec_phishing, test_gap_phishing_1, test_gap_phishing_2
+        test_netflix_phish, test_gap_phishing_1, test_gap_phishing_2
     ]
     
     passed = 0

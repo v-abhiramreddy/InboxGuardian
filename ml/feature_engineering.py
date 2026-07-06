@@ -75,7 +75,9 @@ def extract_structural_features(row: dict) -> dict:
 
     # Parse links from body text (reusing email_utils)
     body_links = extract_links(body)
-    if links_str:
+    if isinstance(links_str, list):
+        body_links.extend(links_str)
+    elif links_str:
         body_links.extend(links_str.split(","))
     body_links = list(set(body_links))
 
