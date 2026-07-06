@@ -4,6 +4,7 @@
 > Built by **Team Sentinel** · *AI Agents: Intensive Vibe Coding Capstone Project*
 
 Live Demo : https://inboxguardian-rj8y.onrender.com
+
 Inbox Guardian is a multi-agent email security platform that combines fast rule-based heuristics, a trained ML classifier, and Google Gemini LLM deep-analysis to detect phishing, scams, and spam in real-time — directly in your browser via a Streamlit dashboard.
 
 ---
