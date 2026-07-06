@@ -7,7 +7,7 @@
     "explanation": "Risk signals detected: Display Name / Local Part vs. Actual Email Mismatch, Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Use of URL Shorteners, Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Your Netflix membership is about to be suspended",
     "sender": "netflix-alert-update@customer-billing-portal.com",
-    "llm_explanation": "Gemini AI Analysis: This email exhibits indicators of phishing. The sender is attempting to solicit sensitive information or redirect to an unsafe domain. Do not interact with any links."
+    "llm_explanation": "**Threat Analysis:** This email is a textbook credential harvesting phishing attempt. The sender domain is a lookalike designed to mimic a legitimate organization. It creates a false sense of urgency (e.g., claiming your account is restricted or an invoice is overdue) and includes a malicious link intended to steal your login credentials.\n\n**Recommendation:** Do not click any links or download attachments. Report this email as phishing and delete it immediately."
   },
   {
     "email_id": "phish-002",
@@ -17,7 +17,7 @@
     "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Urgent: Suspicious login attempt detected on your account",
     "sender": "security@chase-secure-banking-alert.com",
-    "llm_explanation": "Gemini AI Analysis: This email exhibits indicators of phishing. The sender is attempting to solicit sensitive information or redirect to an unsafe domain. Do not interact with any links."
+    "llm_explanation": "**Threat Analysis:** This email is a textbook credential harvesting phishing attempt. The sender domain is a lookalike designed to mimic a legitimate organization. It creates a false sense of urgency (e.g., claiming your account is restricted or an invoice is overdue) and includes a malicious link intended to steal your login credentials.\n\n**Recommendation:** Do not click any links or download attachments. Report this email as phishing and delete it immediately."
   },
   {
     "email_id": "phish-003",
@@ -27,7 +27,7 @@
     "explanation": "Risk signals detected: Too-Good-To-Be-True Offers.",
     "subject": "Congratulations! You won the $15,000 Global Excellence Scholarship",
     "sender": "info@studentfunds-verify.net",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "phish-004",
@@ -37,7 +37,7 @@
     "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Critical Update: Renew your Office 365 student subscription",
     "sender": "support@micros0ft-office-upgrade.com",
-    "llm_explanation": "Gemini AI Analysis: This email exhibits indicators of phishing. The sender is attempting to solicit sensitive information or redirect to an unsafe domain. Do not interact with any links."
+    "llm_explanation": "**Threat Analysis:** This email is a textbook credential harvesting phishing attempt. The sender domain is a lookalike designed to mimic a legitimate organization. It creates a false sense of urgency (e.g., claiming your account is restricted or an invoice is overdue) and includes a malicious link intended to steal your login credentials.\n\n**Recommendation:** Do not click any links or download attachments. Report this email as phishing and delete it immediately."
   },
   {
     "email_id": "phish-005",
@@ -47,7 +47,7 @@
     "explanation": "Risk signals detected: Display Name / Local Part vs. Actual Email Mismatch, Failed Authentication (SPF/DKIM/DMARC), Use of URL Shorteners, Urgency and Threats.",
     "subject": "Action Required: Sign your university tax document now",
     "sender": "docusign-notification@envelope-status-alert.com",
-    "llm_explanation": "Gemini AI Analysis: This email exhibits indicators of phishing. The sender is attempting to solicit sensitive information or redirect to an unsafe domain. Do not interact with any links."
+    "llm_explanation": "**Threat Analysis:** This email is a textbook credential harvesting phishing attempt. The sender domain is a lookalike designed to mimic a legitimate organization. It creates a false sense of urgency (e.g., claiming your account is restricted or an invoice is overdue) and includes a malicious link intended to steal your login credentials.\n\n**Recommendation:** Do not click any links or download attachments. Report this email as phishing and delete it immediately."
   },
   {
     "email_id": "phish-006",
@@ -57,7 +57,7 @@
     "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Urgent: Your cryptocurrency wallet has been compromised",
     "sender": "accounts@blockcha1n-security-desk.com",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "phish-007",
@@ -67,7 +67,7 @@
     "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Too-Good-To-Be-True Offers.",
     "subject": "You have (1) unclaimed $500 Amazon Gift Card reward",
     "sender": "rewards@amazon-gift-sweepstakes.com",
-    "llm_explanation": "Gemini AI Analysis: This email exhibits indicators of phishing. The sender is attempting to solicit sensitive information or redirect to an unsafe domain. Do not interact with any links."
+    "llm_explanation": "**Threat Analysis:** This email is a textbook credential harvesting phishing attempt. The sender domain is a lookalike designed to mimic a legitimate organization. It creates a false sense of urgency (e.g., claiming your account is restricted or an invoice is overdue) and includes a malicious link intended to steal your login credentials.\n\n**Recommendation:** Do not click any links or download attachments. Report this email as phishing and delete it immediately."
   },
   {
     "email_id": "phish-008",
@@ -77,7 +77,7 @@
     "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Unable to deliver package - Action required within 24 hours",
     "sender": "delivery-agent@fedex-shipping-notice.com",
-    "llm_explanation": "Gemini AI Analysis: This email exhibits indicators of phishing. The sender is attempting to solicit sensitive information or redirect to an unsafe domain. Do not interact with any links."
+    "llm_explanation": "**Threat Analysis:** This email is a textbook credential harvesting phishing attempt. The sender domain is a lookalike designed to mimic a legitimate organization. It creates a false sense of urgency (e.g., claiming your account is restricted or an invoice is overdue) and includes a malicious link intended to steal your login credentials.\n\n**Recommendation:** Do not click any links or download attachments. Report this email as phishing and delete it immediately."
   },
   {
     "email_id": "phish-009",
@@ -87,7 +87,7 @@
     "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Your account has been restricted - Review needed",
     "sender": "security-division@paypal-support-desk.com",
-    "llm_explanation": "Gemini AI Analysis: This email exhibits indicators of phishing. The sender is attempting to solicit sensitive information or redirect to an unsafe domain. Do not interact with any links."
+    "llm_explanation": "**Threat Analysis:** This email is a textbook credential harvesting phishing attempt. The sender domain is a lookalike designed to mimic a legitimate organization. It creates a false sense of urgency (e.g., claiming your account is restricted or an invoice is overdue) and includes a malicious link intended to steal your login credentials.\n\n**Recommendation:** Do not click any links or download attachments. Report this email as phishing and delete it immediately."
   },
   {
     "email_id": "phish-010",
@@ -97,7 +97,7 @@
     "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Urgency and Threats, Requests for Credentials or Payment.",
     "subject": "Mandatory Password Expiry Warning - University Portal",
     "sender": "administrator@it-helpdesk-system-warning.com",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "border-011",
@@ -107,7 +107,7 @@
     "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Too-Good-To-Be-True Offers.",
     "subject": "Reminder: Deadline for the Educate Future Grant is approaching",
     "sender": "scholarships@educate-future-foundation.org",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "border-012",
@@ -117,7 +117,7 @@
     "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting).",
     "subject": "Adobe Creative Cloud Student License Renewal Notice",
     "sender": "billing-support@adobe-license-renewal.com",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "border-013",
@@ -127,7 +127,7 @@
     "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting).",
     "subject": "You have 3 new matching internship suggestions",
     "sender": "careers-notice@linkedin-student-recruiting.com",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "border-014",
@@ -137,7 +137,7 @@
     "explanation": "Risk signals detected: Lookalike Sender Domain (Typosquatting), Lookalike Domain (Typosquatting), Too-Good-To-Be-True Offers.",
     "subject": "You received $120.00 from Roommate Expenses",
     "sender": "no-reply@venmo-payment-confirmation.com",
-    "llm_explanation": "Gemini AI Analysis: This email exhibits indicators of phishing. The sender is attempting to solicit sensitive information or redirect to an unsafe domain. Do not interact with any links."
+    "llm_explanation": "**Threat Analysis:** This email is a textbook credential harvesting phishing attempt. The sender domain is a lookalike designed to mimic a legitimate organization. It creates a false sense of urgency (e.g., claiming your account is restricted or an invoice is overdue) and includes a malicious link intended to steal your login credentials.\n\n**Recommendation:** Do not click any links or download attachments. Report this email as phishing and delete it immediately."
   },
   {
     "email_id": "border-015",
@@ -147,7 +147,7 @@
     "explanation": "Risk signals detected: Domain Mismatch (Claimed Org vs. Actual Domain), Failed Authentication (SPF/DKIM/DMARC), Lookalike Sender Domain (Typosquatting), Use of URL Shorteners.",
     "subject": "Missed Zoom Meeting Call Log & Transcript Available",
     "sender": "administrator@zoom-meeting-recap.com",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-016",
@@ -157,7 +157,7 @@
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Homework Assignment 3 Extension",
     "sender": "j.smith@state-university.edu",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-017",
@@ -167,7 +167,7 @@
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Official Grade Notification: Midterm Exam 1",
     "sender": "no-reply@state-university.edu",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-018",
@@ -177,7 +177,7 @@
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Interview Invitation: Software Engineering Internship",
     "sender": "hr-careers@futuretech-solutions.com",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-019",
@@ -187,7 +187,7 @@
     "explanation": "Verified authentic email from github.com (SPF/DKIM/DMARC passed).",
     "subject": "[GitHub] One-Time Verification Code: 492813",
     "sender": "security-system@github.com",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-020",
@@ -197,7 +197,7 @@
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Study group session tonight at the library",
     "sender": "sarah.jones@student-mail.state-university.edu",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-021",
@@ -207,7 +207,7 @@
     "explanation": "Verified authentic email from spotify.com (SPF/DKIM/DMARC passed).",
     "subject": "Your monthly receipt for Spotify Premium Student",
     "sender": "accounts-support@spotify.com",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-022",
@@ -217,7 +217,7 @@
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Fall Housing Assignment & Roommate Details",
     "sender": "no-reply@housing-state-university.edu",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-023",
@@ -227,7 +227,7 @@
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Weekly Science & Tech News Roundup",
     "sender": "newsletter@academic-news-digest.org",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-024",
@@ -237,7 +237,7 @@
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Mandatory Academic Advising Appointment Required",
     "sender": "advisor-services@state-university.edu",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "legit-025",
@@ -247,7 +247,7 @@
     "explanation": "No suspicious phishing or fraud risk signals were detected.",
     "subject": "Library account set up complete - Access activated",
     "sender": "support@digital-library-consortium.org",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   },
   {
     "email_id": "inject-026",
@@ -257,6 +257,6 @@
     "explanation": "Risk signals detected: Failed Authentication (SPF/DKIM/DMARC), Requests for Credentials or Payment, Too-Good-To-Be-True Offers.",
     "subject": "Job Offer",
     "sender": "hr@real-company.com",
-    "llm_explanation": "Gemini AI Analysis: Email heuristically determined safe. No malicious intent detected."
+    "llm_explanation": "Email heuristically determined safe. Deep analysis skipped."
   }
 ]
