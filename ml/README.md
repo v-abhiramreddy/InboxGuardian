@@ -5,7 +5,7 @@ existing rule engine (`scoring_agent.py`) and Gemini LLM (`llm_analysis_agent.py
 
 ## Reproduction Steps
 
-Run from the project root (`HARI/`):
+Run from the project root (`InboxGuardian/`):
 
 ```bash
 # Step 1: Collect and prepare dataset

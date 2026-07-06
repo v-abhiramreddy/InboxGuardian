@@ -178,17 +178,17 @@ Visit `http://localhost:8501?demo=1` to explore the dashboard with sample data â
 
 ```bash
 # Build and tag the image
-docker build -t hari-dashboard .
+docker build -t inbox-guardian-dashboard .
 
 # Run locally
 docker run -p 8501:8501 \
   -e GEMINI_API_KEY=... \
   -e GOOGLE_CLIENT_ID=... \
   -e GOOGLE_CLIENT_SECRET=... \
-  hari-dashboard
+  inbox-guardian-dashboard
 ```
 
-The app is deployed on **Render** (see `render.yaml` for configuration).
+The app is deployed on **Render**.
 
 ---
 
