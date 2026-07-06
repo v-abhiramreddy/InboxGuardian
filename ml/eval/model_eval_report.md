@@ -122,3 +122,26 @@ These are the exact emails that historically caused false positives in the rule 
   for the test dataset rows so the rule engine is judged fairly on content-detection,
   rather than failing automatically due to missing authentication.
 - **Hard Cases:** Evaluated using their actual historical auth headers.
+
+## Phishing Recall Gap Analysis
+
+To understand the lower recall on the `phishing` class, a diagnostic analysis of the misclassified phishing rows across the full dataset was performed. 
+
+**Summary of Misclassified Phishing Emails:**
+- **Total Analyzed:** 27 misclassified phishing emails (across the full 199-row dataset).
+- **Data Source:** 100% Real (0 synthetic). All misclassified examples originate from the Nazario corpus.
+- **Predicted as:** 17 as `spam`, 9 as `safe`, 1 as `scam`.
+
+**Common Patterns & Differences:**
+| Metric | Correctly Classified Phishing | Misclassified Phishing |
+|---|---|---|
+| **Average Body Length** | 818.5 characters | 492.3 characters |
+| **Average Links Extracted** | 1.0 | 1.0 |
+| **Credential Keywords** | 0.1 | 0.0 |
+| **Urgency Keywords** | 0.0 | 0.0 |
+
+**Observations:**
+1. **Shorter Body Text:** Misclassified phishing emails are significantly shorter on average (492 chars vs 818 chars), leaving the TF-IDF vectorizer with less text to signal on.
+2. **Missing Heuristic Signals:** The misclassified emails triggered fewer credential keywords on average (0.0 vs 0.1).
+3. **HTML Artifacts:** Many of the emails misclassified as `safe` (e.g. IDs `nazario-0044`, `nazario-0056`) contained heavily stripped HTML/tables that resulted in irregular whitespace or extremely generic intro text ("Dear Valued Customer", "eBay Fraud Mediation Request").
+4. **Tone Overlap:** Emails misclassified as `spam` (e.g. IDs `nazario-0036`, `nazario-0078`, `nazario-0125`) share generic corporate notification tones ("Confirm Your Identity", "Important Notification !!!") that heavily overlap with historical spam datasets.
