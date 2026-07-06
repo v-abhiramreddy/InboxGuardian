@@ -5,6 +5,15 @@
 
 Live Demo : https://inboxguardian-rj8y.onrender.com
 
+> **Note for judges:** This app connects to Gmail, so sign-in is currently
+> limited to approved test accounts (Google's OAuth testing-mode restriction).
+>
+> - **Want to sign in with your own account?** [Contact us](mailto:v.abhiramreddy2007@gmail.com,haricharankanukuntla@gmail.com)
+>   and we'll add you as a test user — usually takes a few minutes.
+> - **Want to explore right away?** Use **[Demo Mode](https://inboxguardian-rj8y.onrender.com/?demo=1)**
+>   — no sign-in required, preloaded with sample emails across every category
+>   (safe, spam, scam, phishing).
+
 Inbox Guardian is a multi-agent email security platform that combines fast rule-based heuristics, a trained ML classifier, and Google Gemini LLM deep-analysis to detect phishing, scams, and spam in real-time — directly in your browser via a Streamlit dashboard.
 
 ---
