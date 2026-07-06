@@ -2534,11 +2534,21 @@ def render_signin_page() -> None:
 </svg>
 Sign in with Google
 </a>
-<div style="margin-top: 16px; font-size: 11.5px; color: #64748b; line-height: 1.5; max-width: 290px; margin-left: auto; margin-right: auto; text-align: center;">
-Judges: contact us to get added as a test user, or try <b>View demo</b> below — no sign-in needed.
+<div style="margin-top: 24px; padding: 16px; background: rgba(56,189,248,0.05); border: 1px solid rgba(56,189,248,0.2); border-radius: 12px; text-align: center;">
+<div style="font-size: 13.5px; color: #ffffff; font-weight: 700; line-height: 1.5; margin-bottom: 12px;">
+Judges: Contact us to get added as a test user, or try <a href="?demo=1" style="color: #38bdf8 !important; text-decoration: underline !important; font-weight: 800;">View demo</a> below — no sign-in needed.
 </div>
-<div class="demo-link-container" style="margin-top: 16px;">
-No account? <a href="?demo=1" id="view-demo-link" target="_self">View demo</a>
+<div style="margin-bottom: 10px;">
+<a href="mailto:haricharankanukuntla@gmail.com,v.abhiramreddy2007@gmail.com" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #38bdf8; color: #0f172a !important; border-radius: 8px; padding: 8px 16px; font-size: 12.5px; font-weight: 750; text-decoration: none !important; box-shadow: 0 4px 12px rgba(56,189,248,0.25); transition: all 0.2s;">
+<span>✉️</span> Contact Us
+</a>
+</div>
+<div style="font-size: 11px; color: #94a3b8; font-weight: 700; line-height: 1.5; word-break: break-all;">
+haricharankanukuntla@gmail.com<br>v.abhiramreddy2007@gmail.com
+</div>
+</div>
+<div class="demo-link-container" style="margin-top: 18px; font-size: 14.5px; font-weight: 700; color: #ffffff;">
+No account? <a href="?demo=1" id="view-demo-link" style="color: #38bdf8 !important; text-decoration: underline !important; font-weight: 800;">View demo</a>
 </div>
 </div>
 </div>
