@@ -1,8 +1,29 @@
 # HARI — Inbox Guardian 🛡️
 
 > **AI-powered email threat detection for your Gmail inbox.**
+> Built by **Team Sentinel** · *AI Agents: Intensive Vibe Coding Capstone Project*
 
-HARI (Heuristic AI Risk Inspector) is a multi-layered email security platform that combines fast rule-based heuristics with Google Gemini AI deep-analysis to detect phishing, scams, and spam in real-time — directly in your browser via a Streamlit dashboard.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-6366f1?style=flat-square&logo=render)](https://hari-dashboard.onrender.com)
+[![Python](https://img.shields.io/badge/Python-3.11-3b82f6?style=flat-square&logo=python)](https://python.org)
+[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-ff4b4b?style=flat-square&logo=streamlit)](https://streamlit.io)
+[![Gemini](https://img.shields.io/badge/Google-Gemini%20API-4ade80?style=flat-square&logo=google)](https://ai.google.dev)
+
+HARI (Heuristic AI Risk Inspector) is a multi-agent email security platform that combines fast rule-based heuristics, a trained ML classifier, and Google Gemini LLM deep-analysis to detect phishing, scams, and spam in real-time — directly in your browser via a Streamlit dashboard.
+
+---
+
+## 🤖 Agent Pipeline
+
+HARI is composed of **6 specialized agents** working together in a pipeline:
+
+| Agent | File | Role |
+|---|---|---|
+| 📥 **Gmail Fetch Agent** | `agents/connector_agent.py` | Authenticates via OAuth2 and fetches email stubs & full bodies from the Gmail API |
+| 🔍 **Heuristic Scoring Agent** | `agents/scoring_agent.py` | Rule-based engine scoring emails 0–100 across sender, links, language, and attachment signals |
+| 🧠 **ML Classifier Agent** | `agents/ml_classifier_agent.py` | Naive Bayes model predicting threat category and confidence score |
+| 🤖 **Gemini LLM Agent** | `agents/llm_analysis_agent.py` | Google Gemini reads email content and generates plain-language threat explanations |
+| ⚡ **Escalation Agent** | `dashboard/app.py` | Detects Safe↔Risky disagreements between engines and routes to the LLM tiebreaker |
+| 📡 **Threat Intel Agent** | `dashboard/app.py` | Aggregates live threat feeds, breach data, and trending phishing campaign indicators |
 
 ---
 
@@ -13,7 +34,7 @@ HARI (Heuristic AI Risk Inspector) is a multi-layered email security platform th
 - Progressive loading — inbox appears row-by-row as analysis runs
 - Live progress bar showing fetch, scoring, and LLM analysis stages
 
-### ⚡ Heuristic Scoring Engine (`agents/scoring_agent.py`)
+### ⚡ Heuristic Scoring Engine
 Fast, zero-latency local scoring across 4 signal categories:
 
 | Category | Signals Detected |
@@ -21,42 +42,37 @@ Fast, zero-latency local scoring across 4 signal categories:
 | **Sender** | Display name/local-part spoofing, domain mismatch, lookalike/typosquatted domains, failed authentication |
 | **Links** | Brand impersonation via URL mismatch, URL shorteners, live threat feed lookups (OpenPhish) |
 | **Language** | Urgency & threat phrases, credential/payment requests, too-good-to-be-true offers |
-| **Attachments** | Suspicious attachment language patterns |
+| **Attachments** | Suspicious attachment language, dangerous file extensions, macro enable requests |
 
 Scoring returns a **0–100 risk score** and classifies each email as: `safe`, `spam`, `scam`, or `phishing`.
 
-### 🤖 Gemini AI Deep Analysis (`agents/llm_analysis_agent.py`)
-- **Threshold-based:** Only emails scoring **≥ 60** trigger a Gemini call (saves quota)
-- Returns a natural-language explanation of detected threats
+### 🤖 Gemini AI Deep Analysis
+- **Threshold-based:** Only non-safe emails (spam/scam/phishing) trigger a Gemini call (saves quota)
+- **Disagreement escalation:** If the Heuristic engine and ML model disagree (one says Safe, the other says Risky with ≥50% confidence), Gemini is called as an authoritative **tiebreaker**
+- **Structured verdict:** In tiebreaker mode, Gemini emits a parseable `VERDICT: safe|spam|scam|phishing` line — the dashboard badge and score are overridden to match Gemini's final decision
+- Plain-language output (no jargon) — results shown in 2–3 concise sentences
 - Hardened against **prompt injection** — email body is sandboxed in `<EMAIL_BODY>` XML tags
-- **45-second timeout** to handle slow API responses gracefully
 - Result caching (`llm_cache.json`) prevents redundant API calls for already-seen emails
+- **Automatic model fallback chain:** `gemini-2.5-flash → 2.5-pro → 1.5-flash → 1.5-pro`
 
 ### 🔐 Universal Sender Trust & ARC Support
-- **Protocol-driven trust** — any sender passing SPF + DKIM + DMARC gets a score reduction, regardless of whether they are a known brand
+- **Protocol-driven trust** — any sender passing SPF + DKIM + DMARC gets a score reduction
 - **Mailing list forwarding support** — DKIM + ARC pass is recognized as valid forwarding even when SPF soft-fails (e.g., Google Groups, university mailing lists)
-- **Institutional TLD heuristics** — `.edu`, `.gov`, `.ac.in`, `.gov.in`, `.nic.in`, etc. receive extra trust credit
-- **ARC extraction from multiple headers** — reads `ARC-Authentication-Results` (multi-hop, outermost), with fallback to `ARC-Seal`
+- **Institutional TLD heuristics** — `.edu`, `.gov`, `.ac.in`, `.gov.in`, `.nic.in` receive extra trust credit
+- **Smart TLD handling** — modern brand TLDs (`.io`, `.events`, `.tech`, `.app`) are NOT flagged as typosquatting unless a specific brand is clearly being impersonated
 
-### 🧠 Supervised ML Classifier (`ml/`)
-- Purely additive third signal alongside the heuristic engine and Gemini LLM.
-- **RandomForest Model:** Trained on real SpamAssassin ham/spam archives and the Nazario phishing corpus.
-- **Features:** TF-IDF text vectorization combined with 9 structural features (link counts, keyword frequencies, lookalike domains).
-- **Zero-Leakage Evaluation:** The dataset is strictly deduplicated before train/test splitting to guarantee honest evaluation metrics.
+### 🧠 ML Classifier
+- **Naive Bayes Model** trained on real SpamAssassin ham/spam archives and the Nazario phishing corpus
+- **Features:** TF-IDF text vectorization combined with structural features (link counts, keyword frequencies, lookalike domains)
+- **Zero-Leakage Evaluation:** Dataset strictly deduplicated before train/test split
 
-### 📊 Streamlit Dashboard (`dashboard/app.py`)
-- **8 navigation tabs:** Dashboard, Email Analysis, Threat Intel, Link Scanner, Scam Detector, User Reports, Analytics, Settings
+### 📊 Streamlit Dashboard
+- **9 navigation tabs:** Dashboard, Email Analysis, Threat Intel, Link Scanner, Scam Detector, User Reports, Analytics, Settings, **About**
 - Filtering by risk category and minimum risk score
 - Per-email expandable detail view with heuristic signals and Gemini explanation
 - **Demo mode** (`?demo=1`) — uses `results-demo.json` sample data, no login required
 - **Load More** button to fetch additional emails in batches of 10
-
-### 🔗 Gmail MCP Server (`mcp-server/gmail_mcp_server.py`)
-- OAuth 2.0 authentication flow with token refresh
-- Extracts full email headers including SPF, DKIM, DMARC, **and ARC** (multi-hop aware)
-- Checks `Authentication-Results`, `ARC-Authentication-Results`, and `ARC-Seal` headers
-- Uses the outermost/final hop for accurate authentication assessment
-- Rate-limited Gmail API access with retry logic
+- Model disagreement transparency trail: shows Rule Engine vs ML vs Gemini verdict on each card
 
 ### 🛡️ Security Hardening
 - All secrets loaded from **environment variables only** — no hardcoded keys anywhere
@@ -78,8 +94,9 @@ Scoring returns a **0–100 risk score** and classifies each email as: `safe`, `
 ```
 HARI/
 ├── agents/
-│   ├── scoring_agent.py        # Fast heuristic scoring engine (0-100 score)
-│   ├── llm_analysis_agent.py   # Gemini AI deep analysis (threshold >= 60)
+│   ├── scoring_agent.py        # Heuristic scoring engine (0–100 score, 4 signal categories)
+│   ├── llm_analysis_agent.py   # Gemini LLM deep analysis + verdict parsing
+│   ├── ml_classifier_agent.py  # Naive Bayes ML classifier (predict_category)
 │   ├── connector_agent.py      # Gmail API connector
 │   ├── email_utils.py          # Email parsing utilities (ARC, SPF, DKIM, DMARC)
 │   └── audit_log.py            # Structured audit logging
@@ -89,10 +106,10 @@ HARI/
 ├── ml/
 │   ├── collect_data.py         # Downloads/parses Nazario & SpamAssassin datasets
 │   ├── feature_engineering.py  # Builds TF-IDF & structural features (zero-leakage)
-│   ├── train_model.py          # Trains the RandomForest classifier
-│   └── evaluate.py             # Generates the evaluation report & hard-case tests
+│   ├── train_model.py          # Trains the Naive Bayes classifier
+│   └── evaluate.py             # Generates evaluation report & hard-case tests
 ├── dashboard/
-│   └── app.py                  # Streamlit web dashboard
+│   └── app.py                  # Streamlit web dashboard (9 tabs, full agent pipeline)
 ├── utils/
 │   └── cache_utils.py          # Atomic JSON read/write and cache key generation
 ├── tests/
@@ -148,35 +165,42 @@ Visit `http://localhost:8501?demo=1` to explore the dashboard with sample data �
 
 ---
 
-## 🐳 Docker / Cloud Run Deployment
-
-```bash
-# Build and tag the image
-gcloud builds submit --tag us-central1-docker.pkg.dev/YOUR_PROJECT_ID/capstone-repo/hari-dashboard
-
-# Deploy to Cloud Run
-gcloud run deploy hari-dashboard \
-  --image us-central1-docker.pkg.dev/YOUR_PROJECT_ID/capstone-repo/hari-dashboard \
-  --platform managed \
-  --region us-central1 \
-  --allow-unauthenticated \
-  --set-env-vars GEMINI_API_KEY=...,GOOGLE_CLIENT_ID=...,GOOGLE_CLIENT_SECRET=...
-```
-
----
-
 ## ⚙️ Configuration Reference
 
 | Setting | Default | Description |
 |---|---|---|
-| LLM Threshold | `60` | Minimum heuristic score to trigger Gemini deep analysis |
+| LLM trigger | Non-safe category | Emails flagged as spam/scam/phishing trigger Gemini analysis |
+| Disagreement escalation | Safe↔Risky, ML conf ≥ 50% | Triggers Gemini as tiebreaker |
 | Initial email batch | `10` | Emails fetched on first load |
 | Load More increment | `+10` | Additional emails fetched per "Load More" click |
-| Gemini timeout | `45s` | Max wait time for Gemini API responses |
 | OpenPhish TTL | `6h` | Threat feed cache expiry |
+
+---
+
+## 🐳 Docker / Cloud Deployment
+
+```bash
+# Build and tag the image
+docker build -t hari-dashboard .
+
+# Run locally
+docker run -p 8501:8501 \
+  -e GEMINI_API_KEY=... \
+  -e GOOGLE_CLIENT_ID=... \
+  -e GOOGLE_CLIENT_SECRET=... \
+  hari-dashboard
+```
+
+The app is deployed on **Render** (see `render.yaml` for configuration).
 
 ---
 
 ## 📄 License
 
 MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+<div align="center">
+  <strong>Team Sentinel</strong> 🛡️ &nbsp;·&nbsp; AI Agents: Intensive Vibe Coding Capstone Project
+</div>
