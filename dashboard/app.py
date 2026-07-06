@@ -810,6 +810,12 @@ def _secret(key: str, fallback: str = "") -> str:
                     return cfg.get("client_id", fallback)
                 elif key == "GOOGLE_CLIENT_SECRET":
                     return cfg.get("client_secret", fallback)
+                elif key == "REDIRECT_URI":
+                    uris = cfg.get("redirect_uris")
+                    if uris and len(uris) > 0:
+                        # Find a localhost URI if available, otherwise just use the first one
+                        local_uri = next((u for u in uris if "localhost" in u or "127.0.0.1" in u), uris[0])
+                        return local_uri
     except Exception:
         pass
 
@@ -819,7 +825,7 @@ def _secret(key: str, fallback: str = "") -> str:
 CLIENT_ID     = _secret("GOOGLE_CLIENT_ID")
 CLIENT_SECRET = _secret("GOOGLE_CLIENT_SECRET")
 # Default redirect URI to Streamlit's default local address if not configured
-REDIRECT_URI  = _secret("REDIRECT_URI", "https://your-production-app.onrender.com")
+REDIRECT_URI  = _secret("REDIRECT_URI", "http://localhost:8501")
 
 GMAIL_SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
 AUTH_URL    = "https://accounts.google.com/o/oauth2/v2/auth"
