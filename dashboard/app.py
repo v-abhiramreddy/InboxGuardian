@@ -42,6 +42,7 @@ if str(_PROJECT_ROOT) not in sys.path:
 import _path_setup  # noqa: E402  - adds mcp-server/ to sys.path
 
 from agents.scoring_agent import score_email  # noqa: E402  (our own module)
+from agents.ml_classifier_agent import predict_category # noqa: E402
 # FIX Bug 12: Import shared email helpers from the single source of truth
 # instead of duplicating ~80 lines of code here.
 from agents.email_utils import (           # noqa: E402
@@ -943,6 +944,7 @@ def fetch_and_score_generator(access_token: str, count: int = 10):
             raw_resp  = _gmail_get(f"messages/{stub['id']}", access_token, format="raw")
             email_obj = _parse_message(raw_resp.get("raw", ""), stub["id"])
             scored    = score_email(email_obj)
+            ml_scored = predict_category(email_obj)
             
             # Attach display fields that scoring_agent doesn't return
             scored["subject"] = email_obj["subject"]
@@ -950,8 +952,27 @@ def fetch_and_score_generator(access_token: str, count: int = 10):
             scored["to"]      = email_obj.get("to", "")
             scored["date"]    = email_obj.get("date", "")
             
-            # Threshold-based Gemini analysis
-            if scored["score"] >= 60:
+            if ml_scored:
+                scored["ml_category"] = ml_scored["category"]
+                scored["ml_confidence"] = ml_scored["confidence"]
+                ml_cat = ml_scored["category"]
+                ml_conf = ml_scored["confidence"]
+            else:
+                ml_cat = scored.get("category")
+                ml_conf = 0.0
+
+            rule_cat = scored.get("category", "safe").lower()
+            
+            # Determine if there's a significant disagreement requiring escalation
+            force_escalation = False
+            disagreement = (rule_cat != ml_cat)
+            if disagreement and ml_conf >= 0.60:
+                force_escalation = True
+                
+            scored["disagreement_escalated"] = force_escalation
+            
+            # Threshold-based Gemini analysis OR forced escalation
+            if scored["score"] >= 60 or force_escalation:
                 import sys
                 if "utils" not in sys.path:
                     sys.path.append(str(_PROJECT_ROOT))
@@ -963,27 +984,33 @@ def fetch_and_score_generator(access_token: str, count: int = 10):
                 email_id = stub['id']
                 from agents.llm_analysis_agent import SYSTEM_PROMPT
                 
-                cache_key = generate_cache_key(email_id, scored["score"], email_obj.get("subject", ""), SYSTEM_PROMPT)
+                cache_key = generate_cache_key(email_id, scored["score"], email_obj.get("subject", ""), SYSTEM_PROMPT + str(force_escalation))
                 
                 if cache_key in llm_cache:
                     scored["llm_explanation"] = llm_cache[cache_key]
                 else:
+                    status_text = "Running deep LLM analysis for suspicious email" if not force_escalation else "Running LLM tiebreaker for model disagreement"
                     yield {
-                        "status": f"Running deep LLM analysis for suspicious email {i+1} of {total}...",
+                        "status": f"{status_text} {i+1} of {total}...",
                         "progress": i / total,
                         "df": pd.DataFrame(rows).sort_values("score", ascending=False).reset_index(drop=True) if rows else pd.DataFrame()
                     }
                     from agents.llm_analysis_agent import analyze_email_with_llm
-                    explanation = analyze_email_with_llm(email_obj, scored)
+                    explanation = analyze_email_with_llm(email_obj, scored, ml_scored if force_escalation else None)
                     scored["llm_explanation"] = explanation
                     llm_cache[cache_key] = explanation
                     atomic_write_json(cache_path, llm_cache)
             else:
-                cat = scored.get("category", "safe").lower()
-                if cat == "safe":
-                    scored["llm_explanation"] = "Email heuristically determined safe. Deep analysis skipped."
+                if rule_cat == "safe":
+                    if disagreement:
+                        scored["llm_explanation"] = f"Rule engine says safe, ML says {ml_cat} (low confidence {ml_conf*100:.0f}%). Kept safe. Deep analysis skipped."
+                    else:
+                        scored["llm_explanation"] = "Email heuristically determined safe. Deep analysis skipped."
                 else:
-                    scored["llm_explanation"] = f"Email heuristically flagged as {cat}. Deep analysis skipped as high-risk threshold was not met."
+                    if disagreement:
+                        scored["llm_explanation"] = f"Rule engine says {rule_cat}, ML says {ml_cat} (low confidence). Deep analysis skipped as high-risk threshold was not met."
+                    else:
+                        scored["llm_explanation"] = f"Email heuristically flagged as {rule_cat}. Deep analysis skipped as high-risk threshold was not met."
                 
             rows.append(scored)
         except PermissionError:
@@ -2203,12 +2230,30 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                     api_key = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
                 
                 if explanation and pd.notna(explanation) and str(explanation).strip():
-                    llm_analysis_html = (
-                        f'<div class="llm-explanation">'
-                        f'<b>{chr(0x1f916)} AI Threat Analysis (Gemini):</b><br>'
-                        f'{_html.escape(str(explanation))}'
-                        f'</div>'
-                    )
+                    is_disagreement = row.get("disagreement_escalated", False)
+                    if is_disagreement:
+                        rule_cat = row.get("category", "unknown").upper()
+                        ml_cat = row.get("ml_category", "unknown").upper()
+                        ml_conf = row.get("ml_confidence", 0.0)
+                        
+                        llm_analysis_html = (
+                            f'<div class="llm-explanation">'
+                            f'<div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">'
+                            f'<b style="color: #fbbf24;">⚠️ Model Disagreement Escalation</b><br>'
+                            f'<span style="font-size: 13px; color: #cbd5e1;">Rule Engine: <b>{rule_cat}</b></span> <span style="color: #475569; margin: 0 8px;">|</span> '
+                            f'<span style="font-size: 13px; color: #cbd5e1;">ML Classifier: <b>{ml_cat}</b> ({(ml_conf*100):.1f}%)</span>'
+                            f'</div>'
+                            f'<b>{chr(0x1f916)} AI Tiebreak Analysis (Gemini):</b><br>'
+                            f'{_html.escape(str(explanation))}'
+                            f'</div>'
+                        )
+                    else:
+                        llm_analysis_html = (
+                            f'<div class="llm-explanation">'
+                            f'<b>{chr(0x1f916)} AI Threat Analysis (Gemini):</b><br>'
+                            f'{_html.escape(str(explanation))}'
+                            f'</div>'
+                        )
                 elif not is_demo and not api_key:
                     # Provide visual helper when the Gemini key is not added in Secrets
                     llm_analysis_html = (

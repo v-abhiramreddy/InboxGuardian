@@ -63,6 +63,7 @@ OUTPUT FORMAT:
 def analyze_email_with_llm(
     email: dict,
     score_result: dict,
+    ml_result: dict = None,
     *,
     model_name: str = "gemini-2.5-flash",
 ) -> Optional[str]:
@@ -102,13 +103,24 @@ def analyze_email_with_llm(
     rule_score = score_result.get("score", 0)
     rule_category = score_result.get("category", "unknown")
     rule_explanation = score_result.get("explanation", "")
+    
+    if ml_result:
+        ml_cat = ml_result.get("category", "unknown")
+        ml_conf = ml_result.get("confidence", 0.0)
+        intro_text = f"""Analyze this email for security threats. We have a disagreement between our automated systems that needs your expert tiebreaker decision!
+- The Heuristic Rule Engine flagged it as "{rule_category}" (Score: {rule_score}/100) based on patterns.
+- The Machine Learning Model flagged it as "{ml_cat}" (Confidence: {ml_conf*100:.1f}%).
 
-    user_prompt = f"""\
-Analyze this email for security threats. The rule-based scanner has already
-flagged it as "{rule_category}" with a risk score of {rule_score}/100.
+Rule Engine Explanation: {rule_explanation}
+"""
+    else:
+        intro_text = f"""Analyze this email for security threats. The rule-based scanner has already flagged it as "{rule_category}" with a risk score of {rule_score}/100.
 
 Rule-based signals: {rule_explanation}
+"""
 
+    user_prompt = f"""\
+{intro_text}
 EMAIL METADATA:
 - Sender: {sender}
 - Subject: {subject}
