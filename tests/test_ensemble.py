@@ -19,8 +19,14 @@ def evaluate_ensemble(email_obj):
         ml_cat = rule_cat
         ml_conf = 0.0
         
+    RISKY = {"phishing", "scam", "spam"}
     force_escalation = False
-    if rule_cat != ml_cat and ml_conf >= 0.50:
+    disagreement = (rule_cat != ml_cat)
+    meaningfully_disagree = (
+        disagreement and
+        ((rule_cat == "safe" and ml_cat in RISKY) or (rule_cat in RISKY and ml_cat == "safe"))
+    )
+    if meaningfully_disagree and ml_conf >= 0.50:
         force_escalation = True
         
     return rule_cat, ml_cat, ml_conf, force_escalation

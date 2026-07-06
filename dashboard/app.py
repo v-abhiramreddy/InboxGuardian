@@ -965,8 +965,13 @@ def fetch_and_score_generator(access_token: str, count: int = 10):
             
             # Determine if there's a significant disagreement requiring escalation
             force_escalation = False
+            RISKY = {"phishing", "scam", "spam"}
             disagreement = (rule_cat != ml_cat)
-            if disagreement and ml_conf >= 0.50:
+            meaningfully_disagree = (
+                disagreement and
+                ((rule_cat == "safe" and ml_cat in RISKY) or (rule_cat in RISKY and ml_cat == "safe"))
+            )
+            if meaningfully_disagree and ml_conf >= 0.50:
                 force_escalation = True
                 
             scored["disagreement_escalated"] = force_escalation
