@@ -1,5 +1,7 @@
 # Inbox Guardian 🛡️
 
+![Inbox Guardian Cover Banner](inbox_guardian_cover.png)
+
 > **AI-powered email threat detection for your Gmail inbox.**
 > <br>Built by **Team Sentinel** · *AI Agents: Intensive Vibe Coding Capstone Project*
 
