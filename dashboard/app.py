@@ -2515,6 +2515,27 @@ def render_signin_page() -> None:
 
 
     st.markdown(f"""
+<!-- Contact Modal -->
+<div id="contact-modal" style="display:none; position:fixed; z-index:999999; left:0; top:0; width:100%; height:100%; background-color:rgba(15,23,42,0.85); backdrop-filter:blur(8px); align-items:center; justify-content:center;">
+    <div style="background:#0b1524; border:1px solid rgba(56,189,248,0.25); border-radius:16px; padding:32px; max-width:400px; width:90%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5); position:relative;">
+        <span onclick="document.getElementById('contact-modal').style.display='none'" style="position:absolute; top:16px; right:20px; color:#64748b; font-size:24px; font-weight:bold; cursor:pointer; transition:color 0.2s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#64748b'">&times;</span>
+        <div style="font-size:32px; margin-bottom:12px;">✉️</div>
+        <h4 style="color:#ffffff; margin-top:0; margin-bottom:8px; font-size:20px; font-weight:700;">Email Us At</h4>
+        <p style="color:#94a3b8; font-size:14px; margin-bottom:20px; line-height:1.5;">Contact Sentinel developers to get added as a verified test user:</p>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+            <a href="mailto:haricharankanukuntla@gmail.com" style="display:block; padding:12px; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.15); border-radius:8px; color:#38bdf8 !important; font-size:14px; font-weight:600; text-decoration:none !important; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.12)'; this.style.borderColor='rgba(56,189,248,0.3)';" onmouseout="this.style.background='rgba(56,189,248,0.06)'; this.style.borderColor='rgba(56,189,248,0.15)';">
+                haricharankanukuntla@gmail.com
+            </a>
+            <a href="mailto:v.abhiramreddy2007@gmail.com" style="display:block; padding:12px; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.15); border-radius:8px; color:#38bdf8 !important; font-size:14px; font-weight:600; text-decoration:none !important; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.12)'; this.style.borderColor='rgba(56,189,248,0.3)';" onmouseout="this.style.background='rgba(56,189,248,0.06)'; this.style.borderColor='rgba(56,189,248,0.15)';">
+                v.abhiramreddy2007@gmail.com
+            </a>
+        </div>
+        <button onclick="document.getElementById('contact-modal').style.display='none'" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#ffffff; border-radius:8px; padding:8px 24px; font-size:13.5px; font-weight:600; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+            Close
+        </button>
+    </div>
+</div>
+
 <div class="signin-outer">
 <div class="signin-card">
 <div class="signin-logo-container">
@@ -2538,13 +2559,10 @@ Sign in with Google
 <div style="font-size: 13.5px; color: #ffffff; font-weight: 700; line-height: 1.5; margin-bottom: 12px;">
 Judges: Contact us to get added as a test user, or try <a href="?demo=1" style="color: #38bdf8 !important; text-decoration: underline !important; font-weight: 800;">View demo</a> below — no sign-in needed.
 </div>
-<div style="margin-bottom: 10px;">
-<a href="mailto:haricharankanukuntla@gmail.com,v.abhiramreddy2007@gmail.com" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #38bdf8; color: #0f172a !important; border-radius: 8px; padding: 8px 16px; font-size: 12.5px; font-weight: 750; text-decoration: none !important; box-shadow: 0 4px 12px rgba(56,189,248,0.25); transition: all 0.2s;">
+<div style="margin-bottom: 2px;">
+<button onclick="document.getElementById('contact-modal').style.display='flex'" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%); color: #0f172a !important; border: none; border-radius: 8px; padding: 8px 16px; font-size: 12.5px; font-weight: 750; cursor: pointer; box-shadow: 0 4px 14px rgba(56,189,248,0.3); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 18px rgba(56,189,248,0.45)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 14px rgba(56,189,248,0.3)';">
 <span>✉️</span> Contact Us
-</a>
-</div>
-<div style="font-size: 11px; color: #94a3b8; font-weight: 700; line-height: 1.5; word-break: break-all;">
-haricharankanukuntla@gmail.com<br>v.abhiramreddy2007@gmail.com
+</button>
 </div>
 </div>
 <div class="demo-link-container" style="margin-top: 18px; font-size: 14.5px; font-weight: 700; color: #ffffff;">
