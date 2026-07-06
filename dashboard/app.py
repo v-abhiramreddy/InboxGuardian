@@ -2516,7 +2516,7 @@ def render_signin_page() -> None:
 
     st.markdown(f"""
 <style>
-#contact-modal {
+#contact-modal {{
     display: none;
     position: fixed;
     z-index: 999999;
@@ -2528,10 +2528,10 @@ def render_signin_page() -> None:
     backdrop-filter: blur(8px);
     align-items: center;
     justify-content: center;
-}
-#contact-modal:target {
+}}
+#contact-modal:target {{
     display: flex !important;
-}
+}}
 </style>
 
 <!-- Contact Modal -->
