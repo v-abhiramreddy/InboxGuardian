@@ -35,6 +35,7 @@ def test_kitsw_safe():
         "headers": {
             "spf": "softfail",
             "dkim": "pass",
+            "dmarc": "none",
             "arc": "pass"
         }
     }
@@ -67,6 +68,7 @@ def test_sreenidhi_safe():
         "headers": {
             "spf": "neutral",
             "dkim": "pass",
+            "dmarc": "none",
             "arc": "pass"
         }
     }
