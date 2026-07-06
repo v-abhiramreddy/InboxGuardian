@@ -1,7 +1,7 @@
 # Inbox Guardian 🛡️
 
 > **AI-powered email threat detection for your Gmail inbox.**
-> Built by **Team Sentinel** · *AI Agents: Intensive Vibe Coding Capstone Project*
+> <br>Built by **Team Sentinel** · *AI Agents: Intensive Vibe Coding Capstone Project*
 
 Live Demo : https://inboxguardian-rj8y.onrender.com
 
