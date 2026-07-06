@@ -2,6 +2,7 @@ import json
 import os
 import re
 from urllib.parse import urlparse
+from pathlib import Path
 
 # Standard/Legitimate brands and their official domains
 LEGITIMATE_DOMAINS = {
@@ -211,7 +212,15 @@ def is_sender_self_identified(display_name: str, sender_domain: str) -> bool:
         return False
     dn = re.sub(r'[^a-zA-Z0-9]', '', display_name.lower())
     sd = re.sub(r'[^a-zA-Z0-9]', '', sender_domain.split('.')[0].lower())
-    return dn == sd or sd in dn or dn in sd
+    # Require substring matches to be at least 4 characters to prevent tiny words
+    # (like "go", "co", "in") from triggering false self-identification trust.
+    if dn == sd:
+        return True
+    if len(sd) >= 4 and sd in dn:
+        return True
+    if len(dn) >= 4 and dn in sd:
+        return True
+    return False
 
 def is_shortener(url: str) -> bool:
     """Check if the given URL uses a known link shortener."""
@@ -560,8 +569,11 @@ def score_email(email: dict) -> dict:
 
 def main():
     """Run scoring on mock data, followed by false-positive regression tests."""
-    mock_data_path = os.path.join("mock-data", "sample-emails.json")
-    results_path = "results-demo.json"
+    # Resolve relative paths from project root to allow execution from any working directory
+    agent_dir = Path(__file__).resolve().parent
+    project_root = agent_dir.parent
+    mock_data_path = project_root / "mock-data" / "sample-emails.json"
+    results_path = project_root / "results-demo.json"
 
     if not os.path.exists(mock_data_path):
         print(f"Error: Mock data file not found at {mock_data_path}")
@@ -573,7 +585,6 @@ def main():
     except Exception as e:
         print(f"Error loading mock data: {e}")
         return
-
     results = []
     for email in emails:
         try:
@@ -583,16 +594,14 @@ def main():
             results.append(res)
             print(f"ID: {res['email_id']} | Score: {res['score']} | Category: {res['category']}")
         except KeyError as e:
-            print(f"Warning: Skipping email due to missing key. {e}")
-        except Exception as e:
-            print(f"Warning: Skipping email {email.get('id', 'Unknown')} due to unexpected error. {e}")
+            print(f"Skipping malformed entry: {e}")
 
     try:
         with open(results_path, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2)
+            json.dump(results, f, indent=4)
         print(f"\nAll results saved to {results_path} successfully.")
     except Exception as e:
-        print(f"Error saving results to {results_path}: {e}")
+        print(f"Error saving results: {e}")
 
     # --- FALSE-POSITIVE REGRESSION TESTS ---
     print("\n" + "=" * 60)

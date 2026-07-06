@@ -9,8 +9,10 @@ import _path_setup  # noqa: E402  — adds project root + mcp-server/ to sys.pat
 from agents.scoring_agent import score_email
 
 def inject_ground_truth():
-    sample_path = os.path.join("mock-data", "sample-emails.json")
-    real_path = os.path.join("mock-data", "real-phishing-samples.json")
+    from pathlib import Path
+    project_root = Path(__file__).resolve().parent.parent
+    sample_path = project_root / "mock-data" / "sample-emails.json"
+    real_path = project_root / "mock-data" / "real-phishing-samples.json"
     
     modified = False
     
@@ -57,8 +59,10 @@ def main():
     inject_ground_truth()
     
     # 2. Load the datasets
-    sample_path = os.path.join("mock-data", "sample-emails.json")
-    real_path = os.path.join("mock-data", "real-phishing-samples.json")
+    from pathlib import Path
+    project_root = Path(__file__).resolve().parent.parent
+    sample_path = project_root / "mock-data" / "sample-emails.json"
+    real_path = project_root / "mock-data" / "real-phishing-samples.json"
     
     all_emails = []
     if os.path.exists(sample_path):
