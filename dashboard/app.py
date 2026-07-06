@@ -1040,6 +1040,25 @@ def fetch_and_score_generator(access_token: str, count: int = 10):
                     scored["llm_explanation"] = explanation
                     llm_cache[cache_key] = explanation
                     atomic_write_json(cache_path, llm_cache)
+
+                # --- Tiebreaker verdict override ---
+                # When Gemini acted as tiebreaker, parse its structured verdict
+                # and override the displayed category/score so the badge matches.
+                if force_escalation and scored.get("llm_explanation"):
+                    from agents.llm_analysis_agent import parse_verdict
+                    cleaned_explanation, gemini_verdict = parse_verdict(scored["llm_explanation"])
+                    if gemini_verdict:
+                        # Store originals for the transparency trail in the UI
+                        scored["original_rule_category"] = rule_cat
+                        scored["original_rule_score"] = scored["score"]
+                        scored["gemini_verdict"] = gemini_verdict
+                        # Strip the VERDICT line from the displayed explanation
+                        scored["llm_explanation"] = cleaned_explanation
+                        # Override the primary category to Gemini's decision
+                        scored["category"] = gemini_verdict
+                        # Adjust score to match the new category band
+                        _VERDICT_SCORES = {"safe": 5, "spam": 30, "scam": 45, "phishing": 85}
+                        scored["score"] = _VERDICT_SCORES.get(gemini_verdict, scored["score"])
             else:
                 if disagreement:
                     scored["llm_explanation"] = f"Rule engine says safe, ML says {ml_cat} (low confidence {ml_conf*100:.0f}%). Kept safe. Deep analysis skipped."
@@ -2100,8 +2119,18 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 # Format the LLM explanation if available
                 llm_exp = ""
                 if "llm_explanation" in row and pd.notna(row["llm_explanation"]) and row["llm_explanation"]:
+                    # Add tiebreaker trail if Gemini overrode the category
+                    override_note = ""
+                    if row.get("disagreement_escalated", False) and row.get("gemini_verdict"):
+                        orig_cat = row.get("original_rule_category", "unknown").upper()
+                        verdict = row.get("gemini_verdict", "unknown").upper()
+                        override_note = (
+                            f'<div style="font-size:11.5px; color:#fbbf24; margin-bottom:6px;">'
+                            f'⚠️ Signals disagreed (Rule: {orig_cat}) — Gemini verdict: <b>{verdict}</b></div>'
+                        )
                     llm_exp = (
                         f'<div class="llm-explanation">'
+                        f'{override_note}'
                         f'{chr(0x1f916)} <b>AI Analysis (Gemini):</b> {_format_llm_explanation(row["llm_explanation"])}'
                         f'</div>'
                     )
@@ -2188,16 +2217,23 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 if explanation and pd.notna(explanation) and str(explanation).strip():
                     is_disagreement = row.get("disagreement_escalated", False)
                     if is_disagreement:
-                        rule_cat = row.get("category", "unknown").upper()
+                        orig_rule_cat = row.get("original_rule_category", row.get("category", "unknown")).upper()
                         ml_cat = row.get("ml_category", "unknown").upper()
                         ml_conf = row.get("ml_confidence", 0.0)
+                        gemini_verdict = row.get("gemini_verdict", row.get("category", "unknown"))
+                        verdict_upper = gemini_verdict.upper()
+                        verdict_badge = f'<span class="badge badge-{gemini_verdict}" style="font-size:10px; padding:2px 8px;">{verdict_upper}</span>'
                         
                         llm_analysis_html = (
                             f'<div class="llm-explanation">'
                             f'<div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">'
                             f'<b style="color: #fbbf24;">⚠️ Model Disagreement Escalation</b><br>'
-                            f'<span style="font-size: 13px; color: #cbd5e1;">Rule Engine: <b>{rule_cat}</b></span> <span style="color: #475569; margin: 0 8px;">|</span> '
-                            f'<span style="font-size: 13px; color: #cbd5e1;">ML Classifier: <b>{ml_cat}</b> ({(ml_conf*100):.1f}%)</span>'
+                            f'<span style="font-size: 13px; color: #94a3b8;">Initial signals disagreed — '
+                            f'Rule Engine: <b>{orig_rule_cat}</b></span>'
+                            f' <span style="color: #475569; margin: 0 8px;">|</span> '
+                            f'<span style="font-size: 13px; color: #94a3b8;">ML: <b>{ml_cat}</b> ({(ml_conf*100):.1f}%)</span>'
+                            f'<br><span style="font-size: 13px; color: #e2e8f0; margin-top:6px; display:inline-block;">'
+                            f'Gemini Tiebreaker Verdict: {verdict_badge}</span>'
                             f'</div>'
                             f'<b>{chr(0x1f916)} AI Tiebreak Analysis (Gemini):</b><br>'
                             f'{_format_llm_explanation(explanation)}'
