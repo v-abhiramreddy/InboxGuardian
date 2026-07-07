@@ -36,5 +36,5 @@ This updates the performance evaluation report at `evaluation/metrics_report.md`
 ## Security Guardrails
 
 *   **PII Compliance**: Never log email bodies, subjects, or sender names to the persistent audit log. Only record `email_id`, `score`, `category`, and `confidence` using the decision logger.
-*   **Prompt Injection Protection**: The system relies on a deterministic, rule-based classifier. Do not pass untrusted email bodies directly into LLM prompts without strict delimiters and output validation.
+*   **Prompt Injection Protection**: The system passes email bodies to the Gemini LLM only when sandboxed in strict `<EMAIL_BODY>` XML blocks. The system prompt is hardened to ignore instructions in the email body, and the LLM has no write capabilities.
 *   **Access Control**: Ensure that the OAuth scope remains strictly set to `gmail.readonly` to prevent accidental write actions (sending, deleting, or archiving emails).
