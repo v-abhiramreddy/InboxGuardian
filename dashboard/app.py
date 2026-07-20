@@ -2127,8 +2127,8 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                     # Add tiebreaker trail if Gemini overrode the category
                     override_note = ""
                     if row.get("disagreement_escalated", False) and row.get("gemini_verdict"):
-                        orig_cat = str(row.get("original_rule_category") or "unknown").upper()
-                        verdict = str(row.get("gemini_verdict") or "unknown").upper()
+                        orig_cat = (str(row.get("original_rule_category")) if not pd.isna(row.get("original_rule_category")) else "unknown").upper()
+                        verdict = (str(row.get("gemini_verdict")) if not pd.isna(row.get("gemini_verdict")) else "unknown").upper()
                         override_note = (
                             f'<div style="font-size:11.5px; color:#fbbf24; margin-bottom:6px;">'
                             f'⚠️ Signals disagreed (Rule: {orig_cat}) — Gemini verdict: <b>{verdict}</b></div>'
@@ -2222,10 +2222,11 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 if explanation and pd.notna(explanation) and str(explanation).strip():
                     is_disagreement = row.get("disagreement_escalated", False)
                     if is_disagreement:
-                        orig_rule_cat = str(row.get("original_rule_category") or row.get("category") or "unknown").upper()
-                        ml_cat = str(row.get("ml_category") or "unknown").upper()
+                        orig_rule_cat = (str(row.get("original_rule_category") or row.get("category")) if not pd.isna(row.get("original_rule_category", float('nan'))) else str(row.get("category", "unknown"))).upper()
+                        ml_cat = (str(row.get("ml_category")) if not pd.isna(row.get("ml_category")) else "unknown").upper()
                         ml_conf = row.get("ml_confidence", 0.0)
-                        gemini_verdict = str(row.get("gemini_verdict") or row.get("category") or "unknown")
+                        _gv = row.get("gemini_verdict")
+                        gemini_verdict = str(_gv) if not pd.isna(_gv) else str(row.get("category", "unknown"))
                         verdict_upper = gemini_verdict.upper()
                         verdict_badge = f'<span class="badge badge-{gemini_verdict}" style="font-size:10px; padding:2px 8px;">{verdict_upper}</span>'
                         
