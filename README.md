@@ -142,6 +142,8 @@ Scoring returns a **0–100 risk score** and classifies each email as: `safe`, `
 - OAuth token exchange happens server-side; tokens never exposed to the UI or logs
 - Atomic cache writes to prevent partial/corrupt JSON files
 - HTTPS-only production URLs enforced
+- **XSS protection** — all user-submitted content (scam reports) is HTML-escaped before rendering
+- **Prompt injection hardening** — email body sandboxed in `<EMAIL_BODY>` XML tags; Gemini system prompt explicitly rejects any instructions found inside email content
 
 ### 🧪 Testing
 - **17 unit tests** across `scoring_agent.py` and `email_utils.py`
@@ -158,7 +160,7 @@ InboxGuardian/
 ├── agents/
 │   ├── scoring_agent.py        # Heuristic scoring engine (0–100 score, 4 signal categories)
 │   ├── llm_analysis_agent.py   # Gemini LLM deep analysis + verdict parsing
-│   ├── ml_classifier_agent.py  # Naive Bayes ML classifier (predict_category)
+│   ├── ml_classifier_agent.py  # RandomForest ML classifier (predict_category)
 │   ├── connector_agent.py      # Gmail API connector
 │   ├── email_utils.py          # Email parsing utilities (ARC, SPF, DKIM, DMARC)
 │   └── audit_log.py            # Structured audit logging
@@ -205,6 +207,7 @@ pip install -r requirements.txt
 | `GEMINI_API_KEY` | Google Gemini API key |
 | `GOOGLE_CLIENT_ID` | OAuth 2.0 client ID |
 | `GOOGLE_CLIENT_SECRET` | OAuth 2.0 client secret |
+| `REDIRECT_URI` | OAuth redirect URI (must match Google Cloud Console exactly, e.g. `https://your-app.onrender.com`) |
 
 ### Run Locally
 
