@@ -1,10 +1,12 @@
 mcp==1.28.0
-google-adk>=1.0.0          # FIX Bug 13: was missing; required by run_adk_pipeline.py
+# google-adk removed - too heavy for Render free tier, only needed for local CLI run
 google-auth==2.55.0
 google-auth-oauthlib==1.4.0
 google-api-python-client==2.197.0
 streamlit==1.58.0
-pandas==3.0.3
+pandas==2.2.3
+numpy<2.0.0
+scipy>=1.11.0
 requests>=2.31.0
 plotly>=5.18.0
 pytest>=8.0.0
