@@ -1,8 +1,10 @@
 import logging
+_ML_LIBS_AVAILABLE = False
 try:
     import joblib
     import numpy as np
     from scipy.sparse import hstack, csr_matrix
+    _ML_LIBS_AVAILABLE = True
 except ImportError:
     pass
 from pathlib import Path
@@ -26,6 +28,12 @@ def _load_models():
     """Load models once at module level, handling missing files gracefully."""
     global _model, _tfidf, _label_encoder, _models_loaded, _missing_warned
     
+    if not _ML_LIBS_AVAILABLE:
+        if not _missing_warned:
+            logging.warning("ML Classifier libraries are missing. ML integration will be disabled.")
+            _missing_warned = True
+        return False
+        
     if _models_loaded:
         return True
         
@@ -36,7 +44,7 @@ def _load_models():
         _label_encoder = joblib.load(models_dir / "label_encoder.joblib")
         _models_loaded = True
         return True
-    except (FileNotFoundError, EOFError, ImportError) as e:
+    except (FileNotFoundError, EOFError, ImportError, NameError) as e:
         if not _missing_warned:
             logging.warning(f"ML Classifier models could not be loaded: {e}. ML integration will be disabled.")
             _missing_warned = True
