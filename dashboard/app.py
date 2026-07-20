@@ -2127,8 +2127,8 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                     # Add tiebreaker trail if Gemini overrode the category
                     override_note = ""
                     if row.get("disagreement_escalated", False) and row.get("gemini_verdict"):
-                        orig_cat = row.get("original_rule_category", "unknown").upper()
-                        verdict = row.get("gemini_verdict", "unknown").upper()
+                        orig_cat = str(row.get("original_rule_category") or "unknown").upper()
+                        verdict = str(row.get("gemini_verdict") or "unknown").upper()
                         override_note = (
                             f'<div style="font-size:11.5px; color:#fbbf24; margin-bottom:6px;">'
                             f'⚠️ Signals disagreed (Rule: {orig_cat}) — Gemini verdict: <b>{verdict}</b></div>'
