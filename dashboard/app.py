@@ -1634,16 +1634,16 @@ def render_user_reports(is_demo: bool) -> None:
         st.info("No active scam reports found in the live database yet. Be the first to report one!")
     
     for r in reports:
-        badge = f'<span class="badge badge-{"phishing" if r["risk"] == "critical" else "scam"}" style="font-size:10px;">{r["risk"].upper()}</span>'
+        badge = f'<span class="badge badge-{"phishing" if r["risk"] == "critical" else "scam"}" style="font-size:10px;">{_html.escape(str(r.get("risk", "high"))).upper()}</span>'
         st.markdown(f"""
 <div style="background:rgba(255,255,255,0.01); border:1px solid rgba(255,255,255,0.04); border-radius:10px; padding:16px; margin-bottom:10px;">
 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-<strong style="font-size:14px; color:#e2e8f0;">{r['title']}</strong>
+<strong style="font-size:14px; color:#e2e8f0;">{_html.escape(str(r.get('title', '')))}</strong>
 {badge}
 </div>
 <div style="display:flex; justify-content:space-between; font-size:11.5px; color:#64748b;">
-<span>Target: {r['target']}</span>
-<span>Campaign Volume: {r['volume']}</span>
+<span>Target: {_html.escape(str(r.get('target', '')))}</span>
+<span>Campaign Volume: {_html.escape(str(r.get('volume', '')))}</span>
 </div>
 </div>
 """, unsafe_allow_html=True)
@@ -1910,8 +1910,8 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
             st.markdown(f"<div style='font-size:11px; color:#64748b; margin-top:8px;'>Threats Loaded: {t_stats['count']} indicators</div>", unsafe_allow_html=True)
 
         # User profile card at the bottom of the sidebar
-        profile_name = "Sarah Chen"
-        profile_avatar = "SC"
+        profile_name = "Gmail User"
+        profile_avatar = "GU"
         if not is_demo and "access_token" in st.session_state:
             if "profile_name" not in st.session_state:
                 # Try calling Google userinfo endpoint first
@@ -2166,7 +2166,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 selected_idx = st.selectbox(
                     "Select email to inspect",
                     range(len(filtered)),
-                    format_func=lambda i: f"{filtered.loc[i, 'category'].upper()} | {filtered.loc[i, 'subject'][:30]}...",
+                    format_func=lambda i: f"{str(filtered.loc[i, 'category'] or 'unknown').upper()} | {str(filtered.loc[i, 'subject'] or '')[:30]}...",
                     key="selected_email_idx"
                 )
             else:
@@ -2222,10 +2222,10 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
                 if explanation and pd.notna(explanation) and str(explanation).strip():
                     is_disagreement = row.get("disagreement_escalated", False)
                     if is_disagreement:
-                        orig_rule_cat = row.get("original_rule_category", row.get("category", "unknown")).upper()
-                        ml_cat = row.get("ml_category", "unknown").upper()
+                        orig_rule_cat = str(row.get("original_rule_category") or row.get("category") or "unknown").upper()
+                        ml_cat = str(row.get("ml_category") or "unknown").upper()
                         ml_conf = row.get("ml_confidence", 0.0)
-                        gemini_verdict = row.get("gemini_verdict", row.get("category", "unknown"))
+                        gemini_verdict = str(row.get("gemini_verdict") or row.get("category") or "unknown")
                         verdict_upper = gemini_verdict.upper()
                         verdict_badge = f'<span class="badge badge-{gemini_verdict}" style="font-size:10px; padding:2px 8px;">{verdict_upper}</span>'
                         
