@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy — Inbox Guardian</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --surface:   #161b22;
+      --border:    #21262d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --accent:    #388bfd;
+      --green:     #3fb950;
+      --red:       #f85149;
+      --radius:    8px;
+      --max-w:     680px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      padding: 48px 24px 80px;
+    }
+
+    .wrap {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .shield {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #1f6feb 0%, #388bfd 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .shield svg { width: 22px; height: 22px; fill: #fff; }
+
+    .header-text h1 {
+      font-size: 18px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .header-text p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* Effective date */
+    .meta {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 36px;
+    }
+
+    /* Sections */
+    section { margin-bottom: 36px; }
+
+    h2 {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    p { margin-bottom: 12px; color: var(--text); }
+    p:last-child { margin-bottom: 0; }
+
+    /* Data table */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0;
+      font-size: 14px;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .data-table td {
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .data-table tr:nth-child(even) td { background: #0f1318; }
+
+    /* Pill badges */
+    .pill {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 20px;
+      letter-spacing: 0.03em;
+    }
+
+    .pill-green { background: rgba(63,185,80,.15); color: var(--green); }
+    .pill-red   { background: rgba(248,81,73,.12); color: var(--red);   }
+
+    /* Notice box */
+    .notice {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+      font-size: 14px;
+      margin: 16px 0;
+      color: var(--muted);
+    }
+
+    .notice strong { color: var(--text); }
+
+    /* Contact */
+    .contact-block {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+    }
+
+    .contact-block a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .contact-block a:hover { text-decoration: underline; }
+
+    /* Divider */
+    hr {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 36px 0;
+    }
+
+    /* Footer */
+    footer {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 48px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    footer a { color: var(--accent); text-decoration: none; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="shield">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 1L3 5v6c0 5.25 3.75 10.15 9 11.35C17.25 21.15 21 16.25 21 11V5l-9-4z"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Inbox Guardian — Privacy Policy</h1>
+      <p>https://inboxguardian-rj8y.onrender.com</p>
+    </div>
+  </div>
+
+  <p class="meta">Effective date: September 12, 2026 &nbsp;·&nbsp; Developed by V. Abhiram Reddy &nbsp;·&nbsp; Built for Smart India Hackathon 2026</p>
+
+  <!-- Overview -->
+  <section>
+    <h2>Overview</h2>
+    <p>Inbox Guardian is an AI-powered email security tool that scans your Gmail inbox for phishing, scams, and spam using a combination of rule-based heuristics, a machine-learning classifier, and Google Gemini LLM analysis.</p>
+    <p>This policy explains exactly what data Inbox Guardian accesses, what it stores, and what it never touches. We have written it to be direct and specific — not filled with legal boilerplate.</p>
+  </section>
+
+  <!-- Gmail Access -->
+  <section>
+    <h2>Gmail Access</h2>
+    <p>Inbox Guardian requests one Gmail OAuth scope:</p>
+
+    <div class="notice">
+      <strong>gmail.readonly</strong> — read-only access to your Gmail messages and metadata. This scope does not permit sending, drafting, deleting, modifying, or inserting messages of any kind.
+    </div>
+
+    <p>This access is used solely to fetch email content (sender, subject, headers, body text, and links) for on-the-fly threat analysis. Emails are fetched at the moment you open the dashboard and are not retained after your session ends, except as described in the storage section below.</p>
+  </section>
+
+  <!-- What We Store -->
+  <section>
+    <h2>What Inbox Guardian stores</h2>
+    <p>Three files may be written to disk during a session. Here is exactly what each one contains:</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>File</th>
+          <th>What is stored</th>
+          <th>Email body stored?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>llm_cache.json</code></td>
+          <td>Gemini's plain-language explanation string, keyed by a hash of: email ID prefix, risk score, subject line, and prompt version. No email body is hashed or stored.</td>
+          <td><span class="pill pill-red">No</span></td>
+        </tr>
+        <tr>
+          <td><code>audit-log.jsonl</code></td>
+          <td>Timestamp, email ID, risk score, category, and confidence. No sender, subject, or body.</td>
+          <td><span class="pill pill-red">No</span></td>
+        </tr>
+        <tr>
+          <td><code>results.json</code></td>
+          <td>Email ID, risk score, category, confidence, Gemini explanation, subject line, and sender address. No email body or full message content.</td>
+          <td><span class="pill pill-red">No</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="notice">
+      <strong>Email body content is never written to disk.</strong> It is held in memory only for the duration of analysis (typically under 2 seconds per email) and discarded immediately after the risk score is computed.
+    </div>
+  </section>
+
+  <!-- What We Never Do -->
+  <section>
+    <h2>What Inbox Guardian never does</h2>
+    <p>We want to be explicit about the boundaries of this application:</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Send, draft, delete, or modify your emails</td>
+          <td><span class="pill pill-red">Never</span></td>
+        </tr>
+        <tr>
+          <td>Store your email body content on any server</td>
+          <td><span class="pill pill-red">Never</span></td>
+        </tr>
+        <tr>
+          <td>Share your email data with third parties</td>
+          <td><span class="pill pill-red">Never</span></td>
+        </tr>
+        <tr>
+          <td>Use your email data to train any model</td>
+          <td><span class="pill pill-red">Never</span></td>
+        </tr>
+        <tr>
+          <td>Sell or monetize your data in any form</td>
+          <td><span class="pill pill-red">Never</span></td>
+        </tr>
+        <tr>
+          <td>Access emails outside of your active session</td>
+          <td><span class="pill pill-red">Never</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Third Party Services -->
+  <section>
+    <h2>Third-party services</h2>
+    <p>Inbox Guardian uses the following external services during analysis:</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Purpose</th>
+          <th>Data sent</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Google Gemini API</td>
+          <td>Generating plain-language threat explanations for high-risk emails</td>
+          <td>Sender, subject, truncated body text (max 2,000 chars), link list, auth header results. Never your full inbox or account credentials.</td>
+        </tr>
+        <tr>
+          <td>Gmail API (Google)</td>
+          <td>Fetching your email messages for analysis</td>
+          <td>OAuth token used server-side only. Never exposed to the UI or logs.</td>
+        </tr>
+        <tr>
+          <td>OpenPhish feed</td>
+          <td>Live phishing URL threat intelligence</td>
+          <td>No user data sent. Feed is downloaded and cached locally (6-hour TTL). URL lookups happen locally against this cache.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>Both Google services are governed by <a href="https://policies.google.com/privacy" style="color:#388bfd;">Google's Privacy Policy</a>. Inbox Guardian's use of Gmail data complies with the <a href="https://developers.google.com/terms/api-services-user-data-policy" style="color:#388bfd;">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+  </section>
+
+  <!-- OAuth Token -->
+  <section>
+    <h2>OAuth token handling</h2>
+    <p>Your OAuth token (which grants temporary access to your Gmail) is stored locally in <code>token.json</code> on the server for the duration of your session to avoid requiring repeated sign-ins. This file is never logged, transmitted, or exposed through the application interface. You can revoke Inbox Guardian's access at any time at <a href="https://myaccount.google.com/permissions" style="color:#388bfd;">myaccount.google.com/permissions</a>.</p>
+  </section>
+
+  <!-- Demo Mode -->
+  <section>
+    <h2>Demo mode</h2>
+    <p>Inbox Guardian includes a demo mode (<code>?demo=1</code>) that uses pre-loaded sample data — no Google sign-in or Gmail access is required. No personal data of any kind is accessed or stored when using demo mode.</p>
+  </section>
+
+  <!-- Children -->
+  <section>
+    <h2>Children's privacy</h2>
+    <p>Inbox Guardian is not directed at children under 13 and does not knowingly collect data from anyone under 13.</p>
+  </section>
+
+  <!-- Changes -->
+  <section>
+    <h2>Changes to this policy</h2>
+    <p>If this policy changes materially, we will update the effective date at the top and, where practical, notify users via the application. Continued use after a change constitutes acceptance of the updated policy.</p>
+  </section>
+
+  <hr />
+
+  <!-- Contact -->
+  <section>
+    <h2>Contact</h2>
+    <div class="contact-block">
+      <p>Questions about this policy or requests to delete your cached data can be sent to:</p>
+      <p style="margin-top: 12px;">
+        <strong>V. Abhiram Reddy</strong><br/>
+        <a href="mailto:v.abhiramreddy2007@gmail.com">v.abhiramreddy2007@gmail.com</a><br/>
+        <a href="mailto:haricharankanukuntla@gmail.com">haricharankanukuntla@gmail.com</a>
+      </p>
+      <p style="margin-top: 12px; font-size: 13px; color: var(--muted);">
+        We will respond within 48 hours on business days.
+      </p>
+    </div>
+  </section>
+
+  <footer>
+    <p>Inbox Guardian &nbsp;·&nbsp; <a href="https://inboxguardian-rj8y.onrender.com">inboxguardian-rj8y.onrender.com</a> &nbsp;·&nbsp; Built for Smart India Hackathon 2026</p>
+  </footer>
+
+</div>
+</body>
+</html>
