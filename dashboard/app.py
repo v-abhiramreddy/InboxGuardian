@@ -2474,10 +2474,10 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
 <!-- Footer -->
 <div style="border-top:1px solid rgba(255,255,255,0.07); padding-top:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
     <strong><span style="font-size:12.5px; color:#cbd5e1; font-weight:800;">AI Agents: Intensive Vibe Coding Capstone Project</span></strong>
-    <span style="font-size:12px; color:#475569;">
-        <a href="https://inboxguardian-rj8y.onrender.com/static/privacy-policy.html" target="_blank" rel="noopener" style="color:#64748b; text-decoration:none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#64748b'">Privacy Policy</a>
-        &nbsp;·&nbsp;
-        <a href="https://inboxguardian-rj8y.onrender.com/static/terms-of-service.html" target="_blank" rel="noopener" style="color:#64748b; text-decoration:none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#64748b'">Terms of Service</a>
+    <span style="display:inline-flex; align-items:center; gap:8px;">
+        <a href="/app/static/privacy-policy.html" target="_blank" rel="noopener noreferrer" style="font-size:14px; font-weight:700; color:#38bdf8; text-decoration:none; padding:5px 12px; border-radius:6px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(56,189,248,0.08)'; this.style.color='#38bdf8';">🛡️ Privacy Policy</a>
+        <span style="color:#64748b; font-weight:800; font-size:14px;">·</span>
+        <a href="/app/static/terms-of-service.html" target="_blank" rel="noopener noreferrer" style="font-size:14px; font-weight:700; color:#38bdf8; text-decoration:none; padding:5px 12px; border-radius:6px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(56,189,248,0.08)'; this.style.color='#38bdf8';">📜 Terms of Service</a>
     </span>
     <span style="font-size:13px; color:#8b5cf6; font-weight:700; letter-spacing:0.5px;">Team Sentinel 🛡️</span>
 </div>
@@ -2574,10 +2574,38 @@ def render_signin_page() -> None:
     box-shadow: 0 4px 14px rgba(168,85,247,0.3) !important;
     transition: all 0.2s ease !important;
 }}
-.demo-btn:link, .demo-btn:visited, .demo-btn:hover, .demo-btn:active {{
+.demo-btn:link, .demo-btn:visited, .demo-btn:hover, .demo-btn:active {
     color: #ffffff !important;
     text-decoration: none !important;
-}}
+}
+.policy-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    color: #38bdf8 !important;
+    font-size: 15px !important;
+    font-weight: 750 !important;
+    text-decoration: none !important;
+    padding: 8px 18px !important;
+    border-radius: 8px !important;
+    background: rgba(56, 189, 248, 0.09) !important;
+    border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
+    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.15) !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+}
+.policy-btn:link, .policy-btn:visited {
+    color: #38bdf8 !important;
+    text-decoration: none !important;
+}
+.policy-btn:hover, .policy-btn:active {
+    color: #ffffff !important;
+    background: rgba(56, 189, 248, 0.25) !important;
+    border-color: rgba(56, 189, 248, 0.75) !important;
+    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4) !important;
+    transform: translateY(-1px) !important;
+    text-decoration: none !important;
+}
 </style>
 
 <!-- Contact Modal -->
@@ -2633,14 +2661,21 @@ Judges: Contact us to get added as a test user (This app connects to Gmail, so s
 </a>
 </div>
 </div>
+
+<div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: center; align-items: center; gap: 10px; flex-wrap: wrap;">
+    <a href="/app/static/privacy-policy.html" target="_blank" rel="noopener noreferrer" class="policy-btn">
+        🛡️ Privacy Policy
+    </a>
+    <span style="color: #64748b; font-weight: 800; font-size: 16px;">·</span>
+    <a href="/app/static/terms-of-service.html" target="_blank" rel="noopener noreferrer" class="policy-btn">
+        📜 Terms of Service
+    </a>
 </div>
+
 </div>
-<div style="text-align:center; margin-top:16px; font-size:12px; color:#475569;">
-    <a href="https://inboxguardian-rj8y.onrender.com/static/privacy-policy.html" target="_blank" rel="noopener" style="color:#64748b; text-decoration:none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#64748b'">Privacy Policy</a>
-    &nbsp;·&nbsp;
-    <a href="https://inboxguardian-rj8y.onrender.com/static/terms-of-service.html" target="_blank" rel="noopener" style="color:#64748b; text-decoration:none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#64748b'">Terms of Service</a>
 </div>
 """, unsafe_allow_html=True)
+
 
 
 # ==============================================================================
