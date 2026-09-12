@@ -10,3 +10,13 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.0
     autoDeploy: true
+
+  - type: static
+    name: inboxguardian-static
+    buildCommand: echo "no build needed"
+    staticPublishPath: static
+    pullRequestPreviewsEnabled: false
+    routes:
+      - type: rewrite
+        source: /static/*
+        destination: /$1

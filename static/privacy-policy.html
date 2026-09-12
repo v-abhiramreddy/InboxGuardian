@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Privacy Policy – Inbox Guardian</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #0b1120; color: #cbd5e1; line-height: 1.75; padding: 40px 20px 80px;
+    }
+    .container { max-width: 780px; margin: 0 auto; }
+    .header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+    .brand { font-size: 22px; font-weight: 800; color: #38bdf8; letter-spacing: 0.5px; }
+    h1 { font-size: 28px; font-weight: 800; color: #f8fafc; margin-bottom: 4px; }
+    .meta { font-size: 13px; color: #64748b; margin-bottom: 40px; }
+    h2 { font-size: 17px; font-weight: 700; color: #f1f5f9; margin: 36px 0 10px; padding-left: 12px; border-left: 3px solid #38bdf8; }
+    p { margin-bottom: 12px; color: #94a3b8; }
+    ul { margin: 8px 0 12px 24px; color: #94a3b8; }
+    ul li { margin-bottom: 6px; }
+    a { color: #38bdf8; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .highlight-box { background: rgba(56,189,248,0.06); border: 1px solid rgba(56,189,248,0.2); border-radius: 10px; padding: 16px 20px; margin: 20px 0; color: #cbd5e1; font-size: 14.5px; }
+    code { background: rgba(255,255,255,0.06); border-radius: 4px; padding: 1px 5px; font-size: 13px; color: #a5f3fc; }
+    hr { border: none; border-top: 1px solid rgba(255,255,255,0.07); margin: 40px 0 0; }
+    .footer { margin-top: 20px; font-size: 13px; color: #475569; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+    .footer a { color: #64748b; }
+    .footer a:hover { color: #38bdf8; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    <span class="brand">INBOX GUARDIAN</span>
+  </div>
+  <h1>Privacy Policy</h1>
+  <p class="meta">Last updated: September 12, 2026 &middot; Team Sentinel</p>
+  <div class="highlight-box">🔒 Inbox Guardian reads your Gmail inbox solely to detect phishing and fraud threats. We do <strong>not</strong> store, sell, or share your email content with anyone.</div>
+  <h2>1. What We Access</h2>
+  <p>Inbox Guardian authenticates via Google OAuth 2.0 using a single, read-only scope: <code>https://www.googleapis.com/auth/gmail.readonly</code>.</p>
+  <p>This scope allows us to read email metadata (sender, subject) and message bodies in order to perform threat analysis. It does <strong>not</strong> allow us to send, delete, or modify any emails or Gmail settings.</p>
+  <h2>2. What We Collect &amp; Store</h2>
+  <ul>
+    <li><strong>Email content</strong> — processed in memory during your session only. Never written to disk or any database.</li>
+    <li><strong>Analysis results</strong> (<code>results.json</code>) — includes subject, sender, risk score, category, and explanation for display. Overwritten on every pipeline run; not retained between sessions.</li>
+    <li><strong>LLM explanation cache</strong> (<code>llm_cache.json</code>) — stores Gemini plain-text explanations to avoid redundant API calls. Contains no email content; keys are MD5 hashes of email ID, score, subject, and prompt version.</li>
+    <li><strong>Audit log</strong> (<code>audit-log.jsonl</code>) — records only decision metadata: timestamp, email ID, score, category, and confidence. No subject, sender, body, or PII.</li>
+    <li><strong>OAuth token</strong> (<code>token.json</code>) — stored locally on your device and excluded from version control. Never transmitted to our servers.</li>
+  </ul>
+  <h2>3. Data Retention</h2>
+  <p><code>results.json</code> is overwritten on every pipeline run and is not retained between sessions. <code>llm_cache.json</code> persists across sessions but contains no email content. The audit log is PII-free and may be retained for debugging.</p>
+  <p>You can request deletion of any cached data by contacting us at <a href="mailto:harishbabu2510@gmail.com">harishbabu2510@gmail.com</a>.</p>
+  <h2>4. Third-Party Data Sharing</h2>
+  <p>Email content is sent to the <strong>Google Gemini API</strong> for deep threat analysis, subject to <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">Google's Privacy Policy</a>. No email data is shared with any other third party.</p>
+  <h2>5. Google API Services — Limited Use</h2>
+  <p>Inbox Guardian's use of Gmail data complies with the <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank" rel="noopener">Google API Services User Data Policy</a>, including the Limited Use requirements. Gmail data is used solely for email threat analysis and is not used for advertising, sold, or transferred to third parties.</p>
+  <h2>6. Security</h2>
+  <ul>
+    <li>OAuth tokens are stored locally and never transmitted to our servers.</li>
+    <li>Email bodies are sandboxed inside <code>&lt;EMAIL_BODY&gt;...&lt;/EMAIL_BODY&gt;</code> tags in LLM prompts to prevent prompt injection.</li>
+    <li>The application has no write access to Gmail — it cannot send, delete, or modify emails.</li>
+  </ul>
+  <h2>7. Your Rights</h2>
+  <p>Revoke Inbox Guardian's access at any time via <a href="https://myaccount.google.com/permissions" target="_blank" rel="noopener">Google Account Permissions</a>. To request deletion of cached data, email <a href="mailto:harishbabu2510@gmail.com">harishbabu2510@gmail.com</a>.</p>
+  <h2>8. Changes to This Policy</h2>
+  <p>We may update this policy from time to time. The "Last updated" date at the top reflects the most recent revision.</p>
+  <h2>9. Contact</h2>
+  <p><a href="mailto:haricharankanukuntla@gmail.com">haricharankanukuntla@gmail.com</a> &middot; <a href="mailto:v.abhiramreddy2007@gmail.com">v.abhiramreddy2007@gmail.com</a></p>
+  <hr/>
+  <div class="footer">
+    <span>&copy; 2026 Team Sentinel &mdash; Inbox Guardian</span>
+    <span><a href="privacy-policy.html">Privacy Policy</a> &middot; <a href="terms-of-service.html">Terms of Service</a></span>
+  </div>
+</div>
+</body>
+</html>

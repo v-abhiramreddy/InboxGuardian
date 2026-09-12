@@ -2472,8 +2472,13 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     <span style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.25); color:#a78bfa; border-radius:20px; padding:5px 13px; font-size:12px; font-weight:600;">Render (Cloud)</span>
 </div>
 <!-- Footer -->
-<div style="border-top:1px solid rgba(255,255,255,0.07); padding-top:16px; display:flex; align-items:center; justify-content:space-between;">
+<div style="border-top:1px solid rgba(255,255,255,0.07); padding-top:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
     <strong><span style="font-size:12.5px; color:#cbd5e1; font-weight:800;">AI Agents: Intensive Vibe Coding Capstone Project</span></strong>
+    <span style="font-size:12px; color:#475569;">
+        <a href="https://inboxguardian-static.onrender.com/privacy-policy.html" target="_blank" rel="noopener" style="color:#64748b; text-decoration:none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#64748b'">Privacy Policy</a>
+        &nbsp;·&nbsp;
+        <a href="https://inboxguardian-static.onrender.com/terms-of-service.html" target="_blank" rel="noopener" style="color:#64748b; text-decoration:none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#64748b'">Terms of Service</a>
+    </span>
     <span style="font-size:13px; color:#8b5cf6; font-weight:700; letter-spacing:0.5px;">Team Sentinel 🛡️</span>
 </div>
 </div>
@@ -2629,6 +2634,11 @@ Judges: Contact us to get added as a test user (This app connects to Gmail, so s
 </div>
 </div>
 </div>
+</div>
+<div style="text-align:center; margin-top:16px; font-size:12px; color:#475569;">
+    <a href="https://inboxguardian-static.onrender.com/privacy-policy.html" target="_blank" rel="noopener" style="color:#64748b; text-decoration:none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#64748b'">Privacy Policy</a>
+    &nbsp;·&nbsp;
+    <a href="https://inboxguardian-static.onrender.com/terms-of-service.html" target="_blank" rel="noopener" style="color:#64748b; text-decoration:none;" onmouseover="this.style.color='#38bdf8'" onmouseout="this.style.color='#64748b'">Terms of Service</a>
 </div>
 """, unsafe_allow_html=True)
 
