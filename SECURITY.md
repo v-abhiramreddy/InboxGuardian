@@ -41,7 +41,7 @@ Raw email bodies, subjects, and sender addresses are **not** durably stored on d
 
 `results.json` is overwritten on every pipeline run and is not retained between sessions. `llm_cache.json` persists across sessions to avoid redundant API calls but contains no email content — only the LLM's plain-text explanation strings, keyed by an MD5 hash of the email ID, score, subject, and prompt version. The audit log (`audit-log.jsonl`) is PII-free by design (see §4) and may be retained for compliance or debugging purposes.
 
-Users can request deletion of any locally cached data (including `llm_cache.json` and `audit-log.jsonl`) by contacting us at **v.abhiramreddy2007@gmail.com** or **harishbabu2510@gmail.com**.
+Users can request deletion of any locally cached data (including `llm_cache.json` and `audit-log.jsonl`) by contacting us at **v.abhiramreddy2007@gmail.com**.
 
 ---
 
