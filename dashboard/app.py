@@ -71,6 +71,11 @@ st.set_page_config(
     layout="wide",
 )
 
+st.markdown(
+    '<meta name="google-site-verification" content="PLACEHOLDER_REPLACE_ME" />',
+    unsafe_allow_html=True
+)
+
 # ==============================================================================
 #  Global CSS
 # ==============================================================================
@@ -629,10 +634,24 @@ hr { border-color: rgba(255,255,255,0.07) !important; margin: 20px 0; }
 /* -- Sign-in Page Container -- */
 .signin-outer {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 80vh;
     width: 100%;
+    padding: 30px 16px 60px;
+    gap: 24px;
+}
+.landing-about-card {
+    background: rgba(10, 20, 36, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 18px;
+    padding: 32px 28px;
+    max-width: 640px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(12px);
 }
 .signin-card {
     background: rgba(10, 20, 36, 0.75);
@@ -1821,7 +1840,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
         st.markdown("""
 <div class="sidebar-logo">
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    <span class="sidebar-logo-text">INBOX GUARDIAN</span>
+    <span class="sidebar-logo-text">Inbox Guardian</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -2681,6 +2700,61 @@ Judges: Contact us to get added as a test user (This app connects to Gmail, so s
 </div>
 
 </div>
+
+<!-- Public About Section for Google OAuth Verification & Visitors -->
+<div class="landing-about-card">
+    <div style="display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:12px;">
+        <span style="font-size:24px;">🛡️</span>
+        <h2 style="font-size:20px; font-weight:800; color:#f8fafc; margin:0; letter-spacing:0.3px;">About Inbox Guardian</h2>
+    </div>
+    
+    <p style="color:#cbd5e1; font-size:14px; line-height:1.7; margin-bottom:20px; text-align:center;">
+        Inbox Guardian is an AI-powered email security tool that scans your Gmail inbox for phishing, fraud, scams, and spam in real time. It evaluates message headers, authentication records (SPF, DKIM, DMARC), sender reputation, links, and content to provide transparent, explainable threat assessments before deceptive emails can cause harm.
+    </p>
+
+    <!-- Three Detection Methods -->
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:12px; margin-bottom:20px; text-align:left;">
+        <div style="background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.18); border-radius:10px; padding:14px;">
+            <div style="font-size:18px; margin-bottom:6px;">🔍</div>
+            <div style="font-size:13.5px; font-weight:700; color:#38bdf8; margin-bottom:4px;">Rule-Based Engine</div>
+            <div style="font-size:12px; color:#94a3b8; line-height:1.5;">Inspects SPF, DKIM, DMARC headers, lookalike domains, suspicious keywords, and deceptive link redirect patterns.</div>
+        </div>
+        <div style="background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.18); border-radius:10px; padding:14px;">
+            <div style="font-size:18px; margin-bottom:6px;">🧠</div>
+            <div style="font-size:13.5px; font-weight:700; color:#c084fc; margin-bottom:4px;">ML Classifier</div>
+            <div style="font-size:12px; color:#94a3b8; line-height:1.5;">Extracts structural email features to predict threat categories (Phishing, Scam, Spam, Safe) with confidence scores.</div>
+        </div>
+        <div style="background:rgba(52,211,153,0.06); border:1px solid rgba(52,211,153,0.18); border-radius:10px; padding:14px;">
+            <div style="font-size:18px; margin-bottom:6px;">🤖</div>
+            <div style="font-size:13.5px; font-weight:700; color:#34d399; margin-bottom:4px;">Google Gemini AI</div>
+            <div style="font-size:12px; color:#94a3b8; line-height:1.5;">Performs deep contextual reasoning on suspicious emails, explaining risks and resolving tiebreakers.</div>
+        </div>
+    </div>
+
+    <!-- Security & Read-Only Guarantee -->
+    <div style="background:rgba(34,197,94,0.07); border:1px solid rgba(34,197,94,0.22); border-radius:10px; padding:14px 16px; margin-bottom:20px; text-align:left;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+            <span style="font-size:16px;">🔒</span>
+            <strong style="color:#4ade80; font-size:13.5px;">Strictly Read-Only Guarantee</strong>
+        </div>
+        <div style="color:#cbd5e1; font-size:12.5px; line-height:1.6;">
+            Inbox Guardian connects to your Gmail with strictly read-only permissions (<code>gmail.readonly</code>). The application <strong>never sends, drafts, modifies, deletes, or archives emails</strong>, and cannot alter your account settings or personal data.
+        </div>
+    </div>
+
+    <!-- Hackathon note and links -->
+    <div style="border-top:1px solid rgba(255,255,255,0.07); padding-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; font-size:12.5px; color:#94a3b8;">
+        <div>
+            🏆 Built for <strong style="color:#e2e8f0;">Smart India Hackathon 2026</strong> by <strong style="color:#a78bfa;">Team Sentinel</strong>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <a href="/app/static/privacy-policy.html" target="_blank" rel="noopener noreferrer" style="color:#38bdf8; text-decoration:none; font-weight:600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Privacy Policy</a>
+            <span>·</span>
+            <a href="/app/static/terms-of-service.html" target="_blank" rel="noopener noreferrer" style="color:#38bdf8; text-decoration:none; font-weight:600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Terms of Service</a>
+        </div>
+    </div>
+</div>
+
 </div>
 """, unsafe_allow_html=True)
 
