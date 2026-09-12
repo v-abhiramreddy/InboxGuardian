@@ -2471,16 +2471,6 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
     <span style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.25); color:#38bdf8; border-radius:20px; padding:5px 13px; font-size:12px; font-weight:600;">Pandas / NumPy</span>
     <span style="background:rgba(139,92,246,0.1); border:1px solid rgba(139,92,246,0.25); color:#a78bfa; border-radius:20px; padding:5px 13px; font-size:12px; font-weight:600;">Render (Cloud)</span>
 </div>
-<!-- Footer -->
-<div style="border-top:1px solid rgba(255,255,255,0.07); padding-top:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-    <strong><span style="font-size:12.5px; color:#cbd5e1; font-weight:800;">AI Agents: Intensive Vibe Coding Capstone Project</span></strong>
-    <span style="display:inline-flex; align-items:center; gap:8px;">
-        <a href="/app/static/privacy-policy.html" target="_blank" rel="noopener noreferrer" style="font-size:14px; font-weight:700; color:#38bdf8; text-decoration:none; padding:5px 12px; border-radius:6px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(56,189,248,0.08)'; this.style.color='#38bdf8';">🛡️ Privacy Policy</a>
-        <span style="color:#64748b; font-weight:800; font-size:14px;">·</span>
-        <a href="/app/static/terms-of-service.html" target="_blank" rel="noopener noreferrer" style="font-size:14px; font-weight:700; color:#38bdf8; text-decoration:none; padding:5px 12px; border-radius:6px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(56,189,248,0.08)'; this.style.color='#38bdf8';">📜 Terms of Service</a>
-    </span>
-    <span style="font-size:13px; color:#8b5cf6; font-weight:700; letter-spacing:0.5px;">Team Sentinel 🛡️</span>
-</div>
 </div>
 """, unsafe_allow_html=True)
 
@@ -2493,6 +2483,24 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
             '</div>',
             unsafe_allow_html=True,
         )
+
+    # -- Persistent centered footer on ALL pages (live dashboard + demo mode) ----
+    st.markdown("""
+<div style="text-align:center; margin-top:48px; padding:20px 0 10px 0; border-top:1px solid rgba(255,255,255,0.06); display:flex; justify-content:center; align-items:center; gap:12px; flex-wrap:wrap;">
+    <span style="font-size:13px; color:#94a3b8; font-weight:600;">Inbox Guardian</span>
+    <span style="color:#475569; font-weight:800; font-size:14px;">·</span>
+    <a href="/app/static/privacy-policy.html" target="_blank" rel="noopener noreferrer" style="font-size:13.5px; font-weight:700; color:#38bdf8; text-decoration:none; padding:5px 13px; border-radius:7px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.18)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(56,189,248,0.08)'; this.style.color='#38bdf8';">
+        🛡️ Privacy Policy
+    </a>
+    <span style="color:#475569; font-weight:800; font-size:14px;">·</span>
+    <a href="/app/static/terms-of-service.html" target="_blank" rel="noopener noreferrer" style="font-size:13.5px; font-weight:700; color:#38bdf8; text-decoration:none; padding:5px 13px; border-radius:7px; background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.18)'; this.style.color='#ffffff';" onmouseout="this.style.background='rgba(56,189,248,0.08)'; this.style.color='#38bdf8';">
+        📜 Terms of Service
+    </a>
+    <span style="color:#475569; font-weight:800; font-size:14px;">·</span>
+    <span style="font-size:13px; color:#8b5cf6; font-weight:700; letter-spacing:0.5px;">Team Sentinel 🛡️</span>
+</div>
+""", unsafe_allow_html=True)
+
 
 def build_oauth_url() -> str:
     params = {
