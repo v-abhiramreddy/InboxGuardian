@@ -3,7 +3,7 @@
 ![Inbox Guardian Cover Banner](inbox_guardian_cover.png)
 
 > **AI-powered email threat detection for your Gmail inbox.**
-> <br>Built by **Team Sentinel** · *AI Agents: Intensive Vibe Coding Capstone Project*
+> <br>Built for **Smart India Hackathon 2026**
 
 Live Demo : https://inboxguardian-rj8y.onrender.com
 
@@ -276,5 +276,5 @@ MIT License — see [LICENSE](LICENSE) for details.
 ---
 
 <div align="center">
-  <strong>Team Sentinel</strong> 🛡️ &nbsp;·&nbsp; AI Agents: Intensive Vibe Coding Capstone Project
+  <strong>Smart India Hackathon 2026</strong> 🛡️
 </div>

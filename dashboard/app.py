@@ -2431,7 +2431,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
             Inbox Guardian
         </div>
         <div style="font-size:13px; color:#8b5cf6; font-weight:700; letter-spacing:2px; text-transform:uppercase; margin-top:3px;">
-            by Team Sentinel
+            Smart India Hackathon 2026
         </div>
     </div>
 </div>
@@ -2516,7 +2516,7 @@ def render_dashboard(df: pd.DataFrame, is_demo: bool = False) -> None:
         📜 Terms of Service
     </a>
     <span style="color:#475569; font-weight:800; font-size:14px;">·</span>
-    <span style="font-size:13px; color:#8b5cf6; font-weight:700; letter-spacing:0.5px;">Team Sentinel 🛡️</span>
+    <span style="font-size:13px; color:#8b5cf6; font-weight:700; letter-spacing:0.5px;">Smart India Hackathon 2026 🛡️</span>
 </div>
 """, unsafe_allow_html=True)
 
@@ -2641,7 +2641,7 @@ def render_signin_page() -> None:
         <a href="#" style="position:absolute; top:16px; right:20px; color:#64748b; font-size:24px; font-weight:bold; cursor:pointer; text-decoration:none !important; transition:color 0.2s;" onmouseover="this.style.color='#f8fafc'" onmouseout="this.style.color='#64748b'">&times;</a>
         <div style="font-size:32px; margin-bottom:12px;">✉️</div>
         <h4 style="color:#ffffff; margin-top:0; margin-bottom:8px; font-size:20px; font-weight:700;">Email Us At</h4>
-        <p style="color:#94a3b8; font-size:14px; margin-bottom:20px; line-height:1.5;">Contact Team Sentinel developers to get added as a verified test user</p>
+        <p style="color:#94a3b8; font-size:14px; margin-bottom:20px; line-height:1.5;">Contact Smart India Hackathon 2026 developers to get added as a verified test user</p>
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
             <a href="mailto:haricharankanukuntla@gmail.com" style="display:block; padding:12px; background:rgba(56,189,248,0.06); border:1px solid rgba(56,189,248,0.15); border-radius:8px; color:#38bdf8 !important; font-size:14px; font-weight:600; text-decoration:none !important; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.12)'; this.style.borderColor='rgba(56,189,248,0.3)';" onmouseout="this.style.background='rgba(56,189,248,0.06)'; this.style.borderColor='rgba(56,189,248,0.15)';">
                 haricharankanukuntla@gmail.com
@@ -2738,7 +2738,7 @@ Inbox Guardian connects to your Gmail with strictly read-only permissions (<code
 </div>
 <div style="border-top:1px solid rgba(255,255,255,0.07); padding-top:16px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; font-size:12.5px; color:#94a3b8;">
 <div>
-🏆 Built for <strong style="color:#e2e8f0;">Smart India Hackathon 2026</strong> by <strong style="color:#a78bfa;">Team Sentinel</strong>
+🏆 Built for <strong style="color:#e2e8f0;">Smart India Hackathon 2026</strong>
 </div>
 <div style="display:flex; gap:10px; align-items:center;">
 <a href="/app/static/privacy-policy.html" target="_blank" rel="noopener noreferrer" style="color:#38bdf8; text-decoration:none; font-weight:600;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">Privacy Policy</a>
