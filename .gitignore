@@ -217,7 +217,6 @@ __marimo__/
 # Streamlit
 .streamlit/secrets.toml
 dashboard/.streamlit/
-dashboard/static/
 
 credentials.json
 token.json

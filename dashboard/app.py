@@ -2583,14 +2583,14 @@ def render_signin_page() -> None:
     align-items: center !important;
     gap: 6px !important;
     color: #38bdf8 !important;
-    font-size: 15px !important;
-    font-weight: 750 !important;
+    font-size: 14.25px !important;
+    font-weight: 700 !important;
     text-decoration: none !important;
-    padding: 8px 18px !important;
-    border-radius: 8px !important;
-    background: rgba(56, 189, 248, 0.09) !important;
-    border: 1.5px solid rgba(56, 189, 248, 0.35) !important;
-    box-shadow: 0 2px 10px rgba(56, 189, 248, 0.15) !important;
+    padding: 6px 14px !important;
+    border-radius: 7px !important;
+    background: rgba(56, 189, 248, 0.08) !important;
+    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+    box-shadow: none !important;
     transition: all 0.2s ease !important;
     cursor: pointer !important;
 }}
@@ -2599,10 +2599,10 @@ def render_signin_page() -> None:
     text-decoration: none !important;
 }}
 .policy-btn:hover, .policy-btn:active {{
-    color: #ffffff !important;
-    background: rgba(56, 189, 248, 0.25) !important;
-    border-color: rgba(56, 189, 248, 0.75) !important;
-    box-shadow: 0 0 16px rgba(56, 189, 248, 0.4) !important;
+    color: #e0f2fe !important;
+    background: rgba(56, 189, 248, 0.16) !important;
+    border-color: rgba(56, 189, 248, 0.45) !important;
+    box-shadow: none !important;
     transform: translateY(-1px) !important;
     text-decoration: none !important;
 }}
