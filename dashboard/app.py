@@ -2574,11 +2574,11 @@ def render_signin_page() -> None:
     box-shadow: 0 4px 14px rgba(168,85,247,0.3) !important;
     transition: all 0.2s ease !important;
 }}
-.demo-btn:link, .demo-btn:visited, .demo-btn:hover, .demo-btn:active {
+.demo-btn:link, .demo-btn:visited, .demo-btn:hover, .demo-btn:active {{
     color: #ffffff !important;
     text-decoration: none !important;
-}
-.policy-btn {
+}}
+.policy-btn {{
     display: inline-flex !important;
     align-items: center !important;
     gap: 6px !important;
@@ -2593,19 +2593,19 @@ def render_signin_page() -> None:
     box-shadow: 0 2px 10px rgba(56, 189, 248, 0.15) !important;
     transition: all 0.2s ease !important;
     cursor: pointer !important;
-}
-.policy-btn:link, .policy-btn:visited {
+}}
+.policy-btn:link, .policy-btn:visited {{
     color: #38bdf8 !important;
     text-decoration: none !important;
-}
-.policy-btn:hover, .policy-btn:active {
+}}
+.policy-btn:hover, .policy-btn:active {{
     color: #ffffff !important;
     background: rgba(56, 189, 248, 0.25) !important;
     border-color: rgba(56, 189, 248, 0.75) !important;
     box-shadow: 0 0 16px rgba(56, 189, 248, 0.4) !important;
     transform: translateY(-1px) !important;
     text-decoration: none !important;
-}
+}}
 </style>
 
 <!-- Contact Modal -->
